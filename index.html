@@ -120,17 +120,26 @@ nav button.on{color:#081019;background:linear-gradient(90deg,#ec38bc,#17d4ff);bo
 .chev{flex:none;color:var(--sub);font-size:18px;line-height:1}
 .dmline{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sugwrap{position:relative}
-.suglist{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);background:rgba(15,20,42,0.96);
-  border:1px solid rgba(255,255,255,0.12);border-radius:14px;
-  box-shadow:0 18px 40px rgba(0,0,0,0.55),0 0 0 1px rgba(23,212,255,0.08);
-  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);max-height:250px;overflow-y:auto;display:none}
+.suglist{position:absolute;z-index:45;left:0;right:0;top:calc(100% + 6px);background:rgba(15,20,42,0.98);
+  border:1px solid rgba(255,255,255,0.14);border-radius:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(23,212,255,0.10);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  max-height:min(58vh,420px);overflow-y:auto;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;display:none}
 .suglist.on{display:block}
+.sughead{position:sticky;top:0;z-index:1;padding:6px 13px;font-size:11px;font-weight:800;letter-spacing:0.08em;
+  color:#8ceaff;background:rgba(13,18,40,0.98);border-bottom:1px solid rgba(23,212,255,0.20)}
 .sugitem{display:flex;width:100%;gap:8px;align-items:center;justify-content:space-between;background:transparent;
-  color:var(--tx);font-weight:500;text-align:left;border-radius:0;padding:11px 13px;
-  border-bottom:1px solid rgba(255,255,255,0.07);box-shadow:none}
+  color:var(--tx);font-weight:500;text-align:left;border-radius:0;padding:9px 13px;
+  border-bottom:1px solid rgba(255,255,255,0.06);box-shadow:none}
 .sugitem:last-child{border-bottom:0}
-.sugitem:active,.sugitem:hover{background:rgba(23,212,255,0.10)}
+.sugitem:active,.sugitem:hover{background:rgba(23,212,255,0.12)}
+.sugitem.cur{background:rgba(23,212,255,0.10);box-shadow:inset 3px 0 0 #17d4ff}
+.sugitem .col{display:flex;flex-direction:column;min-width:0;gap:1px}
 .sugitem .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugitem .yc{font-size:10.5px;color:rgba(152,161,198,0.92);font-weight:500;letter-spacing:0.01em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugempty{padding:12px 13px;font-size:12px;color:var(--sub)}
 .sugitem .cnt{font-size:11px;color:#6fe3ff;background:rgba(23,212,255,0.13);border:1px solid rgba(23,212,255,0.28);
   border-radius:99px;padding:1px 8px;flex:none}
 .sugitem .cnt.d{background:transparent;border-color:transparent;color:var(--sub)}
@@ -175,6 +184,357 @@ const GRADES = ["S","A","B","C","D","未回答"], VIS = {all:"全員に公開", 
 const AV_CLASSES = ["av0","av1","av2","av3","av4","av5"];
 const avCls = s => AV_CLASSES[Array.from(String(s || "x")).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7) % AV_CLASSES.length];
 const initial = s => String(s || "?").trim().slice(0, 1) || "?";
+
+/* ============================================================
+   あかさたな順（五十音順）の候補ピッカー
+   入力欄をタップ／入力すると、下に候補がよみ順でズラッと開く。
+   漢字の音読み・訓読みでズレないよう、候補は必ず「よみ」で並べる。
+   ============================================================ */
+const toHira = s => String(s ?? "").normalize("NFKC")
+  .replace(/[\u30a1-\u30f6]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
+/* "名前|よみ" の行から候補配列を作る */
+const parseAka = txt => txt.trim().split("\n").map(line => {
+  const i = line.indexOf("|");
+  return i < 0 ? { n: line.trim(), y: "" } : { n: line.slice(0, i).trim(), y: line.slice(i + 1).trim() };
+}).filter(x => !!x.n);
+const ROW_ORDER = ["あ行","か行","さ行","た行","な行","は行","ま行","や行","ら行","わ行","英数","他"];
+function gojuonRow(y) {
+  const c = toHira(y).charAt(0);
+  if (!c) return "他";
+  if (/[あ-おぁ-ぉゔ]/.test(c)) return "あ行";
+  if (/[か-ご]/.test(c)) return "か行";
+  if (/[さ-ぞ]/.test(c)) return "さ行";
+  if (/[た-どっ]/.test(c)) return "た行";
+  if (/[な-の]/.test(c)) return "な行";
+  if (/[は-ぽ]/.test(c)) return "は行";
+  if (/[ま-も]/.test(c)) return "ま行";
+  if (/[や-よゃ-ょ]/.test(c)) return "や行";
+  if (/[ら-ろ]/.test(c)) return "ら行";
+  if (/[わ-んゎゐゑ]/.test(c)) return "わ行";
+  if (/[a-z0-9]/.test(c)) return "英数";
+  return "他";
+}
+/* よみの五十音順で並べる（よみが同じなら漢字名で安定化） */
+function akaSort(list) {
+  return list.map((x, i) => ({ x, i })).sort((a, b) => {
+    const ra = ROW_ORDER.indexOf(gojuonRow(a.x.y)), rb = ROW_ORDER.indexOf(gojuonRow(b.x.y));
+    if (ra !== rb) return ra - rb;
+    const c = toHira(a.x.y).localeCompare(toHira(b.x.y), "ja");
+    if (c) return c;
+    const d = String(a.x.n).localeCompare(String(b.x.n), "ja");
+    return d || a.i - b.i;
+  }).map(o => o.x);
+}
+function akaUniq(list) {
+  const seen = new Set(), out = [];
+  list.forEach(x => {
+    const k = norm(x.n);
+    if (!k || !x.n || seen.has(k)) return;
+    seen.add(k); out.push(x);
+  });
+  return out;
+}
+/* 名前でもよみでも絞り込む（ひらがな・カタカナ・漢字すべて可） */
+function akaHit(x, q) {
+  const raw = String(q || "").normalize("NFKC").toLowerCase().replace(/\s+/g, "");
+  if (!raw) return true;
+  const qh = toHira(raw);
+  return toHira(norm(x.n)).includes(qh) || toHira(norm(x.y)).includes(qh);
+}
+function hideAka(listEl) {
+  if (listEl) { listEl.classList.remove("on"); listEl.innerHTML = ""; }
+}
+const AKA_LIMIT = 400;
+function drawAkaList(listEl, items, input) {
+  let row = "", html = "";
+  const curK = norm(input.value);
+  items.slice(0, AKA_LIMIT).forEach(it => {
+    const r = gojuonRow(it.y);
+    if (r !== row) { html += `<div class="sughead">${esc(r)}</div>`; row = r; }
+    const on = curK && norm(it.n) === curK;
+    html += `<button type="button" class="sugitem${on ? " cur" : ""}" data-pick="${esc(it.n)}">`
+      + `<span class="col"><span class="nm">${esc(it.n)}</span>${it.y ? `<span class="yc">${esc(it.y)}</span>` : ""}</span>`
+      + `${it.c ? `<span class="cnt">${it.c}人</span>` : ""}</button>`;
+  });
+  listEl.innerHTML = html || `<div class="sugempty">候補が見つかりません。そのまま入力できます。</div>`;
+  listEl.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => {
+    input.value = b.dataset.pick;
+    hideAka(listEl);
+  });
+  listEl.classList.add("on");
+  const cur = listEl.querySelector(".sugitem.cur");
+  listEl.scrollTop = cur ? Math.max(0, cur.offsetTop - listEl.clientHeight / 2) : 0;
+}
+/* 入力欄と候補リストを結びつける。itemsFn は開くたびに呼ばれる */
+function bindAka(input, listEl, itemsFn) {
+  if (!input || !listEl) return;
+  const draw = () => {
+    const all = akaSort(akaUniq(itemsFn() || []));
+    const k = norm(input.value);
+    const exact = !!k && all.some(x => norm(x.n) === k);
+    const items = (exact || !String(input.value).trim()) ? all : all.filter(x => akaHit(x, input.value));
+    drawAkaList(listEl, items, input);
+  };
+  input._akaDraw = draw;
+  input.addEventListener("focus", draw);
+  input.addEventListener("click", draw);
+  input.addEventListener("input", draw);
+  input.addEventListener("keydown", e => { if (e.key === "Escape") hideAka(listEl); });
+}
+
+/* 主要大学（よみ順に並べ替えて表示） */
+const UNIV_LIST = parseAka(`
+青山学院大学|あおやまがくいんだいがく
+亜細亜大学|あじあだいがく
+愛知大学|あいちだいがく
+愛知学院大学|あいちがくいんだいがく
+愛知県立大学|あいちけんりつだいがく
+秋田大学|あきただいがく
+宇都宮大学|うつのみやだいがく
+追手門学院大学|おうてもんがくいんだいがく
+桜美林大学|おうびりんだいがく
+大妻女子大学|おおつまじょしだいがく
+大阪大学|おおさかだいがく
+大阪公立大学|おおさかこうりつだいがく
+大阪経済大学|おおさかけいざいだいがく
+大阪工業大学|おおさかこうぎょうだいがく
+大阪教育大学|おおさかきょういくだいがく
+大分大学|おおいただいがく
+岡山大学|おかやまだいがく
+お茶の水女子大学|おちゃのみずじょしだいがく
+香川大学|かがわだいがく
+学習院大学|がくしゅういんだいがく
+鹿児島大学|かごしまだいがく
+金沢大学|かなざわだいがく
+神奈川大学|かながわだいがく
+関西大学|かんさいだいがく
+関西学院大学|かんせいがくいんだいがく
+関西外国語大学|かんさいがいこくごだいがく
+関東学院大学|かんとうがくいんだいがく
+神田外語大学|かんだがいごだいがく
+北九州市立大学|きたきゅうしゅうしりつだいがく
+九州大学|きゅうしゅうだいがく
+共立女子大学|きょうりつじょしだいがく
+京都大学|きょうとだいがく
+京都産業大学|きょうとさんぎょうだいがく
+京都教育大学|きょうときょういくだいがく
+岐阜大学|ぎふだいがく
+近畿大学|きんだいだいがく
+群馬大学|ぐんまだいがく
+慶應義塾大学|けいおうぎじゅくだいがく
+甲南大学|こうなんだいがく
+神戸大学|こうべだいがく
+神戸学院大学|こうべがくいんだいがく
+高知大学|こうちだいがく
+工学院大学|こうがくいんだいがく
+国学院大学|こくがくいんだいがく
+国際基督教大学|こくさいきりすときょうだいがく
+国士舘大学|こくしかんだいがく
+駒澤大学|こまざわだいがく
+熊本大学|くまもとだいがく
+埼玉大学|さいたまだいがく
+佐賀大学|さがだいがく
+札幌大学|さっぽろだいがく
+静岡大学|しずおかだいがく
+芝浦工業大学|しばうらこうぎょうだいがく
+島根大学|しまねだいがく
+実践女子大学|じっせんじょしだいがく
+信州大学|しんしゅうだいがく
+上智大学|じょうちだいがく
+昭和女子大学|しょうわじょしだいがく
+白百合女子大学|しらゆりじょしだいがく
+成蹊大学|せいけいだいがく
+成城大学|せいじょうだいがく
+聖心女子大学|せいしんじょしだいがく
+専修大学|せんしゅうだいがく
+摂南大学|せつなんだいがく
+創価大学|そうかだいがく
+大東文化大学|だいとうぶんかだいがく
+拓殖大学|たくしょくだいがく
+玉川大学|たまがわだいがく
+千葉大学|ちばだいがく
+千葉商科大学|ちばしょうかだいがく
+中央大学|ちゅうおうだいがく
+中央学院大学|ちゅうおうがくいんだいがく
+筑波大学|つくばだいがく
+津田塾大学|つだじゅくだいがく
+帝京大学|ていきょうだいがく
+東海大学|とうかいだいがく
+東京大学|とうきょうだいがく
+東京科学大学|とうきょうかがくだいがく
+東京外国語大学|とうきょうがいこくごだいがく
+東京学芸大学|とうきょうがくげいだいがく
+東京工業大学|とうきょうこうぎょうだいがく
+東京電機大学|とうきょうでんきだいがく
+東京女子大学|とうきょうじょしだいがく
+東京農業大学|とうきょうのうぎょうだいがく
+東京理科大学|とうきょうりかだいがく
+東京経済大学|とうきょうけいざいだいがく
+東京工科大学|とうきょうこうかだいがく
+東京都市大学|とうきょうとしだいがく
+東京海洋大学|とうきょうかいようだいがく
+東京芸術大学|とうきょうげいじゅつだいがく
+東京家政大学|とうきょうかせいだいがく
+東北大学|とうほくだいがく
+東邦大学|とうほうだいがく
+東洋大学|とうようだいがく
+同志社大学|どうししゃだいがく
+同志社女子大学|どうししゃじょしだいがく
+獨協大学|どっきょうだいがく
+徳島大学|とくしまだいがく
+富山大学|とやまだいがく
+長崎大学|ながさきだいがく
+名古屋大学|なごやだいがく
+奈良女子大学|ならじょしだいがく
+鳴門教育大学|なるときょういくだいがく
+新潟大学|にいがただいがく
+日本大学|にほんだいがく
+日本女子大学|にほんじょしだいがく
+日本体育大学|にっぽんたいいくだいがく
+一橋大学|ひとつばしだいがく
+兵庫県立大学|ひょうごけんりつだいがく
+兵庫教育大学|ひょうごきょういくだいがく
+広島大学|ひろしまだいがく
+福井大学|ふくいだいがく
+文教大学|ぶんきょうだいがく
+佛教大学|ぶっきょうだいがく
+法政大学|ほうせいだいがく
+北海道大学|ほっかいどうだいがく
+北海道教育大学|ほっかいどうきょういくだいがく
+三重大学|みえだいがく
+明治大学|めいじだいがく
+明治学院大学|めいじがくいんだいがく
+名城大学|めいじょうだいがく
+桃山学院大学|ももやまがくいんだいがく
+武蔵大学|むさしだいがく
+武蔵野大学|むさしのだいがく
+山口大学|やまぐちだいがく
+山梨大学|やまなしだいがく
+横浜国立大学|よこはまこくりつだいがく
+横浜市立大学|よこはましりつだいがく
+立教大学|りっきょうだいがく
+立命館大学|りつめいかんだいがく
+立命館アジア太平洋大学|りつめいかんあじあたいへいようだいがく
+龍谷大学|りゅうこくだいがく
+琉球大学|りゅうきゅうだいがく
+流通経済大学|りゅうつうけいざいだいがく
+麗澤大学|れいたくだいがく
+和歌山大学|わかやまだいがく
+早稲田大学|わせだだいがく
+`);
+
+/* 立教大学の学部・学科 */
+const RIKKYO_DEPTS = parseAka(`
+法学部 法学科|ほうがくぶほうがくか
+法学部 国際ビジネス法学科|ほうがくぶこくさいびじねすほうがくか
+法学部 政治学科|ほうがくぶせいじがくか
+経済学部 経済学科|けいざいがくぶけいざいがくか
+経済学部 経済政策学科|けいざいがくぶけいざいせいさくがくか
+経済学部 会計ファイナンス学科|けいざいがくぶかいけいふぁいなんすがくか
+経営学部 経営学科|けいえいがくぶけいえいがくか
+経営学部 国際経営学科|けいえいがくぶこくさいけいえいがくか
+文学部 キリスト教学科|ぶんがくぶきりすときょうがくか
+文学部 文学科|ぶんがくぶぶんがくか
+文学部 史学科|ぶんがくぶしかがくか
+文学部 教育学科|ぶんがくぶきょういくがくか
+異文化コミュニケーション学部 異文化コミュニケーション学科|いぶんかこみゅにけーしょんがくぶいぶんかこみゅにけーしょんがくか
+社会学部 社会学科|しゃかいがくぶしゃかいがくか
+社会学部 現代文化学科|しゃかいがくぶげんだいぶんかがくか
+社会学部 メディア社会学科|しゃかいがくぶめでぃあしゃかいがくか
+理学部 数学科|りがくぶすうがくか
+理学部 物理学科|りがくぶぶつりがくか
+理学部 化学科|りがくぶかがくか
+理学部 生命理学科|りがくぶせいめいりがくか
+観光学部 観光学科|かんこうがくぶかんこうがくか
+コミュニティ福祉学部 コミュニティ政策学科|こみゅにてぃふくしがくぶこみゅにてぃせいさくがくか
+コミュニティ福祉学部 福祉学科|こみゅにてぃふくしがくぶふくしがくか
+コミュニティ福祉学部 スポーツウエルネス学科|こみゅにてぃふくしがくぶすぽーつうえるねすがくか
+現代心理学部 心理学科|げんだいしんりがくぶしんりがくか
+現代心理学部 映像身体学科|げんだいしんりがくぶえいぞうしんたいがくか
+スポーツウエルネス学部 スポーツウエルネス学科|すぽーつうえるねすがくぶすぽーつうえるねすがくか
+グローバル・リベラルアーツ学部 グローバル・リベラルアーツ学科|ぐろーばるりべらるあーつがくぶぐろーばるりべらるあーつがくか
+`);
+
+/* 他大学でも使う一般的な学部・学科 */
+const GENERIC_DEPTS = parseAka(`
+法学部 法学科|ほうがくぶほうがくか
+法学部 政治学科|ほうがくぶせいじがくか
+法学部 国際関係法学科|ほうがくぶこくさいかんけいほうがくか
+経済学部 経済学科|けいざいがくぶけいざいがくか
+経済学部 経済政策学科|けいざいがくぶけいざいせいさくがくか
+経営学部 経営学科|けいえいがくぶけいえいがくか
+経営学部 会計学科|けいえいがくぶかいけいがくか
+商学部 商学科|しょうがくぶしょうがくか
+商学部 会計学科|しょうがくぶかいけいがくか
+商学部 経営学科|しょうがくぶけいえいがくか
+文学部 日本文学科|ぶんがくぶにほんぶんがくか
+文学部 英米文学科|ぶんがくぶえいべいぶんがくか
+文学部 史学科|ぶんがくぶしかがくか
+文学部 心理学科|ぶんがくぶしんりがくか
+教育学部 教育学科|きょういくがくぶきょういくがくか
+教育学部 幼児教育学科|きょういくがくぶようじきょういくがくか
+教育学部 特別支援教育学科|きょういくがくぶとくべつしえんきょういくがくか
+外国語学部 英米語学科|がいこくごがくぶえいべいごがくか
+外国語学部 英語学科|がいこくごがくぶえいごがくか
+外国語学部 中国語学科|がいこくごがくぶちゅうごくごがくか
+外国語学部 スペイン語学科|がいこくごがくぶすぺいんごがくか
+外国語学部 国際関係学科|がいこくごがくぶこくさいかんけいがくか
+国際学部 国際学科|こくさいがくぶこくさいがくか
+国際関係学部 国際関係学科|こくさいかんけいがくぶこくさいかんけいがくか
+国際教養学部 国際教養学科|こくさいきょうようがくぶこくさいきょうようがくか
+社会学部 社会学科|しゃかいがくぶしゃかいがくか
+社会学部 メディア社会学科|しゃかいがくぶめでぃあしゃかいがくか
+社会福祉学部 福祉学科|しゃかいふくしがくぶふくしがくか
+心理学部 心理学科|しんりがくぶしんりがくか
+人間科学部 人間科学科|にんげんかがくぶにんげんかがくか
+人間環境学部 人間環境学科|にんげんかんきょうがくぶにんげんかんきょうがくか
+総合政策学部 総合政策学科|そうごうせいさくがくぶそうごうせいさくがくか
+政策科学部 政策科学科|せいさくかがくぶせいさくかがくか
+環境情報学部 環境情報学科|かんきょうじょうほうがくぶかんきょうじょうほうがくか
+情報学部 情報学科|じょうほうがくぶじょうほうがくか
+情報工学部 情報工学科|じょうほうこうがくぶじょうほうこうがくか
+データサイエンス学部 データサイエンス学科|でーたさいえんすがくぶでーたさいえんすがくか
+理工学部 機械工学科|りこうがくぶきかいこうがくか
+理工学部 電気電子工学科|りこうがくぶでんきでんしこうがくか
+理工学部 情報工学科|りこうがくぶじょうほうこうがくか
+理工学部 建築学科|りこうがくぶけんちくがくか
+理工学部 応用化学科|りこうがくぶおうようかがくか
+理工学部 生命科学科|りこうがくぶせいめいかがくか
+工学部 機械工学科|こうがくぶきかいこうがくか
+工学部 電気電子工学科|こうがくぶでんきでんしこうがくか
+工学部 情報工学科|こうがくぶじょうほうこうがくか
+工学部 建築学科|こうがくぶけんちくがくか
+工学部 応用化学科|こうがくぶおうようかがくか
+工学部 生命工学科|こうがくぶせいめいこうがくか
+建築学部 建築学科|けんちくがくぶけんちくがくか
+理学部 数学科|りがくぶすうがくか
+理学部 物理学科|りがくぶぶつりがくか
+理学部 化学科|りがくぶかがくか
+理学部 生物学科|りがくぶせいぶつがくか
+理学部 地球科学科|りがくぶちきゅうかがくか
+生命科学部 生命科学科|せいめいかがくぶせいめいかがくか
+医学部 医学科|いがくぶいがくか
+医学部 看護学科|いがくぶかんごがくか
+看護学部 看護学科|かんごがくぶかんごがくか
+薬学部 薬学科|やくがくぶやくがくか
+歯学部 歯学科|しがくぶしかがくか
+獣医学部 獣医学科|じゅういがくぶじゅういがくか
+農学部 農学科|のうがくぶのうがくか
+農学部 応用生物科学科|のうがくぶおうようせいぶつかがくか
+農学部 動物科学科|のうがくぶどうぶつかがくか
+栄養学部 栄養学科|えいようがくぶえいようがくか
+食物栄養学科|しょくもつえいようがくか
+家政学部 家政学科|かせいがくぶかせいがくか
+体育学部 体育学科|たいいくがくぶたいいくがくか
+スポーツ科学部 スポーツ科学科|すぽーつかがくぶすぽーつかがくか
+芸術学部 芸術学科|げいじゅつがくぶげいじゅつがくか
+美術学部 美術学科|びじゅつがくぶびじゅつがくか
+音楽学部 音楽学科|おんがくがくぶおんがくがくか
+観光学部 観光学科|かんこうがくぶかんこうがくか
+福祉学部 福祉学科|ふくしがくぶふくしがくか
+リベラルアーツ学部 リベラルアーツ学科|りべらるあーつがくぶりべらるあーつがくか
+教養学部 教養学科|きょうようがくぶきょうようがくか
+`);
 
 let session = null, myProfile = null, myCourses = [];
 let tab = "search", openTid = null, openPeer = null, openCourse = "", fil = "all";
@@ -260,7 +620,7 @@ function rAuth() {
       <button class="${isReg ? "" : "g"}" id="m_reg">新規登録</button>
     </div>
     ${isReg ? `<label>ニックネーム / 表示名</label><input id="a_name" placeholder="例：山田 太郎">
-    <label>大学名</label><input id="a_univ" value="立教大学" placeholder="例：立教大学">` : ""}
+    <label>大学名（タップで候補から選べます）</label><div class="sugwrap"><input id="a_univ" value="立教大学" placeholder="例：立教大学" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="a_univlist"></div></div>` : ""}
     <label>大学メールアドレス</label>
     <input id="a_email" type="email" placeholder="例：taro@rikkyo.ac.jp" value="${esc(authEmail)}">
     <label>パスワード</label>
@@ -272,6 +632,7 @@ function rAuth() {
   </div>`;
   $("#m_login").onclick = () => { authMode = "login"; authErr = ""; authOk = ""; render(); };
   $("#m_reg").onclick = () => { authMode = "register"; authErr = ""; authOk = ""; render(); };
+  if (isReg) bindAka($("#a_univ"), $("#a_univlist"), () => UNIV_LIST);
   if (!isReg) $("#a_forgot").onclick = () => {
     authEmail = ($("#a_email").value || "").trim().toLowerCase();
     authMode = "forgot"; authErr = ""; authOk = ""; render();
@@ -591,32 +952,185 @@ async function openPeerProfile(userId) {
   });
 }
 
-/* 授業名の候補サジェスト（同じ大学の他ユーザーの登録＋定番科目） */
-const RIKKYO_COURSES = ["法政ゲートウェイ講義","英語プレゼンテーション","民法総則","情報処理入門","マクロ経済学","憲法","R&W2","法学入門","刑法総論","政治学入門","社会学入門","統計学入門","英語リーディング","英語ライティング"];
-const GENERIC_COURSES = ["英語","情報処理入門","マクロ経済学","ミクロ経済学","憲法","民法総則","統計学","心理学入門","社会学入門","日本史","哲学","体育"];
-const CHIP_MAX = 6, SUG_MAX = 8;
+/* 授業名の候補サジェスト（同じ大学の他ユーザーの登録＋定番科目）を五十音順で */
+const RIKKYO_COURSES = parseAka(`
+法政ゲートウェイ講義|ほうせいげーとうぇいこうぎ
+法学入門|ほうがくにゅうもん
+憲法|けんぽう
+憲法総論|けんぽうそうろん
+日本国憲法|にほんこくけんぽう
+民法総則|みんぽうそうそく
+民法物権|みんぽうぶっけん
+民法債権総論|みんぽうさいけんそうろん
+民法親族相続|みんぽうしんぞくそうぞく
+刑法総論|けいほうそうろん
+刑法各論|けいほうかくろん
+商法総則|しょうほうそうそく
+会社法|かいしゃほう
+民事訴訟法|みんじそしょうほう
+刑事訴訟法|けいじそしょうほう
+行政法|ぎょうせいほう
+行政学|ぎょうせいがく
+政治学入門|せいじがくにゅうもん
+政治学|せいじがく
+国際政治学|こくさいせいじがく
+政治思想史|せいじしそうし
+日本政治外交史|にほんせいじがいこうし
+比較政治|ひかくせいじ
+国際法|こくさいほう
+国際私法|こくさいしほう
+労働法|ろうどうほう
+経済法|けいざいほう
+法哲学|ほうてつがく
+法制史|ほうせいし
+刑事政策|けいじせいさく
+法学部専門演習|ほうがくぶせんもんえんしゅう
+マクロ経済学|まくろけいざいがく
+ミクロ経済学|みくろけいざいがく
+経済原論|けいざいげんろん
+日本経済論|にほんけいざいろん
+国際経済学|こくさいけいざいがく
+金融論|きんゆうろん
+財政学|ざいせいがく
+会計学|かいけいがく
+簿記原理|ぼきげんり
+マーケティング論|まーけてぃんぐろん
+経営学|けいえいがく
+社会学入門|しゃかいがくにゅうもん
+社会学|しゃかいがく
+社会調査法|しゃかいちょうさほう
+社会福祉概論|しゃかいふくしがいろん
+心理学概論|しんりがくがいろん
+日本文学|にほんぶんがく
+英米文学|えいべいぶんがく
+史学概論|しがくがいろん
+哲学|てつがく
+倫理学|りんりがく
+キリスト教学|きりすときょうがく
+観光学|かんこうがく
+異文化コミュニケーション論|いぶんかこみゅにけーしょんろん
+情報処理入門|じょうほうしょりにゅうもん
+情報リテラシー|じょうほうりてらしー
+統計学入門|とうけいがくにゅうもん
+統計学|とうけいがく
+データ分析入門|でーたぶんせきにゅうもん
+基礎数学|きそすうがく
+物理学入門|ぶつりがくにゅうもん
+生物学入門|せいぶつがくにゅうもん
+英語プレゼンテーション|えいごぷれぜんてーしょん
+英語リーディング|えいごりーでぃんぐ
+英語ライティング|えいごらいてぃんぐ
+英語リスニング|えいごりすにんぐ
+英語スピーキング|えいごすぴーきんぐ
+R&W2|あーるあんどだぶりゅーに
+日本語表現|にほんごひょうげん
+体育実技|たいいくじつぎ
+キャリアデザイン|きゃりあでざいん
+ボランティア論|ぼらんてぃあろん
+平和学|へいわがく
+人権論|じんけんろん
+環境学|かんきょうがく
+ジェンダー論|じぇんだーろん
+メディア論|めでぃあろん
+`);
+const GENERIC_COURSES = parseAka(`
+英語|えいご
+英語コミュニケーション|えいごこみゅにけーしょん
+英語リーディング|えいごりーでぃんぐ
+英語ライティング|えいごらいてぃんぐ
+第二外国語（中国語）|だいにがいこくごちゅうごくご
+第二外国語（スペイン語）|だいにがいこくごすぺいんご
+第二外国語（フランス語）|だいにがいこくごふらんすご
+第二外国語（ドイツ語）|だいにがいこくごどいつご
+日本語|にほんご
+文章表現|ぶんしょうひょうげん
+プレゼンテーション|ぷれぜんてーしょん
+数学|すうがく
+線形代数|せんけいだいすう
+微分積分|びぶんせきぶん
+物理学|ぶつりがく
+化学|かがく
+生物学|せいぶつがく
+地学|ちがく
+情報処理入門|じょうほうしょりにゅうもん
+情報リテラシー|じょうほうりてらしー
+プログラミング入門|ぷろぐらみんぐにゅうもん
+データサイエンス入門|でーたさいえんすにゅうもん
+統計学|とうけいがく
+マクロ経済学|まくろけいざいがく
+ミクロ経済学|みくろけいざいがく
+経済学入門|けいざいがくにゅうもん
+経営学入門|けいえいがくにゅうもん
+会計学入門|かいけいがくにゅうもん
+法学入門|ほうがくにゅうもん
+憲法|けんぽう
+民法総則|みんぽうそうそく
+政治学|せいじがく
+行政学|ぎょうせいがく
+国際関係論|こくさいかんけいろん
+社会学入門|しゃかいがくにゅうもん
+社会調査法|しゃかいちょうさほう
+心理学入門|しんりがくにゅうもん
+教育学|きょういくがく
+言語学|げんごがく
+文学|ぶんがく
+日本史|にほんし
+世界史|せかいし
+地理学|ちりがく
+歴史学|れきしがく
+哲学|てつがく
+倫理学|りんりがく
+芸術学|げいじゅつがく
+音楽|おんがく
+美術|びじゅつ
+メディア論|めでぃあろん
+ジェンダー論|じぇんだーろん
+環境科学|かんきょうかがく
+生命科学|せいめいかがく
+スポーツ実技|すぽーつじつぎ
+体育|たいいく
+健康教育|けんこうきょういく
+キャリア形成|きゃりあけいせい
+ボランティア|ぼらんてぃあ
+地域研究|ちいきけんきゅう
+`);
+const CHIP_MAX = 6;
+/* 名前 → よみ の索引（他ユーザーが登録した名前にもよみを付けたいとき用） */
+const YOMI_INDEX = new Map();
+[UNIV_LIST, RIKKYO_DEPTS, GENERIC_DEPTS, RIKKYO_COURSES, GENERIC_COURSES].forEach(arr =>
+  arr.forEach(x => { const k = norm(x.n); if (k && x.y && !YOMI_INDEX.has(k)) YOMI_INDEX.set(k, x.y); }));
+const yomiFor = name => YOMI_INDEX.get(norm(name)) || "";
 /* key: 取得済みの大学（正規化済み）。同じ大学なら再取得しない */
-let hints = { key: null, univ: "", peers: [], loading: false };
+let hints = { key: null, univ: "", peers: [], depts: {}, loading: false };
 const defaultCourses = univ => (/立教/.test(String(univ || "")) ? RIKKYO_COURSES : GENERIC_COURSES);
 
-/* 同じ大学の他ユーザーが登録した授業を人数つきで取得（多い順） */
+/* 同じ大学の他ユーザーが登録した授業（人数つき）と、学部・学科を取得 */
 async function loadCourseHints() {
   const univ = String((myProfile && myProfile.university) || "").trim();
   const key = norm(univ);
   if (hints.key === key) return;
-  hints = { key, univ, peers: [], loading: !!key };
+  hints = { key, univ, peers: [], depts: {}, loading: !!key };
   renderCourseHintAreas();
   if (!key) return;
   const uid = session && session.user ? session.user.id : "";
   let data = [], error = null;
-  try { ({ data, error } = await sb.from("peer_courses").select("course_name,university,user_id").limit(2000)); }
+  try { ({ data, error } = await sb.from("peer_courses").select("course_name,university,user_id,department").limit(2000)); }
   catch (e) { error = e; }
   if (hints.key !== key) return; /* 取得中に大学が変わった */
   if (!error) {
-    const m = new Map();
+    const m = new Map(), depts = {};
     (data || []).forEach(p => {
-      if (!p || !p.course_name || p.user_id === uid) return;
-      if (norm(p.university) !== key) return;
+      if (!p) return;
+      const uk = norm(p.university);
+      /* 同じ大学で登録済みの学部・学科（入力中の大学でも使えるよう全大学分を貯める） */
+      const d = String(p.department || "").trim();
+      if (uk && d) {
+        const dm = depts[uk] || (depts[uk] = new Map());
+        const dk = norm(d);
+        const de = dm.get(dk) || { name: d, users: new Set() };
+        de.users.add(p.user_id); dm.set(dk, de);
+      }
+      if (uk !== key || !p.course_name || p.user_id === uid) return;
       const k = norm(p.course_name);
       let e = m.get(k);
       if (!e) { e = { name: String(p.course_name).trim(), users: new Set() }; m.set(k, e); }
@@ -625,81 +1139,71 @@ async function loadCourseHints() {
     hints.peers = Array.from(m.values())
       .sort((a, b) => b.users.size - a.users.size || a.name.localeCompare(b.name, "ja"))
       .map(e => ({ name: e.name, count: e.users.size }));
+    Object.keys(depts).forEach(k => {
+      depts[k] = Array.from(depts[k].values()).map(e => ({ name: e.name, count: e.users.size }));
+    });
+    hints.depts = depts;
   }
   hints.loading = false;
   renderCourseHintAreas();
 }
 
-/* 候補一覧：他ユーザーの登録（人数順）→ 定番科目。自分が登録済みのものは除く */
-function courseCandidates(q) {
+/* 授業名の候補：他ユーザーの登録 → 定番科目。自分が登録済みのものは除く */
+function courseCandidates() {
   const registered = new Set((myCourses || []).map(c => norm(c.course_name)));
   const out = [], seen = new Set();
-  hints.peers.forEach(p => {
-    const k = norm(p.name);
+  const put = (name, count) => {
+    const k = norm(name);
     if (!k || registered.has(k) || seen.has(k)) return;
-    seen.add(k); out.push({ name: p.name, count: p.count });
-  });
-  defaultCourses(hints.univ || (myProfile && myProfile.university)).forEach(n => {
-    const k = norm(n);
-    if (!k || registered.has(k) || seen.has(k)) return;
-    seen.add(k); out.push({ name: n, count: 0 });
-  });
-  const nq = norm(q);
-  if (!nq) return out;
-  const head = [], tail = [];
-  out.forEach(x => {
-    const k = norm(x.name);
-    if (k.startsWith(nq)) head.push(x);
-    else if (k.includes(nq)) tail.push(x);
-  });
-  return head.concat(tail);
+    seen.add(k); out.push({ n: String(name).trim(), y: yomiFor(name), c: count || 0 });
+  };
+  hints.peers.forEach(p => put(p.name, p.count));
+  defaultCourses(hints.univ || (myProfile && myProfile.university)).forEach(x => put(x.n, 0));
+  return out;
 }
 
-function hideCourseSuggest() {
-  const list = $("#cnlist");
-  if (list) { list.classList.remove("on"); list.innerHTML = ""; }
-}
-
-function drawCourseSuggest(q) {
-  const list = $("#cnlist"); if (!list) return;
-  const items = courseCandidates(q || "").slice(0, SUG_MAX);
-  if (!items.length) { hideCourseSuggest(); return; }
-  list.innerHTML = items.map(c => `<button type="button" class="sugitem" data-sug="${esc(c.name)}" title="${esc(c.name)}">
-    <span class="nm">${esc(c.name)}</span>${c.count ? `<span class="cnt">${c.count}人が登録</span>` : `<span class="cnt d">定番</span>`}</button>`).join("");
-  list.querySelectorAll("[data-sug]").forEach(b => b.onclick = () => pickCourseName(b.dataset.sug));
-  list.classList.add("on");
+/* 学部・学科の候補：立教大学なら立教の学部学科＋一般的な学部学科＋同じ大学の登録済み */
+function deptCandidates() {
+  const univ = ($("#univ") && $("#univ").value) || (myProfile && myProfile.university) || "";
+  const uk = norm(univ);
+  const out = [];
+  if (/立教/.test(String(univ))) RIKKYO_DEPTS.forEach(x => out.push(x));
+  GENERIC_DEPTS.forEach(x => out.push(x));
+  ((hints.depts && hints.depts[uk]) || []).forEach(d => out.push({ n: d.name, y: yomiFor(d.name), c: d.count }));
+  return out;
 }
 
 function pickCourseName(name) {
   const inp = $("#cn"); if (!inp) return;
   inp.value = name;
-  hideCourseSuggest();
+  hideAka($("#cnlist"));
 }
 
 function renderCourseHintAreas() {
   const box = $("#cnchips"), cap = $("#cncap");
   if (!box) return;
-  const picked = courseCandidates("").slice(0, CHIP_MAX);
-  box.innerHTML = picked.map(c => `<button type="button" class="chip" data-pick="${esc(c.name)}">${esc(c.name)}${c.count ? `<span class="cnt">${c.count}人</span>` : ""}</button>`).join("");
+  const picked = courseCandidates().slice(0, CHIP_MAX);
+  box.innerHTML = picked.map(c => `<button type="button" class="chip" data-pick="${esc(c.n)}">${esc(c.n)}${c.c ? `<span class="cnt">${c.c}人</span>` : ""}</button>`).join("");
   box.style.display = picked.length ? "flex" : "none";
-  if (cap) cap.textContent = picked.length ? "タップで入力。候補は同じ大学の登録と定番科目から出ています。" : "";
+  if (cap) cap.textContent = picked.length ? "タップで入力。候補は同じ大学の登録と定番科目から、あかさたな順（五十音順）で出ます。" : "";
   box.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => pickCourseName(b.dataset.pick));
-  const list = $("#cnlist");
-  if (list && list.classList.contains("on")) drawCourseSuggest($("#cn") ? $("#cn").value : "");
+  const inp = $("#cn"), list = $("#cnlist");
+  if (inp && inp._akaDraw && list && list.classList.contains("on")) inp._akaDraw();
+  const dinp = $("#dept"), dlist = $("#deptlist");
+  if (dinp && dinp._akaDraw && dlist && dlist.classList.contains("on")) dinp._akaDraw();
 }
 
-/* 入力欄を開いている間の候補表示と、外側タップでの開じる処理 */
+/* 授業名の入力欄を五十音順の候補リストにつなぐ */
 function setupCourseHints() {
   const inp = $("#cn"); if (!inp) return;
+  bindAka(inp, $("#cnlist"), courseCandidates);
   renderCourseHintAreas();
-  inp.addEventListener("input", () => drawCourseSuggest(inp.value));
-  inp.addEventListener("focus", () => drawCourseSuggest(inp.value));
-  inp.addEventListener("keydown", e => { if (e.key === "Escape" || e.key === "Esc") hideCourseSuggest(); });
   loadCourseHints();
 }
+/* 入力欄の外をタップしたら開いている候補を閉じる */
 document.addEventListener("pointerdown", e => {
-  if (e.target && e.target.closest && e.target.closest(".sugwrap")) return;
-  hideCourseSuggest();
+  const w = e.target && e.target.closest ? e.target.closest(".sugwrap") : null;
+  document.querySelectorAll(".suglist.on").forEach(el => { if (!w || !w.contains(el)) hideAka(el); });
 }, true);
 
 /* マイページ */
@@ -721,8 +1225,8 @@ function rProfile() {
   </div>
   <div class="card">
     <label>表示名</label><input id="nm" value="${esc(user.display_name)}">
-    <label>大学名</label><input id="univ" value="${esc(user.university)}" placeholder="例：立教大学">
-    <label>学科</label><input id="dept" value="${esc(user.department)}" placeholder="例：法学部法学科">
+    <label>大学名（タップで候補から選べます）</label><div class="sugwrap"><input id="univ" value="${esc(user.university)}" placeholder="例：立教大学" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="univlist"></div></div>
+    <label>学部・学科（タップで候補から選べます）</label><div class="sugwrap"><input id="dept" value="${esc(user.department)}" placeholder="例：法学部 法学科" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="deptlist"></div></div>
     <label>学年（任意）</label><select id="year"><option value="">未設定</option>${[1,2,3,4,5,6].map(n => `<option ${user.year == n ? "selected" : ""}>${n}</option>`).join("")}</select>
     <p style="margin:10px 0 0"><button id="sv">プロフィールを保存</button></p>
   </div>
@@ -755,6 +1259,8 @@ function rProfile() {
     await loadMine(); render();
   });
   setupCourseHints();
+  bindAka($("#univ"), $("#univlist"), () => UNIV_LIST);
+  bindAka($("#dept"), $("#deptlist"), deptCandidates);
 }
 
 sb.auth.onAuthStateChange((event) => {
