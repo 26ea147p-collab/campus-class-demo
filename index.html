@@ -10925,6 +10925,8 @@ alter table public.profiles add column if not exists rejected boolean default fa
 
 -- 2) いま登録済みのユーザーは全員「承認済み」にする
 --    （これ以降の新規登録は false で入り、管理者の許可待ちになる）
+--    ※ 2回目以降にこの SQL を実行するときは、この2行は実行しないでください
+--      （まだ承認していない人まで承認済みになってしまうため）
 update public.profiles set approved = true where approved is not true;
 update public.profiles set rejected = false where rejected is not true;
 
