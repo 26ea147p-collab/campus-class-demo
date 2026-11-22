@@ -231,6 +231,12 @@ nav .ndot.on{display:block}
 .segrow .chip{flex:none}
 .tabtitle{font-size:24px;font-weight:800;margin:2px 0 14px;letter-spacing:0.01em}
 .empty{padding:14px;color:var(--sub);font-size:12.5px;text-align:center}
+/* 管理者の承認パネル */
+.admrow{padding:10px 0;border-top:1px solid var(--bd)}
+.admrow:first-of-type{border-top:none;padding-top:2px}
+.admsql{white-space:pre-wrap;word-break:break-word;font-size:11px;line-height:1.55;background:rgba(255,255,255,0.04);
+  border:1px solid var(--bd);border-radius:10px;padding:10px;margin:8px 0 0;overflow-x:auto;
+  font-family:ui-monospace,Menlo,Consolas,monospace;color:#dde3ff;-webkit-user-select:all;user-select:all}
 .nrow{padding:12px 14px}
 /* 起動時（ログイン状態の確認中）のローディング。ログイン画面のチラつきを防ぐ */
 .bootwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
@@ -337,6 +343,10 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm = s => String(s || "").normalize("NFKC").replace(/\s+/g, "").toLowerCase();
 const GRADES = ["S","A","B","C","D","未回答"], VIS = {all:"全員に公開", same:"同じ授業の人のみ", none:"非公開"};
+/* 管理者（新規登録の許可・拒否ができるアカウント）。大文字小文字は区別せずに比べる */
+const ADMIN_EMAILS = ["26ea147p@rikkyo.ac.jp"];
+const isAdminEmail = e => { const s = String(e || "").trim().toLowerCase(); return !!s && ADMIN_EMAILS.indexOf(s) >= 0; };
+const isAdmin = () => isAdminEmail(session && session.user && session.user.email);
 /* 頭文字アバターの色（ID から決まる固定色） */
 const AV_CLASSES = ["av0","av1","av2","av3","av4","av5"];
 const avCls = s => AV_CLASSES[Array.from(String(s || "x")).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7) % AV_CLASSES.length];
@@ -10113,6 +10123,12 @@ let authMode = "login", authErr = "", authOk = "", authEmail = getLastEmail(), r
 let recoveryInvalid = false, recoveryTimer = null;
 let signupConfirmPending = initialUrlHas(/type=signup/), signupTimer = null;
 let rtChannel = null;
+/* メール（Resend など）の承認リンクから開いたときの対象ユーザー。?approve_uid=<uuid> */
+const approveUid = (() => {
+  try { return (new URLSearchParams(INIT_URL.search).get("approve_uid") || "").trim().toLowerCase(); }
+  catch (e) { return ""; }
+})();
+let approveJump = !!approveUid, approveScrolled = false;
 
 const UI_KEY = "cc_ui_state";
 const TABS = ["home","search","dm","profile"];
@@ -10210,10 +10226,35 @@ document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
   saveUIState(); render();
 });
 
+/* ============================================================
+   新規登録の承認制
+   profiles.approved が true のユーザーだけがアプリを使える。
+   管理者（ADMIN_EMAILS）は常に承認済み扱いにして、絶対にロックアウトしない。
+   approved 列がまだ無い環境（42703）では、これまで通り全員が使える（安全なフォールバック）。
+   ============================================================ */
+let approvalCol = null;      /* null=未判定 / true=列あり / false=列なし */
+let approvalVal = undefined; /* 自分の profiles.approved の値（列が無ければ undefined） */
+async function detectApprovalColumn() {
+  if (approvalCol !== null) return approvalCol;
+  const { error } = await sb.from("profiles").select("approved").limit(1);
+  /* 42703（列が無い）以外の失敗（権限など）でも、誤って締め出さないように通す */
+  approvalCol = !error;
+  return approvalCol;
+}
+function approvalBlocked() {
+  if (!session || !session.user) return false;
+  if (isAdmin()) return false;          /* 管理者は絶対にロックアウトしない */
+  if (approvalCol !== true) return false; /* 列が無い／未判定のときは従来どおり使える */
+  return approvalVal !== true;
+}
+
 async function loadMine() {
   const uid = session.user.id;
   const { data: prof } = await sb.from("profiles").select("*").eq("id", uid).single();
   myProfile = prof || { id: uid, display_name: "学生", university: "", department: "", year: "", verified: true };
+  /* 承認状態を読む（列が無い環境でも落ちないように、キーの有無で判定する） */
+  approvalVal = prof && Object.prototype.hasOwnProperty.call(prof, "approved") ? prof.approved : undefined;
+  if (!isAdmin() && approvalVal !== true) await detectApprovalColumn();
   if (prof) avCache[uid] = prof.avatar_url || "";
   const { data: cs } = await sb.from("user_courses").select("*").eq("user_id", uid).order("created_at");
   myCourses = cs || [];
@@ -10255,6 +10296,13 @@ async function render() {
   if (!session || authMode === "recovery" || authMode === "signupDone") { $("#nav").style.display = "none"; rAuth(); return; }
   $("#nav").style.display = "flex";
   if (!myProfile) await loadMine();
+  /* 管理者の承認が済んでいない一般ユーザーは待機画面だけを出し、ホーム／さがす／DMに入れない */
+  if (approvalBlocked()) {
+    $("#nav").style.display = "none";
+    rPending(); return;
+  }
+  /* メールの承認リンク（?approve_uid=...）から開いた管理者は、マイページの承認パネルへ自動で移動（1回だけ） */
+  if (approveJump && isAdmin()) { approveJump = false; tab = "profile"; openTid = null; saveUIState(); }
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t === tab));
   ({ home: rHome, search: rSearch, dm: rDM, profile: rProfile })[tab]();
 }
@@ -10867,12 +10915,199 @@ document.addEventListener("pointerdown", e => {
 }, true);
 
 /* ============================================================
+   管理者専用：新規登録の承認待ちユーザー管理
+   管理者でログインしているときだけ、マイページの先頭に出す。
+   ============================================================ */
+const ADMIN_SQL = `-- ▼ 初回だけ：Supabase Dashboard → SQL Editor に貼り付けて実行
+-- 1) 承認フラグ（必須）と拒否フラグ（任意。あると拒否リストが使える）
+alter table public.profiles add column if not exists approved boolean default false;
+alter table public.profiles add column if not exists rejected boolean default false;
+
+-- 2) いま登録済みのユーザーは全員「承認済み」にする
+--    （これ以降の新規登録は false で入り、管理者の許可待ちになる）
+update public.profiles set approved = true where approved is not true;
+update public.profiles set rejected = false where rejected is not true;
+
+-- 3) 管理者だけが全員のプロフィールを読み書きできるようにする
+--    （管理者自身のメールは auth.jwt() の email から判定。大文字小文字は区別しない）
+alter table public.profiles enable row level security;
+do $$
+begin
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='profiles' and policyname='admin_select_profiles') then
+    create policy admin_select_profiles on public.profiles for select to authenticated
+      using (lower(coalesce(auth.jwt() ->> 'email','')) = '26ea147p@rikkyo.ac.jp');
+  end if;
+  if not exists (select 1 from pg_policies where schemaname='public' and tablename='profiles' and policyname='admin_update_profiles') then
+    create policy admin_update_profiles on public.profiles for update to authenticated
+      using (lower(coalesce(auth.jwt() ->> 'email','')) = '26ea147p@rikkyo.ac.jp')
+      with check (lower(coalesce(auth.jwt() ->> 'email','')) = '26ea147p@rikkyo.ac.jp');
+  end if;
+end $$;`;
+
+let admRows = null;
+
+const fmtDT = s => {
+  const d = new Date(s);
+  if (!s || isNaN(d.getTime())) return "";
+  const z = n => String(n).padStart(2, "0");
+  return `${d.getFullYear()}/${z(d.getMonth() + 1)}/${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`;
+};
+const admSqlHtml = () => `<pre class="admsql" id="admsql">${esc(ADMIN_SQL)}</pre>`;
+function admCopy(btn) {
+  const pre = document.getElementById("admsql");
+  const txt = pre ? pre.textContent : ADMIN_SQL;
+  const done = () => {
+    if (!btn) return;
+    const t = btn.dataset.label || btn.textContent;
+    btn.dataset.label = t; btn.textContent = "コピーしました";
+    setTimeout(() => { btn.textContent = t; }, 1600);
+  };
+  const fallback = () => {
+    try {
+      if (!pre) return;
+      const r = document.createRange(); r.selectNodeContents(pre);
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      document.execCommand("copy"); done();
+    } catch (e) { /* 選ぶだけでも手でコピーできる */ }
+  };
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(txt).then(done).catch(fallback);
+  } else fallback();
+}
+
+async function loadAdminPanel() {
+  const box = $("#admwrap");
+  if (!box) return;
+  box.innerHTML = `<h2>🛡️ 承認待ちユーザー管理</h2><div class="card"><div class="sub">読み込み中…</div></div>`;
+  const { data, error } = await sb.from("profiles").select("*").order("created_at", { ascending: true }).limit(1000);
+  if (error) {
+    box.innerHTML = `<h2>🛡️ 承認待ちユーザー管理</h2>
+      <div class="card"><div class="err">ユーザー一覧を取得できませんでした：${esc(error.message)}</div>
+      <p class="sub" style="margin:8px 0 0">下の SQL を実行すると管理者が全員のプロフィールを読めるようになります。</p>
+      <p style="margin:10px 0 0"><button type="button" id="admcopy" class="g" style="width:100%">SQL をコピー</button></p>
+      ${admSqlHtml()}</div>`;
+    const cp = $("#admcopy"); if (cp) cp.onclick = () => admCopy(cp);
+    return;
+  }
+  admRows = data || [];
+  if (admRows.length) approvalCol = Object.prototype.hasOwnProperty.call(admRows[0], "approved");
+  else await detectApprovalColumn();   /* 行が0件でも列の有無を確かめる */
+  paintAdminPanel();
+}
+
+function paintAdminPanel() {
+  const box = $("#admwrap");
+  if (!box) return;
+  const rows = admRows || [];
+  const hasApproved = rows.length ? Object.prototype.hasOwnProperty.call(rows[0], "approved") : approvalCol === true;
+  const hasRejected = rows.length ? Object.prototype.hasOwnProperty.call(rows[0], "rejected") : false;
+  const me = (session && session.user && session.user.id) || "";
+  const isMine = p => p.id === me || isAdminEmail(p.email);
+  /* メールの承認リンク（?approve_uid=...）で指定されたユーザーは強調表示する */
+  const isHi = p => !!approveUid && String(p.id || "").toLowerCase() === approveUid;
+  const meta = p => {
+    const b = [];
+    if (p.university) b.push(esc(p.university));
+    if (p.department) b.push(esc(p.department));
+    if (p.year) b.push(esc(p.year) + "年");
+    return b.join(" ・ ") || "大学・学部は未設定";
+  };
+  const rowHtml = (p, kind) => `
+    <div class="admrow"${isHi(p) ? ` id="adm_hi" style="background:linear-gradient(90deg,rgba(236,56,188,0.18),rgba(23,212,255,0.07));border:1px solid rgba(236,56,188,0.45);border-radius:12px;padding:10px"` : ""}>
+      <div><b>${esc(p.display_name || "（名前未設定）")}</b>${p.id === me ? ' <span class="tag">あなた</span>' : ""}${p.verified ? ' <span class="tag grade">認証済み</span>' : ""}</div>
+      <div class="sub">${meta(p)}</div>
+      <div class="sub">登録 ${fmtDT(p.created_at) || "日時不明"}</div>
+      <div class="row" style="margin-top:8px">
+        ${kind === "pending" || kind === "rejected" ? `<button type="button" data-adm="ok" data-id="${esc(p.id)}">✅ 許可する</button>` : ""}
+        ${kind === "pending" ? `<button type="button" class="danger" data-adm="no" data-id="${esc(p.id)}">❌ 拒否</button>` : ""}
+        ${kind === "approved" && p.id !== me ? `<button type="button" class="danger" data-adm="off" data-id="${esc(p.id)}">承認を取り消す</button>` : ""}
+      </div>
+    </div>`;
+
+  const pending = rows.filter(p => !isMine(p) && p.approved !== true && !(hasRejected && p.rejected === true));
+  const rejected = hasRejected ? rows.filter(p => !isMine(p) && p.approved !== true && p.rejected === true) : [];
+  const approved = rows.filter(p => p.approved === true || isMine(p));
+
+  /* 承認リンクから来た場合の案内 */
+  const hiRow = approveUid ? (rows.find(isHi) || null) : null;
+  const hiName = hiRow ? esc(hiRow.display_name || "このユーザー") : "";
+  let hiBanner = "";
+  if (approveUid && !hasApproved) {
+    hiBanner = `<div class="card"><b>📩 承認リンクから開きました</b><div class="sub" style="margin-top:4px">承認制（<b>approved</b> 列）がまだ有効になっていないため、この画面からは承認できません。下の SQL を先に実行してください。</div></div>`;
+  } else if (approveUid && !hiRow) {
+    hiBanner = `<div class="card"><b>📩 承認リンクから開きました</b><div class="sub" style="margin-top:4px">指定されたユーザー（<b>${esc(approveUid)}</b>）が見つかりませんでした。すでに削除されたか、別のサイトのリンクかもしれません。</div></div>`;
+  } else if (hiRow && hiRow.approved === true) {
+    hiBanner = `<div class="card" style="border-color:rgba(62,230,168,0.38)"><b>📩 承認リンクから開きました</b><div class="sub" style="margin-top:4px">${hiName}さんは <b style="color:#5ff0bb">すでに承認済み</b>です。必要なら「承認済みユーザー」から取り消せます。</div></div>`;
+  } else if (hiRow) {
+    hiBanner = `<div class="card" style="background:linear-gradient(160deg,rgba(236,56,188,0.18),rgba(23,212,255,0.09));border-color:rgba(236,56,188,0.48)">
+      <b>📩 承認リンクから開きました</b>
+      <div class="sub" style="margin-top:4px">${hiName}さんが承認待ちです。下のボタンで許可できます。</div>
+      <p style="margin:10px 0 0"><button type="button" data-adm="ok" data-id="${esc(hiRow.id)}" style="width:100%">✅ ${hiName}さんを許可する</button></p>
+    </div>`;
+  }
+
+
+  box.innerHTML = `<h2>🛡️ 承認待ちユーザー管理</h2>
+  ${hiBanner}
+  <div class="card">
+    ${hasApproved ? `
+      <div class="row" style="gap:10px;text-align:center">
+        <div><div class="sub">承認待ち</div><b style="font-size:20px">${pending.length}</b></div>
+        <div><div class="sub">承認済み</div><b style="font-size:20px">${approved.length}</b></div>
+        ${hasRejected ? `<div><div class="sub">拒否</div><b style="font-size:20px">${rejected.length}</b></div>` : ""}
+      </div>
+      <p style="margin:10px 0 0"><button type="button" class="g" id="admreload" style="width:100%">最新の状態に更新</button></p>
+    ` : `
+      <div class="err">まだ <b>approved</b> 列が無いため、承認制は動いていません（今は全員がログインできます）。下の SQL を実行すると有効になります。</div>
+      <p style="margin:10px 0 0"><button type="button" class="g" id="admcopy" style="width:100%">SQL をコピー</button></p>
+      ${admSqlHtml()}
+    `}
+  </div>
+  ${hasApproved ? `
+  <div class="card">
+    <b>承認待ち（${pending.length}人）</b>
+    ${pending.length ? pending.map(p => rowHtml(p, "pending")).join("") : `<div class="empty">承認待ちのユーザーはいません。</div>`}
+  </div>` : ""}
+  ${hasApproved && rejected.length ? `<div class="card"><b>拒否したユーザー（${rejected.length}人）</b>${rejected.map(p => rowHtml(p, "rejected")).join("")}</div>` : ""}
+  ${hasApproved ? `<details class="card"><summary style="cursor:pointer;font-weight:700">承認済みユーザー（${approved.length}人）</summary>${approved.map(p => rowHtml(p, "approved")).join("")}</details>` : ""}
+  ${hasApproved && !hasRejected ? `<div class="sub" style="margin:0 0 10px">「拒否したユーザー」を別リストにするには、SQL の <b>rejected</b> 列も追加してください（無くても拒否は非承認として動きます）。</div>` : ""}`;
+
+  const rl = $("#admreload"); if (rl) rl.onclick = () => loadAdminPanel();
+  const cp = $("#admcopy"); if (cp) cp.onclick = () => admCopy(cp);
+
+  box.querySelectorAll("[data-adm]").forEach(b => b.onclick = async () => {
+    const id = b.dataset.id, kind = b.dataset.adm;
+    const patch = kind === "ok" ? (hasRejected ? { approved: true, rejected: false } : { approved: true })
+      : kind === "no" ? (hasRejected ? { approved: false, rejected: true } : { approved: false })
+      : (hasRejected ? { approved: false, rejected: false } : { approved: false });
+    if (kind === "no" && !confirm("このユーザーを拒否（非承認）にしますか？")) return;
+    b.disabled = true; b.textContent = "更新中…";
+    const { error } = await sb.from("profiles").update(patch).eq("id", id);
+    if (error) { alert("更新できませんでした：" + error.message); b.disabled = false; return; }
+    admRows = (admRows || []).map(p => (p.id === id ? Object.assign({}, p, patch) : p));
+    if (!hasRejected && kind === "no") admRows = admRows.filter(p => p.id !== id); /* 拒否列が無い環境 */
+    paintAdminPanel();
+  });
+
+  /* 承認リンクで指定された行までスクロール（1回だけ） */
+  if (approveUid && !approveScrolled) {
+    const hiEl = document.getElementById("adm_hi");
+    if (hiEl) {
+      approveScrolled = true;
+      try { hiEl.scrollIntoView({ block: "center", behavior: "smooth" }); } catch (e) { hiEl.scrollIntoView(); }
+    }
+  }
+}
+
+/* ============================================================
    マイページ
    ============================================================ */
 function rProfile() {
   const user = myProfile;
   const { fac: curFac, dep: curDep } = facFromDepartment(user.department);
+  const adm = isAdmin();
   $("#app").innerHTML = `<div class="tabtitle">マイページ</div>
+  ${adm ? `<div id="admwrap"></div>` : ""}
   <div class="card" style="background:linear-gradient(160deg,rgba(236,56,188,0.14),rgba(23,212,255,0.08));border-color:rgba(236,56,188,0.28)">
     <div class="row">
       ${avHtml(session.user.id, user.display_name, "width:52px;height:52px;font-size:19px", ' id="myav"')}
@@ -10911,6 +11146,8 @@ function rProfile() {
   <label>成績の公開範囲</label><select id="cv"><option value="same">同じ授業の人のみ</option><option value="all">全員に公開</option><option value="none">非公開</option></select>
   <p style="margin:10px 0 0"><button id="ac" class="g">授業を追加</button></p></div>
   <p style="margin:16px 0 0"><button id="logout" class="danger">ログアウト</button></p>`;
+
+  if (adm) loadAdminPanel();
 
   const refreshDeptPreview = () => {
     const f = ($("#fac").value || "").trim(), d = ($("#dep").value || "").trim();
@@ -11277,6 +11514,7 @@ function rAuth() {
   </div>
   <h1 style="font-size:24px;margin:0 0 8px;line-height:1.4">同じ授業の人に、<br>気軽に相談しよう。</h1>
   <p class="sub" style="margin:0 0 16px">大学のメールアドレスで学生認証をしてはじめます。立教大学をはじめ、大学ドメイン（.ac.jp / .edu）のアドレスだけ登録できます。</p>
+  ${approveUid && !isReg ? `<div class="okmsg" style="margin:0 0 10px">承認用のメールリンクから開きました。管理者アカウント（${esc(ADMIN_EMAILS[0])}）でログインすると、この人の承認画面が自動で開きます。</div>` : ""}
   <div class="card auth">
     <div class="tabs">
       <button type="button" class="${!isReg ? "" : "g"}" id="m_login">ログイン</button>
@@ -11331,7 +11569,7 @@ function rAuth() {
       if (!data.session) {
         /* メール確認待ち：メール内のリンクを開いてからログインしてもらう */
         setMailKind("signup");
-        authOk = "確認メールを送りました。メール内のリンクを開いてからログインしてください。";
+        authOk = "確認メールを送りました。メール内のリンクを開いてからログインしてください。メール認証後、管理者の承認が完了すると利用できます。";
         authMode = "login"; render(); return;
       }
       myProfile = null; tab = "profile"; saveUIState(); render();
@@ -11358,11 +11596,46 @@ function rSignupDone() {
   </div>
   <div class="card">
     <div class="okmsg" style="font-size:16px;font-weight:700;text-align:center">${esc(SIGNUP_DONE_MSG)}</div>
-    <p class="sub" style="margin:10px 0 0;text-align:center">つぎはプロフィールを設定して、同じ授業の人とつながりましょう。</p>
+    <p class="sub" style="margin:10px 0 0;text-align:center">メール認証後、管理者の承認が完了すると利用できます。承認されるまでしばらくお待ちください。</p>
+    <p class="sub" style="margin:6px 0 0;text-align:center">つぎはプロフィールを設定して、同じ授業の人とつながりましょう。</p>
     <p style="margin:16px 0 0"><button id="a_start" style="width:100%">プロフィールを設定して始める</button></p>
   </div>`;
   $("#a_start").onclick = () => {
     authMode = "login"; authErr = ""; authOk = ""; myProfile = null; tab = "profile"; saveUIState(); render();
+  };
+  paintView();
+}
+
+/* 管理者の承認待ちユーザーに出す待機画面（ホーム／さがす／DMには入れない） */
+function rPending() {
+  const email = (session && session.user && session.user.email) || "";
+  $("#app").innerHTML = `
+  <div style="text-align:center;margin:24px 0 16px">
+    <div style="font-size:44px;line-height:1">⏳</div>
+    <h1 style="font-size:20px;margin:10px 0 0">ただいま管理者の承認待ちです</h1>
+    <p class="sub" style="margin:6px 0 0">許可されるまでしばらくお待ちください。</p>
+  </div>
+  <div class="card">
+    <div class="sub" style="text-align:center">${esc(email)}</div>
+    <p class="sub" style="margin:10px 0 0;text-align:center">管理者がこのアカウントを許可すると、ホーム・さがす・DMが使えるようになります。</p>
+    <p style="margin:12px 0 0"><button type="button" id="pendretry" class="g" style="width:100%">承認されたか確認する</button></p>
+    <p style="margin:8px 0 0"><button type="button" id="pendout" class="danger" style="width:100%">ログアウト</button></p>
+  </div>`;
+  const rt = $("#pendretry");
+  if (rt) rt.onclick = async () => {
+    rt.disabled = true; rt.textContent = "確認中…";
+    myProfile = null; approvalCol = null;   /* 承認状態を取り直す */
+    await render();
+    const again = $("#pendretry");
+    if (again) { again.disabled = false; again.textContent = "承認されたか確認する"; }
+  };
+  const lo = $("#pendout");
+  if (lo) lo.onclick = async () => {
+    await sb.auth.signOut();
+    myProfile = null; openTid = null; approvalCol = null; approvalVal = undefined;
+    clearUIState();
+    if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; }
+    render();
   };
   paintView();
 }
