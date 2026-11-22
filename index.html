@@ -41,6 +41,9 @@ nav button{flex:1;border-radius:0;background:transparent;color:var(--sub);paddin
 </nav>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* ページを開いた時点の URL（確認・再設定リンクから戻ってきたかの判定に使う。SDK がハッシュを消す前に控える） */
+const INIT_URL = { hash: window.location.hash || "", search: window.location.search || "" };
+const initialUrlHas = re => re.test(INIT_URL.hash + INIT_URL.search);
 const SUPABASE_URL = "https://hhjnodkkcqzwrtpbmpig.supabase.co";
 const SUPABASE_KEY = "sb_publishable_e7DZss988mAQPZ5xqrH2YQ__DPYR8Gz";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -54,6 +57,7 @@ let session = null, myProfile = null, myCourses = [];
 let tab = "search", openTid = null, openPeer = null, openCourse = "", fil = "all";
 let authMode = "login", authErr = "", authOk = "", authEmail = "", recoveryDone = false;
 let recoveryInvalid = false, recoveryTimer = null;
+let signupConfirmPending = initialUrlHas(/type=signup/), signupTimer = null;
 let pendingEmail = "";
 function setPending(e) { pendingEmail = e; try { localStorage.setItem("cc_pending_email", e); } catch (x) {} }
 function clearPending() { pendingEmail = ""; try { localStorage.removeItem("cc_pending_email"); } catch (x) {} }
@@ -72,7 +76,28 @@ async function loadMine() {
 async function render() {
   const { data } = await sb.auth.getSession();
   session = data.session;
-  if (!session || authMode === "recovery") { $("#nav").style.display = "none"; rAuth(); return; }
+  if (signupConfirmPending) {
+    if (session) {
+      /* 確認メールのリンクから戻ってきてセッションが確立できた */
+      signupConfirmPending = false; clearTimeout(signupTimer);
+      authMode = "signupDone"; authErr = ""; authOk = "";
+      clearAuthUrl();
+      $("#nav").style.display = "none";
+      rSignupDone(); return;
+    }
+    /* ハッシュのトークン解析中かもしれません。少しだけ待つ */
+    $("#nav").style.display = "none";
+    $("#app").innerHTML = `<div style="text-align:center;margin:48px 0"><h1 style="font-size:20px;margin:0">メール認証を確認しています…</h1></div>`;
+    clearTimeout(signupTimer);
+    signupTimer = setTimeout(() => {
+      if (!signupConfirmPending) return;
+      signupConfirmPending = false;
+      authMode = "login"; authErr = SIGNUP_LINK_INVALID_MSG; authOk = "";
+      clearAuthUrl(); render();
+    }, 2500);
+    return;
+  }
+  if (!session || authMode === "recovery" || authMode === "signupDone") { $("#nav").style.display = "none"; rAuth(); return; }
   $("#nav").style.display = "flex";
   if (!myProfile) await loadMine();
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t === tab));
@@ -82,9 +107,15 @@ async function render() {
 /* AUTH */
 const DUP_MSG = "このメールアドレスはすでに登録されています。ログインするか、パスワードをお忘れの場合はリセットしてください。";
 const RESET_SENT_MSG = "パスワード再設定用のメールを送信しました。メール内のリンクを開いて新しいパスワードを設定してください。";
+const SIGNUP_DONE_MSG = "✅ メールアドレスの認証が完了しました！";
+const SIGNUP_LINK_INVALID_MSG = "この確認リンクは無効か、すでに認証済みです。そのままログインをお試しください。";
 const isUnivEmail = email => /\.ac\.jp$|\.edu$/i.test(String(email).split("@")[1] || "");
-const isRecoveryUrl = () => /type=recovery/.test((window.location.hash || "") + (window.location.search || ""));
-function clearRecoveryUrl() {
+const isRecoveryUrl = () => initialUrlHas(/type=recovery/);
+/* 最後に送ったメールの種類（確認／再設定）。期限切れリンクの案内文を出し分ける */
+const MAIL_KIND_KEY = "cc_last_mail_kind";
+function setMailKind(k) { try { localStorage.setItem(MAIL_KIND_KEY, k); } catch (e) {} }
+function getMailKind() { try { return localStorage.getItem(MAIL_KIND_KEY) || ""; } catch (e) { return ""; } }
+function clearAuthUrl() {
   try {
     const u = new URL(window.location.href);
     u.hash = "";
@@ -94,6 +125,7 @@ function clearRecoveryUrl() {
 }
 
 function rAuth() {
+  if (authMode === "signupDone") return rSignupDone();
   if (authMode === "forgot") return rForgot();
   if (authMode === "recovery") return rRecovery();
   if (authMode === "verify") return rVerify();
@@ -138,7 +170,10 @@ function rAuth() {
       if (!name || !univ) { authErr = "表示名と大学名を入力してください。"; render(); return; }
       if (pass.length < 6) { authErr = "パスワードは6文字以上で入力してください。"; render(); return; }
       const btn = $("#a_submit"); if (btn) { btn.disabled = true; btn.textContent = "登録中…"; }
-      const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { display_name: name, university: univ } } });
+      const { data, error } = await sb.auth.signUp({ email, password: pass, options: {
+        data: { display_name: name, university: univ },
+        emailRedirectTo: window.location.origin + window.location.pathname
+      } });
       if (error) {
         authErr = /already\s*registered/i.test(error.message || "") ? DUP_MSG : error.message;
         render(); return;
@@ -148,6 +183,7 @@ function rAuth() {
       }
       if (!data.session) {
         /* メール確認待ち：メール内のリンクを開いてからログインしてもらう */
+        setMailKind("signup");
         authOk = "確認メールを送りました。メール内のリンクを開いてからログインしてください。";
         authMode = "login"; render(); return;
       }
@@ -207,6 +243,24 @@ function rVerify() {
   };
 }
 
+/* 確認メールのリンクから戻ってきたときの完了画面 */
+function rSignupDone() {
+  const email = session?.user?.email || authEmail || "";
+  $("#app").innerHTML = `
+  <div style="text-align:center;margin:12px 0 18px">
+    <h1 style="font-size:22px;margin:0">メール認証が完了しました</h1>
+    <p class="sub" style="margin:4px 0 0">${esc(email)}</p>
+  </div>
+  <div class="card">
+    <div class="okmsg" style="font-size:16px;font-weight:700;text-align:center">${esc(SIGNUP_DONE_MSG)}</div>
+    <p class="sub" style="margin:10px 0 0;text-align:center">つぎはプロフィールを設定して、同じ授業の人とつながりましょう。</p>
+    <p style="margin:16px 0 0"><button id="a_start" style="width:100%">プロフィールを設定して始める</button></p>
+  </div>`;
+  $("#a_start").onclick = () => {
+    authMode = "login"; authErr = ""; authOk = ""; myProfile = null; tab = "profile"; render();
+  };
+}
+
 /* パスワード再設定メールの送信 */
 function rForgot() {
   $("#app").innerHTML = `
@@ -237,6 +291,7 @@ function rForgot() {
         : "送信できませんでした: " + error.message;
       render(); return;
     }
+    setMailKind("recovery");
     authOk = RESET_SENT_MSG; render();
   };
 }
@@ -254,7 +309,7 @@ function rRecovery() {
     </div>`;
     $("#a_go").onclick = () => {
       authMode = "login"; authErr = ""; authOk = ""; recoveryDone = false;
-      myProfile = null; tab = "search"; clearRecoveryUrl(); render();
+      myProfile = null; tab = "search"; clearAuthUrl(); render();
     };
     return;
   }
@@ -290,7 +345,7 @@ function rRecovery() {
   if (!hasSession) {
     $("#a_retry").onclick = () => {
       authMode = "forgot"; authErr = ""; authOk = ""; recoveryInvalid = false;
-      clearRecoveryUrl(); render();
+      clearAuthUrl(); render();
     };
     return;
   }
@@ -302,7 +357,7 @@ function rRecovery() {
     const btn = $("#a_upd"); if (btn) { btn.disabled = true; btn.textContent = "更新中…"; }
     const { error } = await sb.auth.updateUser({ password: p1 });
     if (error) { authErr = "更新できませんでした: " + error.message; render(); return; }
-    recoveryDone = true; authErr = ""; myProfile = null; tab = "search"; clearRecoveryUrl(); render();
+    recoveryDone = true; authErr = ""; myProfile = null; tab = "search"; clearAuthUrl(); render();
   };
 }
 
@@ -444,20 +499,28 @@ sb.auth.onAuthStateChange((event) => {
   if (event === "PASSWORD_RECOVERY") {
     authMode = "recovery"; authErr = ""; authOk = ""; recoveryDone = false;
     setTimeout(render, 0); /* コールバック内で直接fetchするとSupabaseのロックで止まることがある */
+  } else if (event === "SIGNED_IN" && authErr === SIGNUP_LINK_INVALID_MSG) {
+    /* 遅れてセッションが確立した場合：ログイン画面の案内を取り下げてアプリへ */
+    authErr = ""; setTimeout(render, 0);
+  } else if (signupConfirmPending && (event === "SIGNED_IN" || event === "USER_UPDATED" || event === "INITIAL_SESSION")) {
+    /* 確認リンクのセッションが後から確立した場合に備える */
+    setTimeout(render, 0);
   }
 });
-/* 期限切れ・使用済みの再設定リンクで戻ってきた場合 */
-function recoveryLinkError() {
-  const raw = decodeURIComponent((window.location.hash || "") + "&" + (window.location.search || ""));
+/* 期限切れ・使用済みの確認リンク／再設定リンクで戻ってきた場合 */
+function authLinkError() {
+  const raw = decodeURIComponent(INIT_URL.hash + "&" + INIT_URL.search);
   if (!/error=/.test(raw)) return "";
-  if (/otp_expired|access_denied|invalid|expired/i.test(raw))
+  if (!/otp_expired|access_denied|invalid|expired/i.test(raw)) return "";
+  if (/type=recovery/.test(raw) || getMailKind() === "recovery")
     return "再設定用のリンクが無効か、有効期限が切れています。「パスワードを忘れた方はこちら」からもう一度送信してください。";
-  return "";
+  return SIGNUP_LINK_INVALID_MSG;
 }
-const linkErr = recoveryLinkError();
+const linkErr = authLinkError();
+if (linkErr) signupConfirmPending = false; /* エラー付きで戻ったときは完了画面を出さない */
 try { pendingEmail = localStorage.getItem("cc_pending_email") || ""; } catch (e) { pendingEmail = ""; }
 if (isRecoveryUrl()) { authMode = "recovery"; authErr = ""; authOk = ""; recoveryInvalid = false; }
-else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearRecoveryUrl(); }
+else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearAuthUrl(); }
 render();
 </script>
 </body>
