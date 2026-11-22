@@ -147,10 +147,9 @@ function rAuth() {
         authErr = DUP_MSG; render(); return;
       }
       if (!data.session) {
-        /* メール確認待ち：6桁コードの入力画面へ */
-        setPending(email);
-        authErr = ""; authOk = "";
-        authMode = "verify"; render(); return;
+        /* メール確認待ち：メール内のリンクを開いてからログインしてもらう */
+        authOk = "確認メールを送りました。メール内のリンクを開いてからログインしてください。";
+        authMode = "login"; render(); return;
       }
       myProfile = null; tab = "profile"; render();
     } else {
@@ -459,7 +458,6 @@ const linkErr = recoveryLinkError();
 try { pendingEmail = localStorage.getItem("cc_pending_email") || ""; } catch (e) { pendingEmail = ""; }
 if (isRecoveryUrl()) { authMode = "recovery"; authErr = ""; authOk = ""; recoveryInvalid = false; }
 else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearRecoveryUrl(); }
-else if (pendingEmail) { authMode = "verify"; authErr = ""; authOk = ""; }
 render();
 </script>
 </body>
