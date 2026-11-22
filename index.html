@@ -121,6 +121,22 @@ nav .ndot.on{display:block}
 .av3{background:linear-gradient(140deg,#3ee6a8,#0e9c78)}
 .av4{background:linear-gradient(140deg,#a06bff,#4a2bff)}
 .av5{background:linear-gradient(140deg,#17d4ff,#ec38bc)}
+.avatar>svg{width:100%;height:100%;display:block;border-radius:50%}
+.avatar>img{width:100%;height:100%;object-fit:cover;display:block;border-radius:50%}
+.avatar.mk{background:transparent;border-color:transparent;box-shadow:none;text-shadow:none;overflow:hidden}
+.avgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:8px 0 14px}
+.avpick{position:relative;aspect-ratio:1/1;padding:0;border:2px solid transparent;border-radius:50%;
+  background:rgba(255,255,255,0.05);box-shadow:none;display:flex;align-items:center;justify-content:center;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease}
+.avpick>svg{width:100%;height:100%;display:block}
+.avpick:active{opacity:0.8}
+.avpick.on{border-color:#17d4ff;background:rgba(23,212,255,0.10);
+  box-shadow:0 0 0 3px rgba(23,212,255,0.20),0 10px 24px rgba(23,212,255,0.32)}
+.avpick .tick{position:absolute;right:-2px;bottom:-2px;width:22px;height:22px;border-radius:50%;
+  background:linear-gradient(90deg,#ec38bc,#17d4ff);color:#fff;font-size:11px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;border:2px solid #0d1230}
+.avnow{flex:none}
+.avnowtxt{min-width:0;flex:1}
 .chev{flex:none;color:var(--sub);font-size:18px;line-height:1}
 .dmline{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sugwrap{position:relative}
@@ -214,6 +230,7 @@ nav .ndot.on{display:block}
 </nav>
 <div class="sheet" id="pmodal"><div class="sheetbox" id="pmbody"></div></div>
 <div class="sheet" id="nsheet"><div class="sheetbox" id="nsbody"></div></div>
+<div class="sheet" id="asheet"><div class="sheetbox" id="asbody"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ページを開いた時点の URL（確認・再設定リンクから戻ってきたかの判定に使う。SDK がハッシュを消す前に控える） */
@@ -231,6 +248,243 @@ const GRADES = ["S","A","B","C","D","未回答"], VIS = {all:"全員に公開", 
 const AV_CLASSES = ["av0","av1","av2","av3","av4","av5"];
 const avCls = s => AV_CLASSES[Array.from(String(s || "x")).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7) % AV_CLASSES.length];
 const initial = s => String(s || "?").trim().slice(0, 1) || "?";
+
+/* ============================================================
+   アイコン（丸っこいキャラ 8 種 ＋ 自分の写真）
+   キャラはインライン SVG、写真は 128x128 の JPEG DataURL。
+   選択値は "mascot:blue" か "data:image/jpeg;base64,..."
+   ============================================================ */
+const MASCOT_DEFS = {
+  blue:   { a:"#9be8ff", b:"#0a67ff", c:"#c8f4ff", t:"ブルー" },
+  mint:   { a:"#a9ffe4", b:"#0eae80", c:"#ccfff0", t:"ミント" },
+  pink:   { a:"#ffc2e9", b:"#e02fa8", c:"#ffdcf2", t:"ピンク" },
+  violet: { a:"#d6c4ff", b:"#6a3cf0", c:"#e9dfff", t:"バイオレット" },
+  amber:  { a:"#ffe8a6", b:"#f08c00", c:"#fff4cb", t:"アンバー" },
+  coral:  { a:"#ffc6b8", b:"#ef4058", c:"#ffdcd3", t:"コーラル" },
+  sky:    { a:"#c2f2ff", b:"#0aa2e0", c:"#e0faff", t:"スカイ" },
+  prism:  { a:"#ff9ae8", b:"#7a5cff", c:"#a8ffe4", t:"プリズム",
+            stops:[[0,"#ff9ae8"],[0.45,"#9c8cff"],[0.75,"#53e5ff"],[1,"#43f0b4"]] }
+};
+const MASCOT_IDS = ["blue","mint","pink","violet","amber","coral","sky","prism"];
+const mascotOf = v => { const m = /^mascot:([a-z]+)$/.exec(String(v || "")); return m && MASCOT_DEFS[m[1]] ? m[1] : ""; };
+const isPhotoVal = v => /^data:image\//.test(String(v || ""));
+
+/* 丸い頭・キラキラの丸い目・左右の耳・ぷっくりシルエット・光る縁取り */
+function renderMascot(id) {
+  const k = MASCOT_DEFS[id] ? id : "blue";
+  const d = MASCOT_DEFS[k];
+  const gid = "mg_" + k, eid = "me_" + k;
+  const stops = d.stops || [[0, d.a], [1, d.b]];
+  const stopEls = stops.map(s => `<stop offset="${s[0]}" stop-color="${s[1]}"/>`).join("");
+  const grad = (k === "prism")
+    ? `<linearGradient id="${gid}" x1="6%" y1="2%" x2="94%" y2="98%">${stopEls}</linearGradient>`
+    : `<radialGradient id="${gid}" cx="34%" cy="24%" r="86%">${stopEls}</radialGradient>`;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">`
+    + `<defs>${grad}`
+    + `<radialGradient id="${eid}" cx="50%" cy="46%" r="54%">`
+    + `<stop offset="0" stop-color="${d.c}" stop-opacity="0.55"/>`
+    + `<stop offset="1" stop-color="${d.c}" stop-opacity="0"/></radialGradient></defs>`
+    + `<circle cx="50" cy="54" r="46" fill="url(#${eid})"/>`
+    + `<ellipse cx="21" cy="29" rx="11.5" ry="13" fill="url(#${gid})" stroke="${d.c}" stroke-width="2.6"/>`
+    + `<ellipse cx="79" cy="29" rx="11.5" ry="13" fill="url(#${gid})" stroke="${d.c}" stroke-width="2.6"/>`
+    + `<ellipse cx="50" cy="56" rx="36" ry="33.5" fill="url(#${gid})" stroke="${d.c}" stroke-width="2.6"/>`
+    + `<ellipse cx="36" cy="36" rx="12" ry="6.4" fill="#ffffff" opacity="0.40" transform="rotate(-24 36 36)"/>`
+    + `<ellipse cx="50" cy="76" rx="15" ry="7.5" fill="#ffffff" opacity="0.18"/>`
+    + `<ellipse cx="36.5" cy="52" rx="7.4" ry="8.4" fill="#151632"/>`
+    + `<circle cx="33.8" cy="48.6" r="2.7" fill="#ffffff"/>`
+    + `<circle cx="39.4" cy="55.4" r="1.35" fill="#ffffff" opacity="0.85"/>`
+    + `<ellipse cx="63.5" cy="52" rx="7.4" ry="8.4" fill="#151632"/>`
+    + `<circle cx="60.8" cy="48.6" r="2.7" fill="#ffffff"/>`
+    + `<circle cx="66.4" cy="55.4" r="1.35" fill="#ffffff" opacity="0.85"/>`
+    + `<ellipse cx="23" cy="66" rx="6" ry="3.4" fill="#ff7fbf" opacity="0.50"/>`
+    + `<ellipse cx="77" cy="66" rx="6" ry="3.4" fill="#ff7fbf" opacity="0.50"/>`
+    + `<path d="M46 68.6q4 3.6 8 0" fill="none" stroke="#151632" stroke-width="2.3" stroke-linecap="round"/>`
+    + `<circle cx="28" cy="24" r="3.4" fill="#ffffff" opacity="0.55"/>`
+    + `<circle cx="72" cy="30" r="2.2" fill="#ffffff" opacity="0.45"/>`
+    + `</svg>`;
+}
+
+/* アイコンの保存先：localStorage（自分の端末）＋ profiles.avatar_url（あれば） */
+const AV_KEY = "cc_avatar_";
+const avCache = {};            /* userId → DB から分かった avatar 値 */
+let lastMascotId = "blue";
+const getLocalAvatar = uid => { try { return localStorage.getItem(AV_KEY + uid) || ""; } catch (e) { return ""; } };
+const setLocalAvatar = (uid, v) => {
+  try { v ? localStorage.setItem(AV_KEY + uid, v) : localStorage.removeItem(AV_KEY + uid); } catch (e) {}
+};
+function avatarValueOf(uid) {
+  const id = String(uid || "");
+  const mine = !!(session && session.user && id === session.user.id);
+  if (mine) { const lv = getLocalAvatar(id); if (lv) return lv; }   /* 自分はこの端末の選択を最優先 */
+  if (myProfile && myProfile.id === id && myProfile.avatar_url) return myProfile.avatar_url;
+  return avCache[id] || "";
+}
+/* すべての丸アバターはここから描く（キャラ → 写真 → 頭文字の順） */
+function avHtml(uid, name, extra, attrs) {
+  const id = String(uid || "");
+  const st = extra ? ` style="${extra}"` : "";
+  const at = attrs || "";
+  const v = avatarValueOf(id);
+  const mk = mascotOf(v);
+  if (mk) return `<div class="avatar mk"${at}${st} title="${esc(MASCOT_DEFS[mk].t)}">${renderMascot(mk)}</div>`;
+  if (isPhotoVal(v)) return `<div class="avatar mk"${at}${st}><img src="${esc(v)}" alt=""></div>`;
+  return `<div class="avatar ${avCls(id)}"${at}${st}>${esc(initial(name))}</div>`;
+}
+/* 他の人のアイコンをまとめて取得（avatar_url 列が無い DB でも落ちないよう select("*")） */
+async function fillAvatarCache(ids) {
+  const need = [...new Set((ids || []).filter(id => id && !(id in avCache)))];
+  if (!need.length) return;
+  try {
+    const { data, error } = await sb.from("profiles").select("*").in("id", need);
+    if (error) return;
+    const got = {};
+    (data || []).forEach(p => { if (p && p.id) got[p.id] = p.avatar_url || ""; });
+    need.forEach(id => { avCache[id] = got[id] || ""; });
+  } catch (e) { /* 取れなくても頭文字アバターで続行 */ }
+}
+
+function avatarLabel(v) {
+  const mk = mascotOf(v);
+  if (mk) return "キャラ（" + MASCOT_DEFS[mk].t + "）";
+  if (isPhotoVal(v)) return "自分の写真";
+  return "頭文字（未設定）";
+}
+function currentAvatarVal() {
+  const uid = session && session.user ? session.user.id : "";
+  return uid ? avatarValueOf(uid) : "";
+}
+/* avatar_url 列がまだ無い DB（42703）でもエラーを出さず localStorage だけで動く */
+async function saveAvatarRemote(val) {
+  const uid = session && session.user ? session.user.id : "";
+  if (!uid) return { ok: false, code: "no-session" };
+  try {
+    const { error } = await sb.from("profiles").update({ avatar_url: val }).eq("id", uid);
+    if (error) return { ok: false, code: String(error.code || ""), message: String(error.message || "") };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, code: "", message: String((e && e.message) || e) };
+  }
+}
+function paintAvatarPicker() {
+  const box = $("#asbody");
+  if (!box) return;
+  const uid = session && session.user ? session.user.id : "";
+  const name = (myProfile && myProfile.display_name) || "学生";
+  const cur = avatarValueOf(uid);
+  const mk = mascotOf(cur), photo = isPhotoVal(cur);
+  const now = $("#asnow"), txt = $("#asnowtxt"), grid = $("#avgrid"), reset = $("#avreset");
+  if (now) now.innerHTML = avHtml(uid, name, "width:76px;height:76px;font-size:26px");
+  if (txt) txt.textContent = "いまのアイコン：" + avatarLabel(cur);
+  if (grid) grid.querySelectorAll("[data-mk]").forEach(b => {
+    const on = b.dataset.mk === mk;
+    b.classList.toggle("on", on);
+    const tick = b.querySelector(".tick");
+    if (on && !tick) b.insertAdjacentHTML("beforeend", '<span class="tick">✓</span>');
+    if (!on && tick) tick.remove();
+  });
+  if (reset) {
+    reset.textContent = photo ? "写真を取り消してキャラにもどす" : "アイコンを未設定（頭文字）にもどす";
+    reset.style.display = (photo || mk) ? "" : "none";
+  }
+}
+function closeAvatarPicker() {
+  const sheet = $("#asheet");
+  if (!sheet) return;
+  sheet.classList.remove("on");
+  const box = $("#asbody"); if (box) box.innerHTML = "";
+  document.body.style.overflow = "";
+}
+async function applyAvatar(val) {
+  const uid = session && session.user ? session.user.id : "";
+  if (!uid) return;
+  const v = String(val || "");
+  setLocalAvatar(uid, v);          /* まず端末に即保存 */
+  avCache[uid] = v;
+  if (myProfile) myProfile.avatar_url = v;
+  const mk = mascotOf(v); if (mk) lastMascotId = mk;
+  paintAvatarPicker();
+  const el = $("#myav");
+  if (el) el.outerHTML = avHtml(uid, (myProfile && myProfile.display_name) || "学生",
+    "width:52px;height:52px;font-size:19px", ' id="myav"');
+  const r = await saveAvatarRemote(v);
+  const msg = $("#avmsg");
+  if (msg) msg.textContent = r.ok ? "アイコンを保存しました。" : "この端末に保存しました。";
+}
+/* 写真 → 128x128 の正方形クロップ → JPEG（quality 0.72 目安、10KB 前後） */
+const AV_SIZE = 128;
+function fileToAvatar(file) {
+  return new Promise((resolve, reject) => {
+    let url = "";
+    const finish = fn => { try { if (url) URL.revokeObjectURL(url); } catch (e) {} fn(); };
+    try { url = URL.createObjectURL(file); } catch (e) { reject(e); return; }
+    const img = new Image();
+    img.onload = () => finish(() => {
+      try {
+        const w = img.naturalWidth || img.width, h = img.naturalHeight || img.height;
+        if (!w || !h) { reject(new Error("empty")); return; }
+        const cv = document.createElement("canvas");
+        cv.width = AV_SIZE; cv.height = AV_SIZE;
+        const ctx = cv.getContext("2d");
+        const side = Math.min(w, h);
+        ctx.drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, AV_SIZE, AV_SIZE);
+        let q = 0.72, out = cv.toDataURL("image/jpeg", q);
+        while (out.length > 14000 && q > 0.42) {
+          q = Math.round((q - 0.08) * 100) / 100;
+          out = cv.toDataURL("image/jpeg", q);
+        }
+        resolve(out);
+      } catch (e) { reject(e); }
+    });
+    img.onerror = () => finish(() => reject(new Error("decode")));
+    img.src = url;
+  });
+}
+async function onAvatarFile(e) {
+  const input = e && e.target ? e.target : $("#avfile");
+  const file = input && input.files ? input.files[0] : null;
+  if (input) { try { input.value = ""; } catch (err) {} }   /* 同じ写真をもう一度選べるように */
+  if (!file) return;
+  const msg = $("#avmsg");
+  if (msg) msg.textContent = "写真を読み込み中…";
+  try {
+    const dataUrl = await fileToAvatar(file);
+    const before = mascotOf(currentAvatarVal());
+    if (before) lastMascotId = before;
+    await applyAvatar(dataUrl);
+    if (msg) msg.textContent = "この写真をアイコンにしました。";
+  } catch (err) {
+    if (msg) msg.textContent = "この写真は読み込めませんでした。別の写真を選んでください。";
+  }
+}
+function openAvatarPicker() {
+  const sheet = $("#asheet"), box = $("#asbody");
+  if (!sheet || !box) return;
+  const uid = session && session.user ? session.user.id : "";
+  const name = (myProfile && myProfile.display_name) || "学生";
+  box.innerHTML = `<div class="row" style="margin-bottom:10px"><b style="flex:1;font-size:17px">アイコンを変更</b><button type="button" class="x" id="asclose">閉じる</button></div>
+  <div class="card" style="display:flex;align-items:center;gap:14px;margin:0 0 14px;padding:12px">
+    <div class="avnow" id="asnow">${avHtml(uid, name, "width:76px;height:76px;font-size:26px")}</div>
+    <div class="avnowtxt"><b>${esc(name)}</b><div class="sub" id="asnowtxt"></div></div>
+  </div>
+  <div class="sub" style="font-weight:800;color:#dde3ff;font-size:13px;margin:0 0 2px">キャラから選ぶ（おすすめ）</div>
+  <div class="sub" style="margin:0 0 2px">タップするだけでアイコンが変わります。</div>
+  <div class="avgrid" id="avgrid">${MASCOT_IDS.map(k => `<button type="button" class="avpick" data-mk="${k}" aria-label="${esc(MASCOT_DEFS[k].t)}のキャラ" title="${esc(MASCOT_DEFS[k].t)}">${renderMascot(k)}</button>`).join("")}</div>
+  <button type="button" class="g" id="avphoto" style="width:100%">📷 自分の写真を使う</button>
+  <input type="file" id="avfile" accept="image/*" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0" aria-hidden="true" tabindex="-1">
+  <div class="sub" id="avmsg" style="margin-top:8px;min-height:17px"></div>
+  <button type="button" class="x" id="avreset" style="width:100%;display:none"></button>`;
+  sheet.classList.add("on");
+  document.body.style.overflow = "hidden";
+  $("#asclose").onclick = closeAvatarPicker;
+  box.querySelectorAll("[data-mk]").forEach(b => b.onclick = () => applyAvatar("mascot:" + b.dataset.mk));
+  $("#avphoto").onclick = () => { const f = $("#avfile"); if (f) f.click(); };
+  $("#avfile").onchange = onAvatarFile;
+  $("#avreset").onclick = () => {
+    if (isPhotoVal(currentAvatarVal())) applyAvatar("mascot:" + (lastMascotId || "blue"));
+    else applyAvatar("");
+  };
+  paintAvatarPicker();
+}
 
 /* ============================================================
    あかさたな順（五十音順）の候補ピッカー
@@ -1497,6 +1751,7 @@ async function loadMine() {
   const uid = session.user.id;
   const { data: prof } = await sb.from("profiles").select("*").eq("id", uid).single();
   myProfile = prof || { id: uid, display_name: "学生", university: "", department: "", year: "", verified: true };
+  if (prof) avCache[uid] = prof.avatar_url || "";
   const { data: cs } = await sb.from("user_courses").select("*").eq("user_id", uid).order("created_at");
   myCourses = cs || [];
 }
@@ -1542,6 +1797,7 @@ async function fetchPeers() {
   const { data } = await sb.from("peer_courses").select("*").neq("user_id", session.user.id);
   let rows = (data || []).filter(p => mine.indexOf(norm(p.course_name)) >= 0);
   if (myProfile && myProfile.university) rows = rows.filter(p => norm(p.university) === norm(myProfile.university));
+  await fillAvatarCache(rows.map(p => p.user_id));
   return rows;
 }
 /* DMスレッド（相手の名前つき） */
@@ -1553,8 +1809,9 @@ async function fetchThreads() {
   const ids = [...new Set(threads.flatMap(t => [t.user_a, t.user_b]))].filter(id => id !== uid);
   let profs = {};
   if (ids.length) {
-    const { data: ps } = await sb.from("profiles").select("id,display_name,university,department,year").in("id", ids);
-    (profs = {}), (ps || []).forEach(p => profs[p.id] = p);
+    const { data: ps } = await sb.from("profiles").select("*").in("id", ids);
+    profs = {};
+    (ps || []).forEach(p => { profs[p.id] = p; avCache[p.id] = p.avatar_url || ""; });
   }
   return threads.map(t => {
     const oid = t.user_a === uid ? t.user_b : t.user_a;
@@ -1620,7 +1877,7 @@ async function rHome() {
     const c = u.courses[0];
     const rel = relTag(u.year);
     return `<div class="lrow tap" data-pf="${esc(u.user_id)}">
-      <div class="avatar ${avCls(u.user_id)}">${esc(initial(u.name))}</div>
+      ${avHtml(u.user_id, u.name)}
       <div class="txt">
         <span class="nm">${esc(u.name || "ユーザー")}${rel ? `<span class="tag">${esc(rel)}</span>` : ""}${gradeTag(c)}</span>
         <span class="sub">${esc(u.department || "学部未設定")}${u.year ? " " + esc(u.year) + "年" : ""}</span>
@@ -1633,7 +1890,7 @@ async function rHome() {
   const dmRows = threads.slice(0, 3).map(t => {
     const rel = relTag(t.year);
     return `<div class="lrow tap" data-tid="${esc(t.id)}">
-      <div class="avatar ${avCls(t.oid)}">${esc(initial(t.name))}</div>
+      ${avHtml(t.oid, t.name)}
       <div class="txt">
         <span class="nm">${esc(t.name)}${rel ? `<span class="tag">${esc(rel)}</span>` : ""}</span>
         <span class="sub dmline">${esc(t.last || "（まだメッセージなし）")}</span>
@@ -1706,7 +1963,7 @@ async function openNotif() {
     <div class="listcard" style="background:rgba(255,255,255,0.05)">
       ${threads.length ? threads.slice(0, 8).map(t => `
         <div class="lrow tap" data-tid="${esc(t.id)}">
-          <div class="avatar ${avCls(t.oid)}">${esc(initial(t.name))}</div>
+          ${avHtml(t.oid, t.name)}
           <div class="txt"><span class="nm">${esc(t.name)}</span>
             <span class="sub dmline">${esc(t.last || "（まだメッセージなし）")}</span></div>
           <span class="chev">›</span>
@@ -1753,7 +2010,7 @@ async function rSearch() {
   const list = rows.map(p => {
     const rel = relTag(p.year);
     return `<div class="lrow tap" data-pf="${esc(p.user_id)}">
-      <div class="avatar ${avCls(p.user_id)}">${esc(initial(p.display_name))}</div>
+      ${avHtml(p.user_id, p.display_name)}
       <div class="txt">
         <span class="nm">${esc(p.display_name || "ユーザー")}${rel ? `<span class="tag">${esc(rel)}</span>` : ""}${gradeTag(p)}</span>
         <span class="sub">${esc(p.department || "学部未設定")}${p.year ? " " + esc(p.year) + "年" : ""}</span>
@@ -1807,7 +2064,7 @@ async function rDM() {
   const list = threads.map(t => {
     const rel = relTag(t.year);
     return `<div class="lrow tap" data-tid="${esc(t.id)}">
-      <div class="avatar ${avCls(t.oid)}">${esc(initial(t.name))}</div>
+      ${avHtml(t.oid, t.name)}
       <div class="txt">
         <span class="nm">${esc(t.name)}${rel ? `<span class="tag">${esc(rel)}</span>` : ""}</span>
         <span class="sub dmline">${t.course ? esc(t.course) + " ｜ " : ""}${esc(t.last || "（まだメッセージなし）")}</span>
@@ -1830,9 +2087,10 @@ async function rChat() {
   const oid = t.user_a === uid ? t.user_b : t.user_a;
   const { data: p } = await sb.from("profiles").select("*").eq("id", oid).single();
   openPeer = p; openCourse = t.course_name;
+  if (p) avCache[oid] = p.avatar_url || "";
   const { data: msgs } = await sb.from("messages").select("*").eq("thread_id", openTid).order("created_at");
   const list = msgs || [];
-  $("#app").innerHTML = `<div class="row" style="margin-bottom:8px"><button class="g" id="bk" style="flex:none">←</button><div class="tabtitle" style="flex:1;margin:0;font-size:20px" class="pf" data-pf="${esc(oid)}">${esc(p ? p.display_name : "ユーザー")}</div></div>
+  $("#app").innerHTML = `<div class="row" style="margin-bottom:8px"><button class="g" id="bk" style="flex:none">←</button>${avHtml(oid, p ? p.display_name : "ユーザー", "width:36px;height:36px;font-size:15px")}<div class="tabtitle pf" style="flex:1;margin:0;font-size:20px" data-pf="${esc(oid)}">${esc(p ? p.display_name : "ユーザー")}</div></div>
   <p class="sub">${esc(t.course_name || "")} ・授業の進め方、課題、テスト対策などを相談できます。過去問そのものの転載は控えてください。</p>
   <div class="msgs" id="ms">${list.map(m => `<div class="m ${m.sender_id === uid ? "me" : ""}">${esc(m.body)}</div>`).join("")}</div>
   <div class="row"><textarea id="tx" rows="2" placeholder="メッセージを入力…"></textarea><button id="sd">送信</button></div>`;
@@ -1888,7 +2146,7 @@ function renderPeerProfile(p, cs) {
   const done = (cs || []).filter(c => c.status === "done").slice().sort(byName);
   const rel = relTag(p.year);
   return `<div class="row" style="align-items:flex-start">
-    <div class="avatar ${avCls(p.id)}">${esc(initial(name))}</div>
+    ${avHtml(p.id, name, "width:52px;height:52px;font-size:19px")}
     <div style="flex:1;min-width:0"><b style="font-size:16px">${esc(name)}</b>${rel ? `<span class="tag">${esc(rel)}</span>` : ""}
       <div class="sub">${esc(p.university || "大学未設定")}</div>
       <div class="sub">${esc(p.department || "学科未設定")}${p.year ? " ・ " + esc(p.year) + "年" : ""}</div>
@@ -1917,6 +2175,7 @@ async function openPeerProfile(userId) {
     $("#pmclose").onclick = closePeerProfile;
     return;
   }
+  avCache[userId] = pr.data.avatar_url || "";
   box.innerHTML = renderPeerProfile(pr.data, cr.data || []);
   $("#pmclose").onclick = closePeerProfile;
   box.querySelectorAll("[data-pfdm]").forEach(b => b.onclick = () => {
@@ -2064,21 +2323,9 @@ async function loadCourseHints() {
   renderCourseHintAreas();
 }
 
-const CHIP_MAX = 6;
-function pickCourseName(name) {
-  const inp = $("#cn"); if (!inp) return;
-  inp.value = name;
-  hideAka($("#cnlist"));
-}
-
 function renderCourseHintAreas() {
-  const box = $("#cnchips"), cap = $("#cncap");
-  if (!box) return;
-  const picked = courseCandidates().slice(0, CHIP_MAX);
-  box.innerHTML = picked.map(c => `<button type="button" class="chip" data-pick="${esc(c.n)}">${esc(c.n)}${c.c ? `<span class="cnt">${c.c}人</span>` : ""}</button>`).join("");
-  box.style.display = picked.length ? "flex" : "none";
-  if (cap) cap.textContent = picked.length ? "タップで入力。候補は同じ大学の登録 → 学部の専門科目 → 全学共通の順に、あかさたな順で出ます。" : "";
-  box.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => pickCourseName(b.dataset.pick));
+  const cap = $("#cncap");
+  if (cap) cap.textContent = "入力欄をタップすると、同じ大学の登録授業・学部の科目・全学共通の候補があかさたな順で出ます。";
   const inp = $("#cn"), list = $("#cnlist");
   if (inp && inp._akaDraw && list && list.classList.contains("on")) inp._akaDraw();
   const dinp = $("#dep"), dlist = $("#deplist");
@@ -2103,7 +2350,7 @@ function rProfile() {
   $("#app").innerHTML = `<div class="tabtitle">マイページ</div>
   <div class="card" style="background:linear-gradient(160deg,rgba(236,56,188,0.14),rgba(23,212,255,0.08));border-color:rgba(236,56,188,0.28)">
     <div class="row">
-      <div class="avatar ${avCls(session.user.id)}" style="width:52px;height:52px;font-size:19px">${esc(initial(user.display_name))}</div>
+      ${avHtml(session.user.id, user.display_name, "width:52px;height:52px;font-size:19px", ' id="myav"')}
       <div>
         <b style="font-size:17px">${esc(user.display_name)}</b> <span class="tag grade">学生認証済み</span>
         <div class="sub">${esc(user.university || "大学未設定")}${user.department ? " ・ " + esc(user.department) : ""}${user.year ? " " + esc(user.year) + "年" : ""}</div>
@@ -2111,6 +2358,8 @@ function rProfile() {
       </div>
     </div>
     <div class="sub" style="margin-top:10px">登録授業 ${myCourses.length}件</div>
+    <p style="margin:10px 0 0"><button type="button" class="g" id="avopen" style="width:100%">アイコンを変更</button></p>
+    <div class="sub" style="margin-top:6px;text-align:center">かわいいキャラから選ぶか、自分の写真を使えます</div>
   </div>
   <h2>プロフィール</h2>
   <div class="card">
@@ -2124,7 +2373,6 @@ function rProfile() {
   </div>
   <h2>履修情報</h2>${cs || '<p class="sub">まだ授業がありません。</p>'}
   <div class="card" id="addcard"><label>授業名（学部の科目からも選べます）</label>
-  <div class="chips" id="cnchips"></div>
   <div class="sugwrap"><input id="cn" placeholder="例：法学入門" autocomplete="off" autocapitalize="off" spellcheck="false">
   <div class="suglist" id="cnlist"></div></div>
   <div class="sub" id="cncap" style="margin-top:4px"></div>
@@ -2139,6 +2387,7 @@ function rProfile() {
     $("#deptprev").textContent = f ? (d ? f + " " + d : f) : "学部・学科は未設定です";
   };
 
+  $("#avopen").onclick = openAvatarPicker;
   $("#logout").onclick = async () => {
     await sb.auth.signOut();
     myProfile = null; openTid = null;
@@ -2453,7 +2702,9 @@ else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearAut
   if (pms) pms.addEventListener("click", e => { if (e.target === pms) closePeerProfile(); });
   const nms = $("#nsheet");
   if (nms) nms.addEventListener("click", e => { if (e.target === nms) closeNotif(); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape") { closePeerProfile(); closeNotif(); } });
+  const asms = $("#asheet");
+  if (asms) asms.addEventListener("click", e => { if (e.target === asms) closeAvatarPicker(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { closePeerProfile(); closeNotif(); closeAvatarPicker(); } });
 }
 
 /* 保存された画面（タブ・開いていたDM・絞り込み）を復元して起動
