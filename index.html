@@ -2589,6 +2589,7 @@ const TT_PERS = [1,2,3,4,5];
 const TT_TIME = {1:"9:00〜10:40",2:"10:55〜12:35",3:"13:30〜15:10",4:"15:25〜17:05",5:"17:20〜19:00"};
 let ttMap = {};          /* { "月2": course_id } */
 let ttSeg = "grid";
+let ttSegHome = "grid";   /* ホーム画面の「わたしの授業」の切り替え（マイページとは別に保持） */
 const ttKey = () => "cc_timetable_" + ((session && session.user && session.user.id) || "anon");
 const courseById = id => (myCourses || []).find(c => c.id === id) || null;
 const slotOf = id => Object.keys(ttMap).find(k => ttMap[k] === id) || "";
@@ -2744,6 +2745,7 @@ function statusPill(status) {
 async function rHome() {
   $("#app").innerHTML = `<div class="tophead"><div class="logo"><span class="mark"></span><span class="bw">授業</span><span class="bg2">つながり</span></div></div><p class="sub">読み込み中…</p>`;
   const [peers, threads] = await Promise.all([fetchPeers(), fetchThreads()]);
+  const unseen = await fetchUnseen(threads);
   const name = (myProfile && myProfile.display_name) || "学生";
 
   /* 相手ごとに共通の授業をまとめる */
@@ -2757,15 +2759,6 @@ async function rHome() {
   const peerList = Array.from(byUser.values())
     .sort((a, b) => b.courses.length - a.courses.length || String(a.name).localeCompare(String(b.name), "ja"))
     .slice(0, 8);
-
-  const mineRows = myCourses.map(c => `
-    <div class="lrow">
-      <div class="txt">
-        <span class="nm">${esc(c.course_name)}</span>
-        <span class="sub">${c.status === "done" ? "履修済み" + (c.grade && c.grade !== "未回答" ? " ・ 成績 " + esc(c.grade) : "") + " ・ " + esc(VIS[c.visibility] || "") : "受講中（ヨコ）"}</span>
-      </div>
-      ${statusPill(c.status)}
-    </div>`).join("");
 
   const peerRows = peerList.map(u => {
     const c = u.courses[0];
@@ -2796,7 +2789,7 @@ async function rHome() {
   $("#app").innerHTML = `
   <div class="tophead">
     <div class="logo"><span class="mark"></span><span class="bw">授業</span><span class="bg2">つながり</span></div>
-    <button class="bell" id="bell" aria-label="通知">🔔<span class="dot ${threads.length ? "on" : ""}"></span></button>
+    <button class="bell" id="bell" aria-label="通知">🔔<span class="dot ${unseen.ids.size > 0 ? "on" : ""}"></span></button>
   </div>
   <h1 class="greet">こんにちは、<b>${esc(name)}</b>さん</h1>
   <div class="searchrow">
@@ -2804,14 +2797,12 @@ async function rHome() {
     <button id="hsearch">検索</button>
   </div>
 
-  <h2>わたしの授業<button type="button" class="x" id="goTT" style="margin-left:auto;font-size:12px;font-weight:800;color:#8ceaff">時間割表 ›</button></h2>
-  <div class="listcard">
-    ${mineRows || `<div class="empty">まだ授業が登録されていません。</div>`}
-    <div class="lrow addrow" id="gotoAdd">
-      <span>＋ 授業を追加する</span>
-      <span class="sub">受講中・履修済みを登録すると相手が見つかります</span>
-    </div>
+  <h2>わたしの授業</h2>
+  <div class="segrow" id="ttseghome" style="margin-bottom:10px">
+    <button type="button" class="chip ${ttSegHome === "grid" ? "on" : ""}" data-ttsegh="grid">時間割表（受講中）</button>
+    <button type="button" class="chip ${ttSegHome === "done" ? "on" : ""}" data-ttsegh="done">過去の授業（履修済み）</button>
   </div>
+  <div id="ttpanelHome"></div>
 
   <h2 class="pinkdot">同じ授業の人</h2>
   <div class="listcard">
@@ -2830,49 +2821,97 @@ async function rHome() {
     tab = "search"; saveUIState(); render();
   };
   $("#hq").addEventListener("keydown", e => { if (e.key === "Enter") $("#hsearch").click(); });
-  $("#gotoAdd").onclick = async () => {
-    tab = "profile"; saveUIState(); await render();
-    const el = $("#cn");
-    if (el) { el.scrollIntoView({ block: "center", behavior: "smooth" }); try { el.focus(); } catch (e) {} }
-  };
+  document.querySelectorAll("#ttseghome [data-ttsegh]").forEach(b => b.onclick = () => {
+    ttSegHome = b.dataset.ttsegh;
+    document.querySelectorAll("#ttseghome [data-ttsegh]").forEach(x => x.classList.toggle("on", x.dataset.ttsegh === ttSegHome));
+    renderTTAreaHome();
+  });
+  renderTTAreaHome();
   document.querySelectorAll("#app [data-pf]").forEach(el => el.onclick = () => openPeerProfile(el.dataset.pf));
   document.querySelectorAll("#app [data-tid]").forEach(el => el.onclick = () => {
     openTid = el.dataset.tid; tab = "dm"; saveUIState(); render();
   });
-  const goTT = $("#goTT");
-  if (goTT) goTT.onclick = async () => {
-    ttSeg = "grid"; tab = "profile"; saveUIState(); await render();
-    const el = $("#ttseg"); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" });
-  };
-  const nav = $("#ndot"); if (nav) nav.classList.toggle("on", threads.length > 0);
+  const nav = $("#ndot"); if (nav) nav.classList.toggle("on", unseen.ids.size > 0);
   paintView();
 }
 
-/* 通知（ベル）：直近のDM一覧からスレッドへ */
+/* ---- お知らせ（未確認のDM）の管理 ----
+   最後にお知らせを見た時刻を localStorage（cc_notif_seen_{uid}）に保存し、
+   それより新しい「相手からの」メッセージがあるときだけ赤いドットを出す。 */
+const notifKey = () => "cc_notif_seen_" + ((session && session.user && session.user.id) || "anon");
+function getNotifSeen() { try { return localStorage.getItem(notifKey()) || ""; } catch (e) { return ""; } }
+function setNotifSeen(v) { try { localStorage.setItem(notifKey(), v || new Date().toISOString()); } catch (e) {} }
+async function fetchUnseen(threads) {
+  const uid = session.user.id;
+  const ids = (threads || []).map(t => t.id).filter(Boolean);
+  if (!ids.length) return { ids: new Set(), rows: [], byThread: {} };
+  const seen = getNotifSeen();
+  let qy = sb.from("messages").select("thread_id,sender_id,created_at").in("thread_id", ids)
+    .order("created_at", { ascending: false }).limit(100);
+  if (seen) qy = qy.gt("created_at", seen);
+  const { data, error } = await qy;
+  let rows = (data || []).filter(m => m.sender_id !== uid);   /* 自分の送信は未確認にしない */
+  if (error) {
+    /* messages を読めない環境では、スレッドの最終メッセージ時刻で近似する */
+    rows = (threads || []).filter(t => t.at && (!seen || String(t.at) > seen))
+      .map(t => ({ thread_id: t.id, created_at: t.at }));
+  }
+  const byThread = {};
+  rows.forEach(m => { if (!byThread[m.thread_id]) byThread[m.thread_id] = m; });
+  return { ids: new Set(Object.keys(byThread)), rows, byThread };
+}
+function clearNotifDots() {
+  const bd = $("#bell .dot"); if (bd) bd.classList.remove("on");
+  const nd = $("#ndot"); if (nd) nd.classList.remove("on");
+}
+
+/* 通知（ベル）：未確認の新着DMだけを出す */
 async function openNotif() {
   const sheet = $("#nsheet"), box = $("#nsbody");
   if (!sheet || !box) return;
   sheet.classList.add("on");
   document.body.style.overflow = "hidden";
-  box.innerHTML = `<div class="row" style="margin-bottom:6px"><b style="flex:1;font-size:16px">お知らせ</b><button class="x" id="nsclose">閉じる</button></div><p class="sub">読み込み中…</p>`;
+  box.innerHTML = `<div class="row" style="margin-bottom:6px"><b style="flex:1;font-size:16px">お知らせ</b><button class="x" type="button" id="nsclose">閉じる</button></div><p class="sub">読み込み中…</p>`;
   $("#nsclose").onclick = closeNotif;
   const threads = await fetchThreads();
   if (!sheet.classList.contains("on")) return;
-  box.innerHTML = `<div class="row" style="margin-bottom:10px"><b style="flex:1;font-size:16px">お知らせ</b><button class="x" id="nsclose">閉じる</button></div>
-    <div class="sub" style="margin:0 0 8px">直近のDM</div>
+  const unseen = await fetchUnseen(threads);
+  if (!sheet.classList.contains("on")) return;
+  /* 開いた時点で確認済みにして、赤いドットをすぐ消す */
+  setNotifSeen(new Date().toISOString());
+  clearNotifDots();
+  renderNotifBox(threads, unseen);
+}
+function renderNotifBox(threads, unseen) {
+  const box = $("#nsbody"); if (!box) return;
+  const news = (threads || []).filter(t => unseen && unseen.ids.has(t.id));
+  box.innerHTML = `<div class="row" style="margin-bottom:10px"><b style="flex:1;font-size:16px">お知らせ</b><button class="x" type="button" id="nsclose">閉じる</button></div>
+    ${news.length ? `<div class="sub" style="margin:0 0 6px;font-weight:800;color:#8ceaff">新着 ${news.length}件</div>
     <div class="listcard" style="background:rgba(255,255,255,0.05)">
-      ${threads.length ? threads.slice(0, 8).map(t => `
+      ${news.map(t => `
         <div class="lrow tap" data-tid="${esc(t.id)}">
           ${avHtml(t.oid, t.name)}
-          <div class="txt"><span class="nm">${esc(t.name)}</span>
-            <span class="sub dmline">${esc(t.last || "（まだメッセージなし）")}</span></div>
+          <div class="txt"><span class="nm">${esc(t.name)}<span class="tag">新着</span></span>
+            <span class="sub dmline">${esc(t.last || "（新着メッセージがあります）")}</span></div>
           <span class="chev">›</span>
-        </div>`).join("") : `<div class="empty">新しい通知はありません。</div>`}
-    </div>`;
+        </div>`).join("")}
+    </div>
+    <p class="ttnote" style="margin:8px 0 0">タップすると相手のDMを開きます。赤い点はこの画面を開いた時点で消えています。</p>`
+    : `<div class="card" style="text-align:center;padding:20px 12px">
+        <p class="sub" style="margin:0 0 12px">新しいお知らせはありません。</p>
+        <button type="button" class="g" id="nsdm" style="width:100%">DMの一覧を見る</button>
+      </div>`}
+    <p style="margin:12px 0 0"><button type="button" class="x" id="nsread" style="width:100%;color:#8ceaff;font-weight:700">すべて確認済みにする</button></p>`;
   $("#nsclose").onclick = closeNotif;
   box.querySelectorAll("[data-tid]").forEach(el => el.onclick = () => {
     openTid = el.dataset.tid; tab = "dm"; closeNotif(); saveUIState(); render();
   });
+  const dmBtn = $("#nsdm"); if (dmBtn) dmBtn.onclick = () => { closeNotif(); tab = "dm"; openTid = null; saveUIState(); render(); };
+  const readBtn = $("#nsread"); if (readBtn) readBtn.onclick = () => {
+    setNotifSeen(new Date().toISOString());
+    clearNotifDots();
+    renderNotifBox(threads, { ids: new Set() });
+  };
 }
 function closeNotif() {
   const sheet = $("#nsheet");
@@ -2978,7 +3017,8 @@ async function rDM() {
   document.querySelectorAll("#app [data-tid]").forEach(el => el.onclick = () => {
     openTid = el.dataset.tid; saveUIState(); render();
   });
-  const nav = $("#ndot"); if (nav) nav.classList.toggle("on", threads.length > 0);
+  const unseen = await fetchUnseen(threads);
+  const nav = $("#ndot"); if (nav) nav.classList.toggle("on", unseen.ids.size > 0);
   paintView();
 }
 
@@ -2992,6 +3032,12 @@ async function rChat() {
   if (p) avCache[oid] = p.avatar_url || "";
   const { data: msgs } = await sb.from("messages").select("*").eq("thread_id", openTid).order("created_at");
   const list = msgs || [];
+  /* ここまで読んだ分は確認済みにする（このスレッドの最新メッセージ時刻まで） */
+  const lastMsg = list.length ? list[list.length - 1] : null;
+  if (lastMsg && lastMsg.created_at) {
+    const prev = getNotifSeen();
+    if (!prev || Date.parse(lastMsg.created_at) > Date.parse(prev)) setNotifSeen(lastMsg.created_at);
+  }
   $("#app").innerHTML = `<div class="row" style="margin-bottom:8px"><button class="g" id="bk" style="flex:none">←</button>${avHtml(oid, p ? p.display_name : "ユーザー", "width:36px;height:36px;font-size:15px")}<div class="tabtitle pf" style="flex:1;margin:0;font-size:20px" data-pf="${esc(oid)}">${esc(p ? p.display_name : "ユーザー")}</div></div>
   <p class="sub">${esc(t.course_name || "")} ・授業の進め方、課題、テスト対策などを相談できます。過去問そのものの転載は控えてください。</p>
   <div class="msgs" id="ms">${list.map(m => `<div class="m ${m.sender_id === uid ? "me" : ""}">${esc(m.body)}</div>`).join("")}</div>
@@ -3389,9 +3435,21 @@ const slotLabel = slot => slot.charAt(0) + "曜 " + slot.slice(1) + "限";
 function renderTTArea() {
   const box = $("#ttpanel");
   if (!box) return;
+  renderTTBox(box, ttSeg);
+}
+/* ホーム画面の「わたしの授業」にも同じ時間割グリッドを描く */
+function renderTTAreaHome() {
+  const box = $("#ttpanelHome");
+  if (!box) return;
+  renderTTBox(box, ttSegHome);
+}
+/* 表示中の時間割（ホーム／マイページのどちらか）を描き直す */
+function refreshTT() { renderTTArea(); renderTTAreaHome(); }
+
+function renderTTBox(box, seg) {
 
   /* 過去の授業（履修済み）は時間割に入れず、リストで管理 */
-  if (ttSeg === "done") {
+  if (seg === "done") {
     const done = myCourses.filter(c => c.status === "done")
       .sort((a, b) => String(a.course_name).localeCompare(String(b.course_name), "ja"));
     box.innerHTML = `<div class="listcard">${done.length ? done.map(c => `
@@ -3443,7 +3501,7 @@ function renderTTArea() {
 }
 
 function flashCell(slot) {
-  const el = document.querySelector(`#ttpanel .tt-cell[data-slot="${slot}"]`);
+  const el = document.querySelector(`#app .tt-cell[data-slot="${slot}"]`);
   if (!el) return;
   el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
   el.scrollIntoView({ block: "nearest", behavior: "smooth" });
@@ -3497,7 +3555,7 @@ function openSlotAdd(slot) {
 
   box.querySelectorAll("[data-put]").forEach(b => b.onclick = () => {
     ttSet(slot, b.dataset.put);
-    closeTS(); renderTTArea(); flashCell(slot);
+    closeTS(); refreshTT(); flashCell(slot);
   });
   box.querySelectorAll("[data-new]").forEach(b => b.onclick = () => {
     inp.value = b.dataset.new; hideAka($("#tscnlist")); hint();
@@ -3518,7 +3576,7 @@ function openSlotAdd(slot) {
     }
     if (!row) { btn.disabled = false; btn.textContent = "この授業を追加して配置"; return; }
     ttSet(slot, row.id);
-    closeTS(); renderTTArea(); flashCell(slot);
+    closeTS(); refreshTT(); flashCell(slot);
   };
 }
 
@@ -3526,7 +3584,7 @@ function openSlotAdd(slot) {
 function openSlotDetail(slot, id) {
   const box = $("#tsbody"); if (!box) return;
   const c = courseById(id);
-  if (!c) { delete ttMap[slot]; ttSave(); renderTTArea(); return; }
+  if (!c) { delete ttMap[slot]; ttSave(); refreshTT(); return; }
   const s = sylSlot(c.course_name), p = Number(slot.slice(1));
   box.innerHTML = `
     <div class="row" style="margin-bottom:6px"><b style="flex:1;font-size:16px;line-height:1.45">${esc(c.course_name)}</b><button class="x" type="button" id="tsclose">閉じる</button></div>
@@ -3543,7 +3601,7 @@ function openSlotDetail(slot, id) {
   $("#ttpeer").onclick = () => { closeTS(); cfil = c.course_name; q = ""; tab = "search"; saveUIState(); render(); };
   $("#ttdm").onclick = () => { closeTS(); tab = "dm"; saveUIState(); render(); };
   $("#ttmove").onclick = () => openSlotPicker(c);
-  $("#ttunplace").onclick = () => { ttClear(c.id); closeTS(); renderTTArea(); };
+  $("#ttunplace").onclick = () => { ttClear(c.id); closeTS(); refreshTT(); };
   let armed = false;
   $("#ttdel").onclick = async () => {
     const b = $("#ttdel");
@@ -3572,7 +3630,7 @@ function openSlotPicker(c) {
   box.querySelectorAll("[data-mv]").forEach(b => b.onclick = () => {
     const slot = b.dataset.mv;
     ttSet(slot, c.id);
-    closeTS(); renderTTArea(); flashCell(slot);
+    closeTS(); refreshTT(); flashCell(slot);
   });
 }
 
