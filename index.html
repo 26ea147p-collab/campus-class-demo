@@ -690,9 +690,11 @@ function drawAkaList(listEl, items, input) {
   const cur = listEl.querySelector(".sugitem.cur");
   listEl.scrollTop = cur ? Math.max(0, cur.offsetTop - listEl.clientHeight / 2) : 0;
 }
-/* 入力欄と候補リストを結びつける。itemsFn は開くたびに呼ばれる */
-function bindAka(input, listEl, itemsFn) {
+/* 入力欄と候補リストを結びつける。itemsFn は開くたびに呼ばれる
+   opts.filterAlways：入力があれば、名前が完全一致しても全件ではなく絞り込んだ候補を出す */
+function bindAka(input, listEl, itemsFn, opts) {
   if (!input || !listEl) return;
+  const filterAlways = !!(opts && opts.filterAlways);
   const draw = () => {
     const rawItems = itemsFn() || [];
     const raw = String(input.value || "").normalize("NFKC").toLowerCase().replace(/\s+/g, "");
@@ -700,7 +702,7 @@ function bindAka(input, listEl, itemsFn) {
     const grpItems = rawItems.filter(x => x.grp && (!x.onlyEmpty || !raw));
     const plain = akaSort(akaUniq(rawItems.filter(x => !x.grp)));
     const k = norm(input.value);
-    const exact = !!k && rawItems.some(x => norm(x.n) === k);
+    const exact = !filterAlways && !!k && rawItems.some(x => norm(x.n) === k);
     let items = plain;
     if (!exact && raw) {
       /* 入力があるときは前方一致を先に、その中は五十音順 */
@@ -11135,7 +11137,7 @@ function openSlotAdd(slot) {
     const grp = `この時限（${slotLabel(slot)}）の開講科目`;
     const here = base.filter(x => sylSlots(x.n).indexOf(slot) >= 0).sort(sylChipSort);
     return here.map(x => ({ n: x.n, y: x.y, c: x.c, sub: x.sub, grp, onlyEmpty: true })).concat(base);
-  });
+  }, { filterAlways: true });
   const hint = () => {
     const v = inp.value.trim();
     if (!v) { $("#tssyl").textContent = ""; return; }
