@@ -490,9 +490,14 @@ function openAvatarPicker() {
   box.querySelectorAll("[data-mk]").forEach(b => b.onclick = () => applyAvatar("mascot:" + b.dataset.mk));
   $("#avphoto").onclick = () => { const f = $("#avfile"); if (f) f.click(); };
   $("#avfile").onchange = onAvatarFile;
-  $("#avreset").onclick = () => {
-    if (isPhotoVal(currentAvatarVal())) applyAvatar("mascot:" + (lastMascotId || "blue"));
-    else applyAvatar("");
+  $("#avreset").onclick = async () => {
+    if (isPhotoVal(currentAvatarVal())) {
+      await applyAvatar("mascot:" + (lastMascotId || "blue"));
+      const m = $("#avmsg"); if (m) m.textContent = "キャラのアイコンにもどしました。";
+    } else {
+      await applyAvatar("");
+      const m = $("#avmsg"); if (m) m.textContent = "アイコンを未設定（頭文字）にもどしました。";
+    }
   };
   paintAvatarPicker();
 }
