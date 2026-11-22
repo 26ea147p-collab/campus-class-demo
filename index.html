@@ -662,7 +662,12 @@ const AKA_LIMIT = 400;
 function drawAkaList(listEl, items, input) {
   let row = "", html = "";
   const curK = norm(input.value);
+  const shown = new Set();
   items.slice(0, AKA_LIMIT).forEach(it => {
+    /* 同じ科目名は一度だけ（先頭のまとまりに出した科目は、あかさたな側では省く） */
+    const key = norm(it.n);
+    if (shown.has(key)) return;
+    shown.add(key);
     /* grp がある候補（他のユーザーが登録した授業など）はその見出しでまとめる */
     const r = it.grp || gojuonRow(it.y);
     if (r !== row) { html += `<div class="sughead">${esc(r)}</div>`; row = r; }
@@ -686,9 +691,10 @@ function bindAka(input, listEl, itemsFn) {
   if (!input || !listEl) return;
   const draw = () => {
     const rawItems = itemsFn() || [];
-    const grpItems = rawItems.filter(x => x.grp);
-    const plain = akaSort(akaUniq(rawItems.filter(x => !x.grp)));
     const raw = String(input.value || "").normalize("NFKC").toLowerCase().replace(/\s+/g, "");
+    /* onlyEmpty のまとまり（この時限の開講科目）は、空欄のときだけ先頭に出す */
+    const grpItems = rawItems.filter(x => x.grp && (!x.onlyEmpty || !raw));
+    const plain = akaSort(akaUniq(rawItems.filter(x => !x.grp)));
     const k = norm(input.value);
     const exact = !!k && rawItems.some(x => norm(x.n) === k);
     let items = plain;
@@ -9200,6 +9206,11 @@ NaturalScienceofTriplePlanetaryCrisis|秋月5
 資源循環とサーキュラーエコノミー|秋月2
 `);
 
+/* 空きコマの「主なシラバス科目」で先頭に出す、学部の手書き定番・必修の科目名
+   （シラバス全件を合流させる前の名前を控えておき、刑法（１）→刑法 のように照合する） */
+const SYL_CORE_NAMES = [];
+Object.keys(RIKKYO_FAC_COURSES).forEach(f => RIKKYO_FAC_COURSES[f].forEach(x => SYL_CORE_NAMES.push(x.n)));
+
 /* シラバスの全科目を、学部ごとの候補と全学共通の候補へ合流させる
    （学部の手書き候補を先に残し、重複しないものだけ足す） */
 Object.keys(RIKKYO_SYL_FAC).forEach(f => {
@@ -10010,6 +10021,47 @@ const sylSlot = name => {
   const t = sylSlotTable(name);
   return t || "";
 };
+/* 空きコマの「主なシラバス科目」の並び順
+   0＝学部の手書き定番・必修（刑法（１）→刑法、商法（１）→商法 のように照合）
+   1＝学部のシラバス科目（日本語）
+   2＝全学共通の主要語学（英語プレゼンテーション・英語ディベート・上級英語・各言語など）
+   3＝その他の日本語の科目（全学共通の一般科目など）
+   4＝英字タイトルの科目（SeminarA など）
+   同じ順位では、主要な英語科目 → 短い名前 → 名前順に並べる */
+const SYL_CORE_KEYS = new Set(SYL_CORE_NAMES.map(n => norm(sylBase(n))));
+const SYL_FAC_KEYS = new Set();
+Object.keys(RIKKYO_FAC_COURSES).forEach(f => RIKKYO_FAC_COURSES[f].forEach(x => {
+  const k = norm(x.n); if (k) SYL_FAC_KEYS.add(k);
+}));
+const SYL_LANG_RE = /英語|英会話|ドイツ語|フランス語|スペイン語|中国語|朝鮮語|韓国語|ロシア語|イタリア語|日本語|日本手話/;
+/* 全学共通の主要な英語科目は、語学の中でも先に出す */
+const SYL_MAIN_LANGS = ["英語プレゼンテーション", "英語リーディング", "英語ディベート", "英語ディスカッション", "英語eラーニング", "英語ｅラーニング", "英語総合", "上級英語"];
+const sylMainLangRank = name => {
+  const s = String(name || "");
+  for (let i = 0; i < SYL_MAIN_LANGS.length; i++) if (s.indexOf(SYL_MAIN_LANGS[i]) === 0) return i;
+  return SYL_MAIN_LANGS.length;
+};
+const sylRank = name => {
+  const s = String(name || "");
+  if (!/[ぁ-んァ-ヶ一-龥]/.test(s)) return /[A-Za-zＡ-Ｚａ-ｚ]/.test(s) ? 4 : 5;
+  const k = norm(s), kb = norm(sylBase(s));
+  if (SYL_CORE_KEYS.has(kb) || SYL_CORE_KEYS.has(k)) return 0;
+  if (SYL_FAC_KEYS.has(k)) return 1;
+  if (SYL_LANG_RE.test(s)) return 2;
+  return 3;
+};
+const sylChipSort = (a, b) => {
+  const ra = sylRank(a.n), rb = sylRank(b.n);
+  if (ra !== rb) return ra - rb;
+  if (ra === 2) {
+    const pa = sylMainLangRank(a.n), pb = sylMainLangRank(b.n);
+    if (pa !== pb) return pa - pb;
+  }
+  const d = String(a.n).length - String(b.n).length;
+  return d || String(a.n).localeCompare(String(b.n), "ja");
+};
+/* その時限に開講している科目（主な順） */
+const sylInSlot = slot => courseCandidates().filter(x => sylSlots(x.n).indexOf(slot) >= 0).sort(sylChipSort);
 /* 候補リストに出す開講情報（例：春学期 月2・金2 / 秋学期 月4） */
 const SYL_LABEL_CACHE = new Map();
 function sylLabel(name) {
@@ -11055,7 +11107,7 @@ function openSlotAdd(slot) {
   const box = $("#tsbody"); if (!box) return;
   const p = Number(slot.slice(1));
   const unplaced = myCourses.filter(c => c.status !== "done" && !slotOf(c.id));
-  const syl = courseCandidates().filter(x => sylSlots(x.n).indexOf(slot) >= 0).slice(0, 8);
+  const syl = sylInSlot(slot).slice(0, 16);
   box.innerHTML = `
     <div class="row" style="margin-bottom:2px"><b style="flex:1;font-size:17px">${slotLabel(slot)}</b><button class="x" type="button" id="tsclose">閉じる</button></div>
     <p class="sub" style="margin:0 0 10px">${TT_TIME[p]} ・ ここに授業を入れます</p>
@@ -11063,7 +11115,7 @@ function openSlotAdd(slot) {
       <div class="chips">${unplaced.map(c => `<button type="button" class="chip" data-put="${esc(c.id)}">＋ ${esc(c.course_name)}</button>`).join("")}</div>` : ""}
     ${syl.length ? `<div class="sub" style="font-weight:700;color:#dde3ff;margin-top:6px">主なシラバス科目</div>
       <div class="chips">${syl.map(c => `<button type="button" class="chip" data-new="${esc(c.n)}">${esc(c.n)}</button>`).join("")}</div>` : ""}
-    <label>授業名（あかさたな順の候補から選べます）</label>
+    <label>授業名（この時限の開講科目・あかさたな順の候補から選べます）</label>
     <div class="sugwrap"><input id="tscn" placeholder="例：法学入門" autocomplete="off" autocapitalize="off" spellcheck="false">
       <div class="suglist" id="tscnlist"></div></div>
     <div class="sub" id="tssyl" style="margin-top:6px;min-height:16px"></div>
@@ -11073,7 +11125,13 @@ function openSlotAdd(slot) {
   $("#tsclose").onclick = closeTS;
 
   const inp = $("#tscn");
-  bindAka(inp, $("#tscnlist"), courseCandidates);
+  /* 空欄のときは、この時限の開講科目を先頭のまとまりとして出す（入力すると全科目から検索） */
+  bindAka(inp, $("#tscnlist"), () => {
+    const base = courseCandidates();
+    const grp = `この時限（${slotLabel(slot)}）の開講科目`;
+    const here = base.filter(x => sylSlots(x.n).indexOf(slot) >= 0).sort(sylChipSort);
+    return here.map(x => ({ n: x.n, y: x.y, c: x.c, sub: x.sub, grp, onlyEmpty: true })).concat(base);
+  });
   const hint = () => {
     const v = inp.value.trim();
     if (!v) { $("#tssyl").textContent = ""; return; }
