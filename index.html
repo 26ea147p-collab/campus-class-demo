@@ -218,6 +218,14 @@ nav .ndot.on{display:block}
 .tabtitle{font-size:24px;font-weight:800;margin:2px 0 14px;letter-spacing:0.01em}
 .empty{padding:14px;color:var(--sub);font-size:12.5px;text-align:center}
 .nrow{padding:12px 14px}
+/* 起動時（ログイン状態の確認中）のローディング。ログイン画面のチラつきを防ぐ */
+.bootwrap{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+  min-height:62vh;text-align:center;padding:24px}
+.bootspin{width:44px;height:44px;border-radius:50%;border:3px solid rgba(23,212,255,0.18);
+  border-top-color:#17d4ff;animation:bootspin .9s linear infinite}
+.boottxt{font-size:13px;color:var(--sub);font-weight:600;letter-spacing:0.02em}
+@keyframes bootspin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.bootspin{animation-duration:2.4s}}
 </style>
 </head>
 <body>
@@ -238,7 +246,10 @@ const INIT_URL = { hash: window.location.hash || "", search: window.location.sea
 const initialUrlHas = re => re.test(INIT_URL.hash + INIT_URL.search);
 const SUPABASE_URL = "https://hhjnodkkcqzwrtpbmpig.supabase.co";
 const SUPABASE_KEY = "sb_publishable_e7DZss988mAQPZ5xqrH2YQ__DPYR8Gz";
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+/* ログイン状態を端末に保持し、次に開いたときはログイン画面を出さずにそのまま使えるようにする */
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+});
 
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1714,7 +1725,16 @@ const yomiFor = name => YOMI_INDEX.get(norm(name)) || "";
 let session = null, myProfile = null, myCourses = [];
 let tab = "home", openTid = null, openPeer = null, openCourse = "";
 let fil = "all", homeQuery = "", q = "", cfil = "";
-let authMode = "login", authErr = "", authOk = "", authEmail = "", recoveryDone = false;
+/* 前回ログインした大学メールアドレス（次回の入力の手間を省く。パスワードは保存しない） */
+const LAST_EMAIL_KEY = "cc_last_email";
+function getLastEmail() { try { return localStorage.getItem(LAST_EMAIL_KEY) || ""; } catch (e) { return ""; } }
+function setLastEmail(v) {
+  try {
+    const s = String(v || "").trim().toLowerCase();
+    if (s) localStorage.setItem(LAST_EMAIL_KEY, s); else localStorage.removeItem(LAST_EMAIL_KEY);
+  } catch (e) { /* 保存できなくてもログインは続行 */ }
+}
+let authMode = "login", authErr = "", authOk = "", authEmail = getLastEmail(), recoveryDone = false;
 let recoveryInvalid = false, recoveryTimer = null;
 let signupConfirmPending = initialUrlHas(/type=signup/), signupTimer = null;
 let rtChannel = null;
@@ -1756,9 +1776,16 @@ async function loadMine() {
   myCourses = cs || [];
 }
 
+let booted = false;
 async function render() {
+  if (!booted) {
+    /* セッション確認が終わるまでログイン画面を出さない（一瞬チラつくのを防ぐ） */
+    $("#nav").style.display = "none";
+    $("#app").innerHTML = `<div class="bootwrap"><div class="bootspin" aria-hidden="true"></div><p class="boottxt">読み込み中…</p></div>`;
+  }
   const { data } = await sb.auth.getSession();
   session = data.session;
+  if (!booted) booted = true;
   if (signupConfirmPending) {
     if (session) {
       /* 確認メールのリンクから戻ってきてセッションが確立できた */
@@ -2488,21 +2515,23 @@ function rAuth() {
   </div>
   <h1 style="font-size:24px;margin:0 0 8px;line-height:1.4">同じ授業の人に、<br>気軽に相談しよう。</h1>
   <p class="sub" style="margin:0 0 16px">大学のメールアドレスで学生認証をしてはじめます。立教大学をはじめ、大学ドメイン（.ac.jp / .edu）のアドレスだけ登録できます。</p>
-  <div class="card">
+  <div class="card auth">
     <div class="tabs">
-      <button class="${!isReg ? "" : "g"}" id="m_login">ログイン</button>
-      <button class="${isReg ? "" : "g"}" id="m_reg">新規登録</button>
+      <button type="button" class="${!isReg ? "" : "g"}" id="m_login">ログイン</button>
+      <button type="button" class="${isReg ? "" : "g"}" id="m_reg">新規登録</button>
     </div>
-    ${isReg ? `<label>ニックネーム / 表示名</label><input id="a_name" placeholder="例：山田 太郎">
-    <label>大学名（タップで候補から選べます）</label><div class="sugwrap"><input id="a_univ" value="立教大学" placeholder="例：立教大学" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="a_univlist"></div></div>` : ""}
+    <form id="a_form" autocomplete="on" novalidate>
+    ${isReg ? `<label>ニックネーム / 表示名</label><input id="a_name" name="nickname" placeholder="例：山田 太郎" autocomplete="nickname" autocapitalize="words" spellcheck="false">
+    <label>大学名（タップで候補から選べます）</label><div class="sugwrap"><input id="a_univ" name="organization" value="立教大学" placeholder="例：立教大学" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="a_univlist"></div></div>` : ""}
     <label>大学メールアドレス</label>
-    <input id="a_email" type="email" placeholder="例：taro@rikkyo.ac.jp" value="${esc(authEmail)}">
+    <input id="a_email" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="next" placeholder="例：taro@rikkyo.ac.jp" value="${esc(authEmail)}">
     <label>パスワード</label>
-    <input id="a_pass" type="password" placeholder="6文字以上">
+    <input id="a_pass" name="password" type="password" autocomplete="${isReg ? "new-password" : "current-password"}" autocapitalize="none" spellcheck="false" placeholder="6文字以上">
     ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
     ${authOk ? `<div class="okmsg">${esc(authOk)}</div>` : ""}
-    <p style="margin:12px 0 0"><button id="a_submit" style="width:100%">${isReg ? "大学メールで登録して始める" : "ログイン"}</button></p>
-    ${isReg ? "" : `<p style="margin:6px 0 0;text-align:center"><button class="x" id="a_forgot">パスワードを忘れた方はこちら</button></p>`}
+    <p style="margin:12px 0 0"><button id="a_submit" type="submit" style="width:100%">${isReg ? "大学メールで登録して始める" : "ログイン"}</button></p>
+    ${isReg ? "" : `<p style="margin:6px 0 0;text-align:center"><button type="button" class="x" id="a_forgot">パスワードを忘れた方はこちら</button></p>`}
+    </form>
   </div>`;
   $("#m_login").onclick = () => { authMode = "login"; authErr = ""; authOk = ""; render(); };
   $("#m_reg").onclick = () => { authMode = "register"; authErr = ""; authOk = ""; render(); };
@@ -2511,7 +2540,8 @@ function rAuth() {
     authEmail = ($("#a_email").value || "").trim().toLowerCase();
     authMode = "forgot"; authErr = ""; authOk = ""; render();
   };
-  $("#a_submit").onclick = async () => {
+  $("#a_form").onsubmit = async (e) => {
+    if (e) e.preventDefault();   /* 画面遷移はせず、この場でログイン／登録する */
     const email = $("#a_email").value.trim().toLowerCase();
     const pass = $("#a_pass").value;
     authErr = ""; authOk = "";
@@ -2535,6 +2565,7 @@ function rAuth() {
       if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
         authErr = DUP_MSG; render(); return;
       }
+      setLastEmail(email);   /* 次回ログイン画面で最初から入っているように */
       if (!data.session) {
         /* メール確認待ち：メール内のリンクを開いてからログインしてもらう */
         setMailKind("signup");
@@ -2546,6 +2577,7 @@ function rAuth() {
       const btn = $("#a_submit"); if (btn) { btn.disabled = true; btn.textContent = "ログイン中…"; }
       const { error } = await sb.auth.signInWithPassword({ email, password: pass });
       if (error) { authErr = "メールアドレスまたはパスワードが違います。"; render(); return; }
+      setLastEmail(email);   /* 次回ログイン画面で最初から入っているように */
       myProfile = null;
       /* 初回ログインはホームから。保存された画面があればそれを復元する */
       tab = "home"; openTid = null; saveUIState(); render();
@@ -2580,7 +2612,7 @@ function rForgot() {
   </div>
   <div class="card">
     <label>大学メールアドレス</label>
-    <input id="a_email" type="email" placeholder="例：taro@rikkyo.ac.jp" value="${esc(authEmail)}">
+    <input id="a_email" name="email" type="email" inputmode="email" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="例：taro@rikkyo.ac.jp" value="${esc(authEmail)}">
     ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
     ${authOk ? `<div class="okmsg">${esc(authOk)}</div>` : ""}
     <p style="margin:12px 0 0"><button id="a_send" style="width:100%">リセットメールを送信</button></p>
