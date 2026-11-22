@@ -3,302 +3,217 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#0a0e1f">
 <title>授業つながり</title>
 <style>
 :root{
-  --ink:#f2f4fc;
-  --muted:#9198b8;
-  --muted2:#6f7798;
-  --line:rgba(255,255,255,.075);
-  --cyan:#3ed8f6;
-  --pink:#f541c9;
-  --mint:#6ee7b7;
-  --grad:linear-gradient(90deg,#f541c9 0%,#38c6f4 100%);
-  --panel:rgba(23,29,56,.62);
-  --panel2:rgba(11,15,32,.78);
-  --phone-bg:
-    radial-gradient(400px 300px at 2% -8%, rgba(139,92,246,.55), transparent 72%),
-    radial-gradient(460px 340px at 110% 2%, rgba(56,189,248,.16), transparent 70%),
-    radial-gradient(560px 480px at 106% 104%, rgba(6,182,212,.32), transparent 70%),
-    linear-gradient(176deg,#0d1128 0%,#0a0e1f 48%,#0a1124 100%);
+  --bg:#070a19;
+  --card:rgba(17,23,48,0.82);
+  --card2:rgba(10,14,32,0.85);
+  --tx:#eef1fb;
+  --sub:#98a1c6;
+  --ac:#17d4ff;
+  --ac2:rgba(23,212,255,0.13);
+  --bd:rgba(255,255,255,0.10);
+  --pink:#ec38bc;
+  --ok:#3ee6a8;
+  --err:#ff7a94;
   color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px)
 }
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
+*{box-sizing:border-box}
+html{background:#070a19;scroll-padding-top:env(safe-area-inset-top,0px)}
 body{
-  margin:0;min-height:100vh;background:#05070e;color:var(--ink);
-  font:14px/1.6 -apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP","Yu Gothic",sans-serif;
-  -webkit-font-smoothing:antialiased;
+  margin:0;min-height:100vh;color:var(--tx);
+  font:15px/1.55 -apple-system,"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
+  background:
+    radial-gradient(760px 560px at 4% -8%, rgba(168,45,220,0.34), transparent 62%),
+    radial-gradient(820px 600px at 102% 4%, rgba(64,110,255,0.16), transparent 62%),
+    radial-gradient(940px 780px at 100% 104%, rgba(18,170,230,0.30), transparent 64%),
+    radial-gradient(620px 480px at 44% 52%, rgba(92,42,175,0.16), transparent 70%),
+    linear-gradient(165deg,#070a19 0%,#0a0f22 52%,#0d1229 100%);
+  background-attachment:fixed;
 }
 body::before{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(620px 480px at 12% 2%, rgba(124,58,237,.30), transparent 62%),
-    radial-gradient(520px 420px at 92% 18%, rgba(14,116,144,.16), transparent 62%),
-    radial-gradient(760px 620px at 86% 98%, rgba(6,182,212,.22), transparent 66%),
-    radial-gradient(520px 420px at 16% 82%, rgba(217,70,239,.12), transparent 66%);
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(rgba(255,255,255,0.055) 1px, transparent 1px);
+  background-size:24px 24px;
 }
-body::after{
-  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.55;
-  background-image:radial-gradient(rgba(255,255,255,.055) 1px, transparent 1px);
-  background-size:22px 22px;
+main{
+  position:relative;z-index:1;width:100%;max-width:480px;min-height:calc(100vh - 20px);
+  margin:10px auto;padding:18px 16px 118px;
+  background:linear-gradient(180deg, rgba(13,18,42,0.80), rgba(9,13,30,0.90));
+  border:1px solid rgba(255,255,255,0.10);border-radius:26px;
+  box-shadow:0 26px 70px rgba(0,0,0,0.55),0 0 46px rgba(23,212,255,0.05),inset 0 1px 0 rgba(255,255,255,0.07);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
 }
-.phone{
-  position:relative;z-index:1;width:100%;max-width:430px;margin:0 auto;min-height:100vh;
-  padding:calc(18px + env(safe-area-inset-top,0px)) 24px calc(120px + env(safe-area-inset-bottom,0px));
-  background:var(--phone-bg);
-  border-left:1px solid rgba(255,255,255,.06);
-  border-right:1px solid rgba(255,255,255,.06);
-  box-shadow:0 0 90px rgba(0,0,0,.6);
+@media (max-width:520px){
+  main{margin:0;min-height:100vh;border-radius:0;border-left:0;border-right:0;padding-top:16px}
 }
-@media (min-width:560px){
-  .phone{min-height:calc(100vh - 32px);margin:16px auto;border:1px solid rgba(255,255,255,.09);border-radius:30px;overflow:hidden}
-}
-h1,h2,h3,p{margin:0}
-button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;padding:0}
-input,select,textarea{font:inherit;color:var(--ink);width:100%}
-input::placeholder,textarea::placeholder{color:#6c7392}
-a{color:var(--cyan)}
-
-/* ---------- header ---------- */
-.brand{font-size:12px;font-weight:700;letter-spacing:.16em;color:#e8ebf7;opacity:.95}
-.homehead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:2px}
-.hello{font-size:22px;font-weight:800;letter-spacing:.01em;line-height:1.45;margin:6px 0 16px;color:#fff}
-.bell{
-  flex:none;width:42px;height:42px;border-radius:50%;font-size:17px;line-height:1;
-  background:radial-gradient(circle at 35% 30%, rgba(253,224,71,.30), rgba(180,120,20,.18));
-  border:1px solid rgba(253,224,71,.28);box-shadow:0 0 22px rgba(253,224,71,.14);
-  display:flex;align-items:center;justify-content:center;
-}
-.bell:active{transform:scale(.96)}
-
-/* ---------- search ---------- */
-.searchrow{display:flex;gap:8px;align-items:center}
-.searchrow input{
-  flex:1;min-width:0;height:46px;padding:0 15px;border-radius:14px;font-size:13px;
-  background:rgba(8,11,26,.72);border:1px solid var(--line);box-shadow:inset 0 1px 0 rgba(255,255,255,.03);
-}
-.searchrow input:focus{outline:none;border-color:rgba(62,216,246,.45);box-shadow:0 0 0 3px rgba(62,216,246,.10)}
-.sbtn{
-  flex:none;height:46px;padding:0 20px;border-radius:14px;font-size:13px;font-weight:700;color:#04121a;
-  background:linear-gradient(180deg,#59e3ff,#2dc7ee);
-  box-shadow:0 8px 22px rgba(45,199,238,.32),inset 0 1px 0 rgba(255,255,255,.45);
-}
-.sbtn:active{filter:brightness(1.06)}
-
-/* ---------- sections ---------- */
-.sec{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:700;color:#eef1fb;margin:22px 0 10px}
-.sec .dot{width:7px;height:7px;border-radius:50%;background:var(--cyan);box-shadow:0 0 10px rgba(62,216,246,.9);flex:none}
-.sec .dot.pink{background:var(--pink);box-shadow:0 0 10px rgba(245,65,201,.9)}
-.sec .more{margin-left:auto;font-size:11.5px;font-weight:600;color:var(--muted)}
-
-/* ---------- cards ---------- */
-.card{
-  background:var(--panel);border:1px solid var(--line);border-radius:18px;overflow:hidden;
-  box-shadow:0 14px 34px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.04);
-}
-.card .rowi{padding:13px 15px;border-bottom:1px solid rgba(255,255,255,.055);display:flex;align-items:center;gap:10px}
-.card .rowi:last-child{border-bottom:0}
-.cname{font-size:13.5px;font-weight:700;color:#fff;line-height:1.4}
-.cmeta{font-size:11px;color:var(--muted);margin-top:2px}
-.pill{
-  flex:none;font-size:10.5px;font-weight:700;padding:4px 11px;border-radius:99px;white-space:nowrap;
-}
-.pill.cur{color:#7ce9ff;background:rgba(62,216,246,.12);border:1px solid rgba(62,216,246,.45)}
-.pill.done{color:#ff8fe4;background:rgba(245,65,201,.12);border:1px solid rgba(245,65,201,.42)}
-.addrow{display:flex;align-items:center;gap:12px;padding:15px;color:var(--cyan);font-weight:700;font-size:13.5px;width:100%;text-align:left}
-.addrow .plus{font-size:16px;font-weight:700;line-height:1}
-.addrow .asub{display:block;font-size:11px;font-weight:500;color:var(--muted);margin-top:3px}
-
-/* ---------- peer rows ---------- */
-.peer{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,.055);cursor:pointer}
-.peer:last-child{border-bottom:0}
-.peer:active{background:rgba(255,255,255,.03)}
-.ava{
-  flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-weight:800;font-size:15px;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.35);
-  border:1px solid rgba(255,255,255,.16);box-shadow:0 6px 14px rgba(0,0,0,.3);
-}
-.av0{background:linear-gradient(140deg,#2ed3f5,#0f7cff)}
-.av1{background:linear-gradient(140deg,#ff6fb5,#f0506e)}
-.av2{background:linear-gradient(140deg,#ffb257,#ff7a3d)}
-.av3{background:linear-gradient(140deg,#4ce6b0,#0fa07a)}
-.av4{background:linear-gradient(140deg,#8e7bff,#5b3bff)}
-.av5{background:linear-gradient(140deg,#f857f0,#8a3bff)}
-.pbody{flex:1;min-width:0}
-.prow{display:flex;align-items:center;gap:6px;flex-wrap:wrap;line-height:1.3}
-.prow b{font-size:13.5px;font-weight:700;color:#fff}
-.tagx{
-  font-size:10px;font-weight:600;color:#cfd6ee;padding:1px 7px;border-radius:99px;
-  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.15);white-space:nowrap;
-}
-.rank{font-size:10px;font-weight:700;padding:1px 8px;border-radius:99px;white-space:nowrap}
-.rank.s{color:#7ef3c2;border:1px solid rgba(110,231,183,.5);background:rgba(110,231,183,.10)}
-.rank.a{color:#7ef3c2;border:1px solid rgba(110,231,183,.45);background:rgba(110,231,183,.10)}
-.rank.b{color:#7ce9ff;border:1px solid rgba(62,216,246,.45);background:rgba(62,216,246,.10)}
-.rank.c{color:#c4a6ff;border:1px solid rgba(160,107,255,.45);background:rgba(160,107,255,.12)}
-.rank.d{color:#b9c0d8;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.06)}
-.meta{font-size:11px;color:var(--muted);margin-top:3px}
-.common{font-size:11px;color:#7fe6fb;margin-top:3px;line-height:1.45}
-.chev{flex:none;color:#7e86a8;font-size:16px;line-height:1;margin-top:2px}
-.empty{padding:16px;color:var(--muted);font-size:12px;line-height:1.6}
-
-/* ---------- dm ---------- */
-.seg{display:flex;gap:0;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.05);border:1px solid var(--line);padding:3px}
-.seg button{flex:1;padding:9px 0;font-size:12.5px;font-weight:700;color:var(--muted);border-radius:99px;position:relative}
-.seg button.on{color:#fff;background:var(--grad);box-shadow:0 6px 18px rgba(245,65,201,.26)}
-.seg .ndot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#fbbf24;margin-left:5px;vertical-align:middle}
-.dmline{font-size:11.5px;color:var(--muted);margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.dmline em{color:#cfd6ee;font-style:normal}
-.badge{flex:none;min-width:19px;height:19px;border-radius:99px;background:var(--pink);color:#fff;font-size:10.5px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 5px;align-self:flex-start;margin-top:2px}
-
-/* chat */
-.chathead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
-.backbtn{flex:none;width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.06);border:1px solid var(--line);font-size:18px;line-height:1;color:#dfe4f7;display:flex;align-items:center;justify-content:center}
-.chathead .who{min-width:0;flex:1}
-.chathead b{font-size:15px}
-.chathead .meta{font-size:11px}
-.msgs{display:flex;flex-direction:column;gap:8px;padding:10px 2px;margin-bottom:12px;min-height:52vh}
-.m{max-width:82%;padding:10px 14px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);align-self:flex-start;white-space:pre-wrap;word-break:break-word;font-size:13px}
-.m.me{background:var(--grad);border-color:transparent;color:#fff;align-self:flex-end;box-shadow:0 8px 20px rgba(245,65,201,.2)}
-.composer{display:flex;gap:8px;align-items:flex-end;position:sticky;bottom:calc(88px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(10,14,31,0),rgba(10,14,31,.92) 40%);padding:10px 0 4px}
-.composer textarea{flex:1;min-height:46px;max-height:120px;padding:12px 14px;border-radius:14px;background:rgba(8,11,26,.8);border:1px solid var(--line);resize:none;font-size:13px}
-.composer textarea:focus{outline:none;border-color:rgba(62,216,246,.4)}
-.send{flex:none;height:46px;padding:0 18px;border-radius:14px;font-weight:700;font-size:13px;color:#fff;background:var(--grad);box-shadow:0 8px 20px rgba(245,65,201,.28)}
-
-/* ---------- profile ---------- */
-.profcard{background:linear-gradient(135deg,rgba(76,29,149,.42),rgba(14,116,144,.22));border:1px solid rgba(160,120,255,.28);border-radius:18px;padding:14px}
-.profcard .top{display:flex;align-items:center;gap:12px;cursor:pointer}
-.profcard .ava{width:44px;height:44px;font-size:17px}
-.profcard b{font-size:15px}
-.profcard .sub{font-size:11px;color:#c3caea;margin-top:3px;line-height:1.5}
-.ghostbtn{display:inline-flex;align-items:center;justify-content:center;margin-top:12px;padding:8px 16px;border-radius:99px;font-size:12px;font-weight:700;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#e7ebfb}
-.list .rowi{cursor:default}
-.rowtitle{display:flex;align-items:center;gap:10px;padding:14px 15px;border-bottom:1px solid rgba(255,255,255,.055);cursor:pointer}
-.rowtitle .t{flex:1;min-width:0}
-.rowtitle b{font-size:13px}
-.rowtitle .sub{font-size:11px;color:var(--muted);margin-top:2px}
-.xdel{flex:none;width:26px;height:26px;border-radius:8px;color:#ff9db4;background:rgba(255,90,120,.10);border:1px solid rgba(255,90,120,.26);font-size:13px;line-height:1;display:flex;align-items:center;justify-content:center}
-label{display:block;font-size:11.5px;font-weight:700;color:#c9cfeb;margin:14px 0 6px}
-label:first-child{margin-top:0}
-.inp,select.inp,textarea.inp{
-  width:100%;height:44px;padding:0 13px;border-radius:12px;font-size:13px;
-  background:rgba(8,11,26,.72);border:1px solid var(--line);appearance:none;-webkit-appearance:none;
-}
-textarea.inp{height:auto;padding:11px 13px;min-height:76px;resize:vertical}
-select.inp{
-  background-image:linear-gradient(45deg,transparent 50%,#8f97b8 50%),linear-gradient(135deg,#8f97b8 50%,transparent 50%);
+h1{font-size:19px;line-height:1.35;margin:2px 0 12px;font-weight:800;letter-spacing:0.01em;color:#f2f5ff}
+h2{font-size:14px;margin:20px 0 10px;font-weight:700;color:#dde3ff;display:flex;align-items:center;gap:8px}
+h2::before{content:"";flex:none;width:8px;height:8px;border-radius:50%;
+  background:linear-gradient(135deg,#17d4ff,#ec38bc);box-shadow:0 0 12px rgba(23,212,255,0.8)}
+h2.pinkdot::before{background:linear-gradient(135deg,#ec38bc,#ff8ce3);box-shadow:0 0 12px rgba(236,56,188,0.8)}
+.bw{color:#fff}
+.bg2{background:linear-gradient(90deg,#ff4df0,#23d5ff);-webkit-background-clip:text;background-clip:text;color:transparent}
+.brand{font-size:26px;font-weight:800;letter-spacing:0.03em;line-height:1.2}
+.brandbar{font-size:13px;font-weight:700;letter-spacing:0.06em;margin:0 0 14px;opacity:0.95}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:10px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 26px rgba(0,0,0,0.24)}
+label{display:block;font-size:12px;color:var(--sub);margin:10px 0 5px;font-weight:600}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:12px;
+  background:var(--card2);color:var(--tx);font:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03)}
+input::placeholder,textarea::placeholder{color:rgba(152,161,198,0.66)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:rgba(23,212,255,0.55);box-shadow:0 0 0 3px rgba(23,212,255,0.14)}
+select{appearance:none;-webkit-appearance:none;padding-right:34px;
+  background-image:linear-gradient(45deg,transparent 50%,#8f9ac2 50%),linear-gradient(135deg,#8f9ac2 50%,transparent 50%);
   background-position:calc(100% - 18px) calc(50% + 1px),calc(100% - 13px) calc(50% + 1px);
-  background-size:5px 5px,5px 5px;background-repeat:no-repeat;padding-right:34px;
-}
-.inp:focus,select.inp:focus,textarea.inp:focus{outline:none;border-color:rgba(62,216,246,.5);box-shadow:0 0 0 3px rgba(62,216,246,.10)}
-option{background:#101630;color:var(--ink)}
-.two{display:flex;gap:10px}
-.two>div{flex:1;min-width:0}
-.cta{display:block;width:100%;height:50px;border-radius:99px;font-size:14px;font-weight:800;color:#fff;background:var(--grad);box-shadow:0 10px 26px rgba(245,65,201,.28),0 4px 18px rgba(56,198,244,.18);margin-top:16px}
-.cta:active{filter:brightness(1.06)}
-.cta[disabled]{opacity:.6}
-.sub{font-size:11.5px;color:var(--muted);line-height:1.6}
-.hint{margin-top:8px}
-.err{color:#ff93a8;font-size:12px;margin-top:10px;line-height:1.5}
-.okmsg{color:#6ee7b7;font-size:12px;margin-top:10px;line-height:1.5}
-.note{font-size:11px;color:var(--muted2);margin-top:10px;line-height:1.6}
-.setrow{display:flex;align-items:center;gap:12px;padding:14px 15px;border-bottom:1px solid rgba(255,255,255,.055)}
-.setrow:last-child{border-bottom:0}
-.setrow .t{flex:1;min-width:0;font-size:13px}
-.setrow .s{font-size:11px;color:var(--muted);margin-top:1px}
-.sw{position:relative;width:46px;height:26px;flex:none}
-.sw input{position:absolute;inset:0;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
-.sw span{position:absolute;inset:0;border-radius:99px;background:rgba(255,255,255,.16);transition:.18s}
-.sw span::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.18s}
-.sw input:checked + span{background:var(--grad)}
-.sw input:checked + span::after{transform:translateX(20px)}
-.danger{color:#ff8fa6}
-.foot{text-align:center;font-size:10.5px;color:var(--muted2);margin-top:22px}
-
-/* chips / suggestions */
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 10px}
-.chip{
-  font-size:11.5px;font-weight:600;padding:6px 11px;border-radius:99px;max-width:100%;
-  color:#8fe9ff;background:rgba(62,216,246,.10);border:1px solid rgba(62,216,246,.30);
-  display:inline-flex;align-items:center;gap:5px;
-}
-.chip .cnt{font-size:9.5px;opacity:.85}
-.chip.on{background:rgba(62,216,246,.22);border-color:rgba(62,216,246,.7);color:#c8f6ff}
-.chip.ghost{color:#c6cce8;background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.15)}
-.chip.ghost.on{background:var(--grad);border-color:transparent;color:#fff}
-.sugwrap{position:relative}
-.suglist{
-  position:absolute;z-index:30;left:0;right:0;top:calc(100% + 6px);display:none;max-height:250px;overflow-y:auto;
-  background:rgba(15,20,42,.97);border:1px solid rgba(255,255,255,.12);border-radius:14px;
-  box-shadow:0 18px 44px rgba(0,0,0,.6);
-}
-.suglist.on{display:block}
-.sugitem{display:flex;width:100%;gap:8px;align-items:center;justify-content:space-between;text-align:left;padding:11px 13px;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
-.sugitem:last-child{border-bottom:0}
-.sugitem:active{background:rgba(62,216,246,.12)}
-.sugitem .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sugitem .cnt{flex:none;font-size:10px;color:#8fe9ff;background:rgba(62,216,246,.12);border:1px solid rgba(62,216,246,.28);border-radius:99px;padding:1px 8px}
-.sugitem .cnt.d{color:var(--muted);background:transparent;border-color:transparent}
-
-/* ---------- nav ---------- */
-nav{
-  position:fixed;left:50%;transform:translateX(-50%);z-index:40;
-  bottom:calc(14px + env(safe-area-inset-bottom,0px));
-  width:min(398px,calc(100vw - 36px));display:flex;gap:4px;padding:7px;
-  background:rgba(13,18,38,.9);border:1px solid rgba(255,255,255,.09);border-radius:20px;
+  background-size:5px 5px,5px 5px;background-repeat:no-repeat}
+option{background:#101630;color:var(--tx)}
+button{border:0;border-radius:12px;padding:11px 16px;background:linear-gradient(90deg,#ec38bc,#17d4ff);
+  color:#fff;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(236,56,188,0.22);
+  transition:filter .15s ease,opacity .15s ease}
+button:active{filter:brightness(1.1)}
+button:disabled{opacity:0.6}
+button.g{background:rgba(255,255,255,0.08);color:#e9edff;border:1px solid rgba(255,255,255,0.14);box-shadow:none}
+button.x{background:transparent;color:var(--sub);padding:6px 10px;font-weight:600;box-shadow:none}
+button.danger{background:rgba(255,90,120,0.10);color:#ff8fa6;border:1px solid rgba(255,90,120,0.28);box-shadow:none}
+main p>button:not(.x){width:100%}
+.row{display:flex;gap:8px;align-items:center}
+.row>*{flex:1;min-width:0}
+.row>button{flex:none}
+.row>.avatar{flex:none}
+.tag{display:inline-flex;align-items:center;font-size:11px;line-height:1.5;padding:3px 9px;border-radius:99px;
+  background:rgba(23,212,255,0.13);color:#6fe3ff;border:1px solid rgba(23,212,255,0.30);
+  margin:3px 5px 3px 0;font-weight:600;white-space:nowrap}
+.tag.ok{background:rgba(236,56,188,0.14);color:#ff8ce3;border-color:rgba(236,56,188,0.38)}
+.tag.grade{background:rgba(62,230,168,0.13);color:#5ff0bb;border-color:rgba(62,230,168,0.32)}
+.tag.vis{background:rgba(160,107,255,0.14);color:#c3a6ff;border-color:rgba(160,107,255,0.35)}
+.sub{color:var(--sub);font-size:12px}
+.err{color:var(--err);font-size:12px;margin-top:8px}
+.okmsg{color:var(--ok);font-size:12px;margin-top:8px}
+nav{position:fixed;z-index:40;left:50%;transform:translateX(-50%);
+  bottom:calc(10px + env(safe-area-inset-bottom,0px));width:calc(100% - 20px);max-width:460px;
+  display:flex;gap:4px;padding:6px;background:rgba(12,17,38,0.86);
+  border:1px solid rgba(255,255,255,0.12);border-radius:20px;
   backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  box-shadow:0 18px 44px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.05);
-}
-nav button{flex:1;padding:10px 4px;border-radius:14px;font-size:12px;font-weight:700;color:var(--muted);position:relative}
-nav button.on{color:#fff;background:var(--grad);box-shadow:0 8px 20px rgba(245,65,201,.3)}
-
-/* ---------- sheets ---------- */
-.sheet{position:fixed;inset:0;z-index:60;display:none;background:rgba(5,7,15,.72);backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px)}
+  box-shadow:0 16px 40px rgba(0,0,0,0.5),inset 0 1px 0 rgba(255,255,255,0.06)}
+nav button{flex:1;border-radius:14px;background:transparent;color:var(--sub);padding:11px 4px;
+  font-size:13px;font-weight:700;box-shadow:none;position:relative}
+nav button.on{color:#081019;background:linear-gradient(90deg,#ec38bc,#17d4ff);box-shadow:0 6px 18px rgba(236,56,188,0.4)}
+nav .ndot{position:absolute;top:8px;right:16%;width:7px;height:7px;border-radius:50%;
+  background:linear-gradient(135deg,#ff4df0,#ffb43c);box-shadow:0 0 8px rgba(255,77,240,0.9);display:none}
+nav .ndot.on{display:block}
+.msgs{display:flex;flex-direction:column;gap:8px;max-height:55vh;overflow-y:auto;margin:10px 0;padding:4px 2px}
+.m{max-width:80%;padding:9px 13px;border-radius:16px;background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.10);align-self:flex-start;white-space:pre-wrap;word-break:break-word}
+.m.me{background:linear-gradient(90deg,#ec38bc,#17d4ff);border-color:transparent;color:#fff;align-self:flex-end;
+  box-shadow:0 8px 20px rgba(236,56,188,0.22)}
+.tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{flex:1}
+.avatar{width:44px;height:44px;border-radius:50%;background:linear-gradient(140deg,#23d5ff,#0a6cff);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex:none;
+  border:1px solid rgba(255,255,255,0.18);box-shadow:0 6px 16px rgba(0,0,0,0.34);text-shadow:0 1px 3px rgba(0,0,0,0.38)}
+.av0{background:linear-gradient(140deg,#23d5ff,#0a6cff)}
+.av1{background:linear-gradient(140deg,#ff4df0,#8a2bff)}
+.av2{background:linear-gradient(140deg,#ff9a3c,#ff4d6d)}
+.av3{background:linear-gradient(140deg,#3ee6a8,#0e9c78)}
+.av4{background:linear-gradient(140deg,#a06bff,#4a2bff)}
+.av5{background:linear-gradient(140deg,#17d4ff,#ec38bc)}
+.chev{flex:none;color:var(--sub);font-size:18px;line-height:1}
+.dmline{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugwrap{position:relative}
+.suglist{position:absolute;z-index:45;left:0;right:0;top:calc(100% + 6px);background:rgba(15,20,42,0.98);
+  border:1px solid rgba(255,255,255,0.14);border-radius:14px;
+  box-shadow:0 18px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(23,212,255,0.10);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  max-height:min(58vh,420px);overflow-y:auto;overscroll-behavior:contain;
+  -webkit-overflow-scrolling:touch;display:none}
+.suglist.on{display:block}
+.sughead{position:sticky;top:0;z-index:1;padding:6px 13px;font-size:11px;font-weight:800;letter-spacing:0.08em;
+  color:#8ceaff;background:rgba(13,18,40,0.98);border-bottom:1px solid rgba(23,212,255,0.20)}
+.sugitem{display:flex;width:100%;gap:8px;align-items:center;justify-content:space-between;background:transparent;
+  color:var(--tx);font-weight:500;text-align:left;border-radius:0;padding:9px 13px;
+  border-bottom:1px solid rgba(255,255,255,0.06);box-shadow:none}
+.sugitem:last-child{border-bottom:0}
+.sugitem:active,.sugitem:hover{background:rgba(23,212,255,0.12)}
+.sugitem.cur{background:rgba(23,212,255,0.10);box-shadow:inset 3px 0 0 #17d4ff}
+.sugitem .col{display:flex;flex-direction:column;min-width:0;gap:1px}
+.sugitem .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugitem .yc{font-size:10.5px;color:rgba(152,161,198,0.92);font-weight:500;letter-spacing:0.01em;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugempty{padding:12px 13px;font-size:12px;color:var(--sub)}
+.sugitem .cnt{font-size:11px;color:#6fe3ff;background:rgba(23,212,255,0.13);border:1px solid rgba(23,212,255,0.28);
+  border-radius:99px;padding:1px 8px;flex:none}
+.sugitem .cnt.d{background:transparent;border-color:transparent;color:var(--sub)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
+.chip{background:rgba(23,212,255,0.12);color:#8ceaff;border:1px solid rgba(23,212,255,0.30);font-size:12px;
+  font-weight:600;padding:6px 11px;border-radius:99px;display:inline-flex;gap:5px;align-items:center;max-width:100%;box-shadow:none}
+.chip:active{opacity:0.65}
+.chip .cnt{font-size:10px;opacity:0.85}
+.chip.on{background:linear-gradient(90deg,#ec38bc,#17d4ff);color:#fff;border-color:transparent;
+  box-shadow:0 6px 16px rgba(236,56,188,0.32)}
+.pf{cursor:pointer}.pf:active{opacity:0.6}
+.sheet{position:fixed;inset:0;z-index:50;display:none;overflow-y:auto;padding:16px;
+  padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));
+  background:rgba(4,6,16,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
 .sheet.on{display:block}
-.pv{
-  position:absolute;left:50%;transform:translateX(-50%);top:0;bottom:0;width:100%;max-width:430px;
-  overflow-y:auto;padding:calc(18px + env(safe-area-inset-top,0px)) 24px calc(40px + env(safe-area-inset-bottom,0px));
-  background:var(--phone-bg);
-}
-.pvtop{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
-.pvback{font-size:13px;font-weight:700;color:#dfe4f7;padding:6px 2px}
-.dots{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:1px solid var(--line);font-size:14px;color:#cfd6ee}
-.commonbox{padding:14px;border-radius:16px;background:linear-gradient(135deg,rgba(14,116,144,.30),rgba(76,29,149,.24));border:1px solid rgba(62,216,246,.28)}
-.eyebrow{font-size:10.5px;font-weight:700;letter-spacing:.06em;color:#7fe6fb}
-.commonbox .cn{font-size:14px;font-weight:800;color:#fff;margin-top:3px}
-.commonbox .line{font-size:11.5px;color:#c7cfea;margin-top:4px;line-height:1.6}
-.commonbox .hint{font-size:10.5px;color:#9aa2c2;margin-top:6px}
-.who{display:flex;align-items:center;gap:12px;margin:18px 0 4px}
-.who .ava{width:52px;height:52px;font-size:20px}
-.who b{font-size:18px}
-.who .meta{margin-top:4px}
-.nbox{
-  position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:430px;
-  background:#0c1124;border:1px solid rgba(255,255,255,.09);border-bottom:0;border-radius:22px 22px 0 0;
-  padding:18px 20px calc(26px + env(safe-area-inset-bottom,0px));box-shadow:0 -20px 50px rgba(0,0,0,.6);
-}
-.nbox h3{font-size:14px;font-weight:800;margin-bottom:4px}
-.nrow{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);width:100%;text-align:left}
-.nrow:last-of-type{border-bottom:0}
-.nrow .t{flex:1;min-width:0}
-.nrow b{font-size:13px}
-.nrow .s{font-size:11px;color:var(--muted);margin-top:2px}
-.emptybig{text-align:center;padding:48px 10px;color:var(--muted)}
-.emptybig .big{font-size:34px;margin-bottom:10px}
+.sheetbox{max-width:460px;margin:20px auto;padding:16px;background:rgba(13,18,42,0.94);
+  border:1px solid rgba(255,255,255,0.12);border-radius:22px;
+  box-shadow:0 30px 70px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.06)}
+.sheetbox .card{background:rgba(255,255,255,0.05)}
+/* ---- Muse 風レイアウト ---- */
+.tophead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px}
+.logo{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:800;letter-spacing:0.03em}
+.logo .mark{width:18px;height:18px;border-radius:6px;flex:none;
+  background:linear-gradient(135deg,#ec38bc,#17d4ff);box-shadow:0 0 14px rgba(23,212,255,0.55)}
+.bell{position:relative;flex:none;width:42px;height:42px;padding:0;border-radius:14px;
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.13);
+  display:flex;align-items:center;justify-content:center;font-size:18px;box-shadow:none}
+.bell .dot{position:absolute;top:8px;right:9px;width:8px;height:8px;border-radius:50%;
+  background:linear-gradient(135deg,#ff4df0,#ffb43c);box-shadow:0 0 9px rgba(255,77,240,0.9);display:none}
+.bell .dot.on{display:block}
+.greet{font-size:22px;margin:6px 0 14px;font-weight:800;letter-spacing:0.01em;line-height:1.35}
+.greet b{font-weight:800}
+.searchrow{display:flex;gap:8px;margin:0 0 2px;align-items:stretch}
+.searchrow input{border-radius:14px}
+.searchrow button{flex:none;border-radius:14px;padding:11px 20px}
+.listcard{background:var(--card);border:1px solid var(--bd);border-radius:16px;
+  box-shadow:0 8px 26px rgba(0,0,0,0.24);overflow:hidden;margin:0 0 6px}
+.lrow{display:flex;align-items:center;gap:11px;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.lrow:last-child{border-bottom:0}
+.lrow.tap{cursor:pointer}
+.lrow.tap:active{background:rgba(23,212,255,0.07)}
+.lrow .txt{flex:1;min-width:0}
+.lrow .nm{font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.lrow .sub{display:block;margin-top:1px}
+.pill{flex:none;font-size:11px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap}
+.pill.cur{color:#6fe3ff;border:1px solid rgba(23,212,255,0.45);background:rgba(23,212,255,0.10)}
+.pill.done{color:#ff8ce3;border:1px solid rgba(236,56,188,0.45);background:rgba(236,56,188,0.12)}
+.rank{font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:99px;
+  color:#5ff0bb;border:1px solid rgba(62,230,168,0.34);background:rgba(62,230,168,0.12);white-space:nowrap}
+.shared{color:#5fd8f5;font-size:12px;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lrow.addrow{border-top:1px dashed rgba(255,255,255,0.20);border-bottom:0;color:#8ceaff;
+  font-weight:700;font-size:14px;cursor:pointer;align-items:flex-start;flex-direction:column;gap:2px}
+.lrow.addrow .sub{font-weight:400}
+.segrow{display:flex;gap:6px;margin:2px 0 10px}
+.segrow .chip{flex:none}
+.tabtitle{font-size:24px;font-weight:800;margin:2px 0 14px;letter-spacing:0.01em}
+.empty{padding:14px;color:var(--sub);font-size:12.5px;text-align:center}
+.nrow{padding:12px 14px}
 </style>
 </head>
 <body>
-<div class="phone"><main id="app"></main></div>
+<main id="app"></main>
 <nav id="nav" style="display:none">
   <button data-t="home">ホーム</button>
   <button data-t="search">さがす</button>
-  <button data-t="dm">DM</button>
+  <button data-t="dm">DM<span class="ndot" id="ndot"></span></button>
   <button data-t="profile">マイページ</button>
 </nav>
-<div class="sheet" id="pmodal"><div class="pv" id="pmbody"></div></div>
-<div class="sheet" id="nmodal"><div class="nbox" id="nmbody"></div></div>
+<div class="sheet" id="pmodal"><div class="sheetbox" id="pmbody"></div></div>
+<div class="sheet" id="nsheet"><div class="sheetbox" id="nsbody"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ===== LOCAL PREVIEW ONLY: mock Supabase (never published) ===== */
@@ -404,297 +319,25 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const norm = s => String(s || "").normalize("NFKC").replace(/\s+/g, "").toLowerCase();
-const GRADES = ["S","A","B","C","D","未回答"];
-const VIS = { all:"全員に公開", same:"同じ授業の人のみ", none:"非公開" };
+const GRADES = ["S","A","B","C","D","未回答"], VIS = {all:"全員に公開", same:"同じ授業の人のみ", none:"非公開"};
+/* 頭文字アバターの色（ID から決まる固定色） */
 const AV_CLASSES = ["av0","av1","av2","av3","av4","av5"];
 const avCls = s => AV_CLASSES[Array.from(String(s || "x")).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7) % AV_CLASSES.length];
 const initial = s => String(s || "?").trim().slice(0, 1) || "?";
 
-/* ================= 大学・学部・学科データ（あかさたな順で定義） ================= */
-/* 各大学の学部は「あかさたな順」、各学部の学科も「あかさたな順」に並べています。 */
-const F = (n, d) => ({ n, d: d || [] });
-const UNIVS = [
-  { n:"青山学院大学", f:[
-    F("教育人間科学部", ["教育学科","心理学科"]),
-    F("経営学部", ["経営学科","マーケティング学科"]),
-    F("経済学部", ["経済学科","現代経済デザイン学科"]),
-    F("国際政治経済学部", ["国際政治学科","国際経済学科","国際コミュニケーション学科"]),
-    F("コミュニティ人間科学部", ["コミュニティ人間科学科"]),
-    F("社会情報学部", ["社会情報学科"]),
-    F("総合文化政策学部", ["総合文化政策学科"]),
-    F("地球社会共生学部", ["地球社会共生学科"]),
-    F("文学部", ["英米文学科","フランス文学科","日本文学科","史学科","比較芸術学科"]),
-    F("法学部", ["法学科"]),
-    F("理工学部", ["化学・生命科学科","機械創造工学科","経営システム工学科","電気電子工学科","物理・数理学科","情報テクノロジー学科"])
-  ]},
-  { n:"関西大学", f:[
-    F("化学生命工学部", ["化学・物質工学科","生命・生物工学科"]),
-    F("環境都市工学部", ["建築学科","都市システム工学科","エネルギー・環境工学科"]),
-    F("外国語学部", ["外国語学科"]),
-    F("経済学部", ["経済学科"]),
-    F("システム理工学部", ["機械工学科","電気電子情報工学科","数学科","物理・応用物理学科","環境都市工学科"]),
-    F("社会安全学部", ["安全マネジメント学科"]),
-    F("社会学部", ["社会学科"]),
-    F("商学部", ["商学科"]),
-    F("情報科学部", ["情報システム学科","知能情報学科"]),
-    F("政策創造学部", ["政策学科"]),
-    F("総合情報学部", ["総合情報学科"]),
-    F("人間健康学部", ["人間健康学科"]),
-    F("文学部", ["英米文学科","ドイツ語文学科","フランス語文学科","日本文学科","史学科","哲学科"]),
-    F("法学部", ["法律学科","政治学科"]),
-    F("理工学部", ["機械工学科","電気電子工学科","化学・物質工学科","数学科","物理学科","生命・生物工学科"])
-  ]},
-  { n:"関西学院大学", f:[
-    F("栄養学部", ["栄養学科"]),
-    F("音楽学部", ["音楽学科"]),
-    F("教育学部", ["教育学科"]),
-    F("経済学部", ["経済学科"]),
-    F("建築学部", ["建築学科"]),
-    F("国際学部", ["国際学科"]),
-    F("社会学部", ["社会学科"]),
-    F("神学部", ["神学科"]),
-    F("商学部", ["商学科"]),
-    F("生命環境学部", ["生命科学科","環境応用科学科"]),
-    F("総合政策学部", ["総合政策学科"]),
-    F("人間福祉学部", ["社会福祉学科","人間科学科"]),
-    F("文学部", ["英米文学科","ドイツ文学科","フランス文学科","日本文学科","史学科","哲学科","美学芸術学科"]),
-    F("法学部", ["法律学科","政治学科"]),
-    F("理学部", ["数理科学科","物理学科","化学科"]),
-    F("理工学部", ["機械工学科","電気電子工学科","情報科学科","生命科学科"])
-  ]},
-  { n:"学習院大学", f:[
-    F("経済学部", ["経済学科","経営学科"]),
-    F("国際社会科学部", ["国際社会科学科"]),
-    F("法学部", ["法学科","政治学科"]),
-    F("文学部", ["英語英米文化学科","ドイツ語圏文化学科","フランス語圏文化学科","日本語日本文学科","史学科","哲学科"]),
-    F("理学部", ["化学科","数学科","生命科学科","物理学科"])
-  ]},
-  { n:"慶應義塾大学", f:[
-    F("医学部", ["医学科"]),
-    F("看護医療学部", ["看護学科"]),
-    F("環境情報学部", ["環境情報学科"]),
-    F("経済学部", ["経済学科"]),
-    F("商学部", ["商学科"]),
-    F("総合政策学部", ["総合政策学科"]),
-    F("文学部", ["英米文学科","ドイツ文学科","フランス文学科","史学","文学","哲学","民族学考古学","図書館情報学"]),
-    F("法学部", ["法律学科","政治学科"]),
-    F("薬学部", ["薬学科","薬科学科"]),
-    F("理工学部", ["機械工学科","電気電子工学科","応用化学科","物理学科","数学科","情報工学科"])
-  ]},
-  { n:"駒澤大学", f:[
-    F("医療健康科学部", ["診療放射線技術科学科","理学療法学科"]),
-    F("グローバル・メディア・スタディーズ学部", ["グローバル・メディア学科"]),
-    F("経営学部", ["経営学科","市場戦略学科"]),
-    F("経済学部", ["経済学科","現代応用経済学科"]),
-    F("仏教学部", ["仏教学科","禅学科"]),
-    F("文学部", ["国文学科","英米文学科","地理学科","歴史学科","社会学科","心理学科"]),
-    F("法学部", ["法律学科","政治学科"])
-  ]},
-  { n:"上智大学", f:[
-    F("外国語学部", ["英語学科","ドイツ語学科","フランス語学科","イスパニア語学科","ロシア語学科","ポルトガル語学科"]),
-    F("経済学部", ["経済学科","経営学科"]),
-    F("国際教養学部", ["国際教養学科"]),
-    F("神学部", ["神学科"]),
-    F("総合グローバル学部", ["総合グローバル学科"]),
-    F("総合人間科学部", ["教育学科","心理学科","社会学科","社会福祉学科","看護学科"]),
-    F("文学部", ["哲学科","史学科","国文学科","英文学科","ドイツ文学科","フランス文学科","新聞学科"]),
-    F("法学部", ["法律学科","国際関係法学科","地球環境法学科"]),
-    F("理工学部", ["物質生命理工学科","機能創造理工学科","情報理工学科"])
-  ]},
-  { n:"専修大学", f:[
-    F("経営学部", ["経営学科","ビジネスデザイン学科"]),
-    F("経済学部", ["経済学科","国際経済学科"]),
-    F("国際コミュニケーション学部", ["日本語学科","英語学科"]),
-    F("商学部", ["マーケティング学科","会計学科"]),
-    F("人間科学部", ["心理学科","社会学科"]),
-    F("ネットワーク情報学部", ["ネットワーク情報学科"]),
-    F("文学部", ["日本語日本文学科","英語英米文学科","哲学科","歴史学科","環境地理学科","ジャーナリズム学科"]),
-    F("法学部", ["法律学科","政治学科"])
-  ]},
-  { n:"中央大学", f:[
-    F("経済学部", ["経済学科","経済情報システム学科","国際経済学科","公共経済学科"]),
-    F("国際経営学部", ["国際経営学科"]),
-    F("国際情報学部", ["国際情報学科"]),
-    F("商学部", ["商業学科","会計学科","金融学科"]),
-    F("総合政策学部", ["政策科学科","国際政策文化学科"]),
-    F("文学部", ["国文学科","英米文学科","ドイツ文学科","フランス文学科","中国言語文化学科","日本史学科","東洋史学科","西洋史学科","哲学","社会学","社会情報","教育学"]),
-    F("法学部", ["法律学科","政治学科"]),
-    F("理工学部", ["数学科","物理学科","化学科","生命科学科","情報工学科","電気電子情報通信工学科","機械工学科","土木工学科","都市環境学科","精密機械工学科","ビジネスデータサイエンス学科"])
-  ]},
-  { n:"東京大学", f:[
-    F("医学部", ["医学科","健康総合科学科"]),
-    F("教養学部", ["教養学科","統合自然科学科"]),
-    F("教育学部", ["教育学科"]),
-    F("経済学部", ["経済学科","金融学科"]),
-    F("工学部", ["社会基盤学科","建築学科","都市工学科","機械工学科","精密工学科","航空宇宙工学科","電気電子工学科","物理工学科","計数工学科","マテリアル工学科","応用化学科","化学システム工学科","化学生命工学科"]),
-    F("農学部", ["応用生命科学科","獣医学科"]),
-    F("文学部", ["人文学科","史学科","心理学科"]),
-    F("法学部", ["法律学科","政治学科"]),
-    F("薬学部", ["薬学科","薬科学科"]),
-    F("理学部", ["数学科","情報科学科","物理学科","天文学科","地球惑星物理学科","地球惑星環境学科","化学科","生物化学科","生物学科"])
-  ]},
-  { n:"東洋大学", f:[
-    F("経営学部", ["経営学科","マーケティング学科","会計ファイナンス学科"]),
-    F("経済学部", ["経済学科","国際経済学科","総合政策学科"]),
-    F("国際学部", ["グローバル・イノベーション学科","国際地域学科"]),
-    F("国際観光学部", ["国際観光学科"]),
-    F("社会学部", ["社会学科","社会福祉学科","メディアコミュニケーション学科","社会心理学科"]),
-    F("商学部", ["商学科"]),
-    F("情報連携学部", ["情報連携学科"]),
-    F("食環境科学部", ["食環境科学科","健康栄養学科"]),
-    F("心理学部", ["心理学科"]),
-    F("総合情報学部", ["総合情報学科"]),
-    F("福祉社会デザイン学部", ["社会福祉学科","人間環境デザイン学科","子ども支援学科"]),
-    F("文学部", ["哲学科","東洋思想文化学科","日本文学文化学科","英米文学科","史学科","教育学科"]),
-    F("法学部", ["法律学科","企業法学科","政治学科"]),
-    F("理工学部", ["機械工学科","電気電子情報工学科","応用化学科","都市環境デザイン学科","建築学科"]),
-    F("ライフデザイン学部", ["生活支援学科","健康スポーツ学科","人間環境デザイン学科"])
-  ]},
-  { n:"同志社大学", f:[
-    F("グローバル・コミュニケーション学部", ["グローバル・コミュニケーション学科"]),
-    F("経済学部", ["経済学科"]),
-    F("神学部", ["神学科"]),
-    F("心理学部", ["心理学科"]),
-    F("社会学部", ["社会学科","社会福祉学科","メディア学科"]),
-    F("商学部", ["商学科"]),
-    F("スポーツ健康科学部", ["スポーツ健康科学科"]),
-    F("政策学部", ["政策学科"]),
-    F("生命医科学部", ["医工学科","医情報学科","医生命システム学科"]),
-    F("文化情報学部", ["文化情報学科"]),
-    F("文学部", ["英米文学科","ドイツ語圏文化学科","フランス語圏文化学科","日本語日本文学科","美学芸術学科","文化史学科","国文学科","哲学科"]),
-    F("法学部", ["法律学科","政治学科"]),
-    F("理工学部", ["機械理工学科","電気工学科","電子工学科","情報システムデザイン学科","化学システム工学科","環境システム学科","数理システム学科"])
-  ]},
-  { n:"日本大学", f:[
-    F("医学部", ["医学科"]),
-    F("危機管理学部", ["危機管理学科"]),
-    F("経済学部", ["経済学科","産業経営学科","金融公共経済学科"]),
-    F("芸術学部", ["写真学科","映画学科","美術学科","音楽学科","文芸学科","演劇学科","放送学科","デザイン学科"]),
-    F("工学部", ["土木工学科","建築学科","機械工学科","電気電子工学科","応用分子化学科","情報工学科"]),
-    F("国際関係学部", ["国際関係学科","国際文化学科"]),
-    F("商学部", ["商業学科","経営学科","会計学科"]),
-    F("生物資源科学部", ["生物資源科学科","応用生物科学科","生命科学科"]),
-    F("生産工学部", ["機械工学科","電気電子工学科","土木工学科","建築工学科","応用分子化学科","数理情報工学科"]),
-    F("スポーツ科学部", ["スポーツ科学科"]),
-    F("歯学部", ["歯学科"]),
-    F("法学部", ["法律学科","政治学科"]),
-    F("文理学部", ["哲学科","史学科","国文学科","中国文学科","英文学科","ドイツ文学科","社会学科","教育学科","体育学科","心理学科","地理学科","地球科学科","数学科","物理学科","化学科","生物学科"]),
-    F("理工学部", ["土木工学科","建築学科","機械工学科","電気工学科","応用情報工学科","物質応用化学科","数学科","物理学科"]),
-    F("薬学部", ["薬学科","薬科学科"])
-  ]},
-  { n:"一橋大学", f:[
-    F("経済学部", ["経済学科"]),
-    F("社会学部", ["社会学科","社会政策学科"]),
-    F("商学部", ["商業学科"]),
-    F("ソーシャル・データサイエンス学部", ["ソーシャル・データサイエンス学科"]),
-    F("法学部", ["法律学科"])
-  ]},
-  { n:"法政大学", f:[
-    F("キャリアデザイン学部", ["キャリアデザイン学科"]),
-    F("グローバル教養学部（GIS）", ["グローバル教養学科"]),
-    F("経営学部", ["経営学科","経営戦略学科","市場経営学科"]),
-    F("経済学部", ["経済学科","現代経済学科","国際経済学科"]),
-    F("現代福祉学部", ["福祉コミュニティ学科","臨床心理学科"]),
-    F("国際文化学部", ["国際文化学科"]),
-    F("社会学部", ["社会学科","社会政策科学科","メディア社会学科"]),
-    F("情報科学部", ["コンピュータ科学科","ディジタルメディア学科"]),
-    F("スポーツ健康学部", ["スポーツ健康学科"]),
-    F("生命科学部", ["生命機能学科","環境応用化学科"]),
-    F("デザイン工学部", ["建築学科","都市環境デザイン工学科","システムデザイン学科"]),
-    F("人間環境学部", ["人間環境学科"]),
-    F("文学部", ["哲学科","日本文学科","英文学科","史学科","地理学科","心理学科"]),
-    F("法学部", ["法律学科","政治学科"]),
-    F("理工学部", ["機械工学科","電気電子工学科","応用情報工学科","経営システム工学科","創生科学科"])
-  ]},
-  { n:"明治大学", f:[
-    F("経営学部", ["経営学科","会計学科","公共経営学科"]),
-    F("国際日本学部", ["国際日本学科"]),
-    F("商学部", ["商学科"]),
-    F("情報コミュニケーション学部", ["情報コミュニケーション学科"]),
-    F("政治経済学部", ["政治学科","経済学科","地域行政学科"]),
-    F("総合数理学部", ["現象数理学科","先端メディアサイエンス学科","ネットワークデザイン学科"]),
-    F("農学部", ["農学科","農芸化学科","生命科学科","食料環境政策学科"]),
-    F("文学部", ["文学科","史学地理学科","心理社会学科"]),
-    F("法学部", ["法律学科"]),
-    F("理工学部", ["電気電子生命学科","機械工学科","機械情報工学科","建築学科","応用化学科","情報科学科","数学科","物理学科"])
-  ]},
-  { n:"立教大学", f:[
-    F("異文化コミュニケーション学部", ["異文化コミュニケーション学科"]),
-    F("観光学部", ["観光学科"]),
-    F("経営学部", ["経営学科","国際経営学科"]),
-    F("経済学部", ["会計ファイナンス学科","経済学科","経済政策学科"]),
-    F("現代心理学部", ["映像身体学科","心理学科"]),
-    F("コミュニティ福祉学部", ["コミュニティ政策学科","福祉学科"]),
-    F("社会学部", ["社会学科","メディア社会学科"]),
-    F("スポーツウエルネス学部", ["スポーツウエルネス学科"]),
-    F("法学部", ["国際ビジネス法学科","政治学科","法学科"]),
-    F("文学部", ["キリスト教学科","文学科"]),
-    F("理学部", ["化学科","数学科","生命理学科","物理学科"])
-  ]},
-  { n:"立命館大学", f:[
-    F("映像学部", ["映像学科"]),
-    F("経営学部", ["経営学科","国際経営学科"]),
-    F("経済学部", ["経済学科","国際経済学科"]),
-    F("国際関係学部", ["国際関係学科"]),
-    F("グローバル教養学部", ["グローバル教養学科"]),
-    F("産業社会学部", ["現代社会学科","メディア社会学科","スポーツ社会学科","子ども社会学科","人間福祉学科"]),
-    F("食マネジメント学部", ["食マネジメント学科"]),
-    F("スポーツ健康科学部", ["スポーツ健康科学科"]),
-    F("政策科学部", ["政策科学科"]),
-    F("生命科学部", ["応用化学科","生物工学科","生命情報学科","生命医科学科"]),
-    F("総合心理学部", ["総合心理学科"]),
-    F("情報理工学部", ["情報理工学科"]),
-    F("文学部", ["文学科"]),
-    F("法学部", ["法学科"]),
-    F("薬学部", ["薬学科","薬科学科"]),
-    F("理工学部", ["数理科学科","物理科学科","応用化学科","電気電子工学科","機械工学科","ロボティクス学科","環境都市工学科","建築都市デザイン学科"])
-  ]},
-  { n:"早稲田大学", f:[
-    F("基幹理工学部", ["数学科","応用数理学科","機械科学・航空宇宙学科","電子物理システム学科","情報理工学科","情報通信学科"]),
-    F("教育学部", ["教育学科","国語国文学科","英語英文学科","社会科学科","複合文化学科"]),
-    F("国際教養学部", ["国際教養学科"]),
-    F("社会科学部", ["社会科学科"]),
-    F("商学部", ["商学科"]),
-    F("スポーツ科学部", ["スポーツ科学科"]),
-    F("政治経済学部", ["政治学科","経済学科","国際政治経済学科"]),
-    F("先進理工学部", ["物理学科","応用物理学科","化学・生命化学科","応用化学科","生命医科学科","電気・情報生命工学科"]),
-    F("創造理工学部", ["建築学科","総合機械工学科","経営システム工学科","社会環境工学科","環境資源工学科"]),
-    F("人間科学部", ["人間環境科学科","健康福祉科学科","人間情報科学科"]),
-    F("文学部", ["文学科"]),
-    F("文化構想学部", ["文化構想学科"]),
-    F("法学部", ["法学科"])
-  ]}
-];
-
-/* 学部リスト（大学名の表記ゆれを吸収） */
-function univKey(name){
-  const n = String(name || "").trim();
-  if (!n) return "";
-  const hit = UNIVS.find(u => n === u.n || n.startsWith(u.n) || u.n.startsWith(n));
-  return hit ? hit.n : n;
-}
-function facsOf(univName){
-  const k = univKey(univName);
-  let u = UNIVS.find(x => x.n === k);
-  if (!u && univName) u = UNIVS.find(x => norm(x.n).includes(norm(univName)) || norm(univName).includes(norm(x.n)));
-  return u ? u.f : [];
-}
-function depsOf(univName, facName){
-  const f = facsOf(univName).find(x => x.n === facName);
-  return f ? (f.d || []) : [];
-}
-const UNIV_NAMES = UNIVS.map(u => u.n);
-
-/* ================= 授業データ（立教大学は学部別＋全学共通を収録） ================= */
-/* ================= 授業データ（立教大学 2026年度 公開シラバス sy.rikkyo.ac.jp 準拠） ================= */
-/* 学部別の専門科目と全学共通科目（総合系・言語系）。すべて「授業名|よみ」で持ち、
-   候補は名前ではなく「よみ」の五十音順（あかさたな順）で並べます。 */
-const parseAka = txt => String(txt).trim().split("\n").map(line => {
+/* ============================================================
+   あかさたな順（五十音順）の候補ピッカー
+   入力欄をタップ／入力すると、下に候補がよみ順でズラッと開く。
+   漢字の音読み・訓読みでズレないよう、候補は必ず「よみ」で並べる。
+   ============================================================ */
+const toHira = s => String(s ?? "").normalize("NFKC")
+  .replace(/[\u30a1-\u30f6]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
+/* "名前|よみ" の行から候補配列を作る */
+const parseAka = txt => txt.trim().split("\n").map(line => {
   const i = line.indexOf("|");
   return i < 0 ? { n: line.trim(), y: "" } : { n: line.slice(0, i).trim(), y: line.slice(i + 1).trim() };
 }).filter(x => !!x.n);
-const toHira = s => String(s ?? "").normalize("NFKC").replace(/[\u30a1-\u30f6]/g, c => String.fromCharCode(c.charCodeAt(0) - 0x60));
-const AKA_ROWS = ["あ行","か行","さ行","た行","な行","は行","ま行","や行","ら行","わ行","英数","他"];
+const ROW_ORDER = ["あ行","か行","さ行","た行","な行","は行","ま行","や行","ら行","わ行","英数","他"];
 function gojuonRow(y) {
   const c = toHira(y).charAt(0);
   if (!c) return "他";
@@ -711,215 +354,600 @@ function gojuonRow(y) {
   if (/[a-z0-9]/.test(c)) return "英数";
   return "他";
 }
-const RIKKYO_FAC_DATA = {
+/* よみの五十音順で並べる（よみが同じなら漢字名で安定化） */
+function akaSort(list) {
+  return list.map((x, i) => ({ x, i })).sort((a, b) => {
+    const ra = ROW_ORDER.indexOf(gojuonRow(a.x.y)), rb = ROW_ORDER.indexOf(gojuonRow(b.x.y));
+    if (ra !== rb) return ra - rb;
+    const c = toHira(a.x.y).localeCompare(toHira(b.x.y), "ja");
+    if (c) return c;
+    const d = String(a.x.n).localeCompare(String(b.x.n), "ja");
+    return d || a.i - b.i;
+  }).map(o => o.x);
+}
+function akaUniq(list) {
+  const seen = new Set(), out = [];
+  list.forEach(x => {
+    const k = norm(x.n);
+    if (!k || !x.n || seen.has(k)) return;
+    seen.add(k); out.push(x);
+  });
+  return out;
+}
+/* 名前でもよみでも絞り込む（ひらがな・カタカナ・漢字すべて可） */
+function akaHit(x, q) {
+  const raw = String(q || "").normalize("NFKC").toLowerCase().replace(/\s+/g, "");
+  if (!raw) return true;
+  const qh = toHira(raw);
+  return toHira(norm(x.n)).includes(qh) || toHira(norm(x.y)).includes(qh);
+}
+function hideAka(listEl) {
+  if (listEl) { listEl.classList.remove("on"); listEl.innerHTML = ""; }
+}
+const AKA_LIMIT = 400;
+function drawAkaList(listEl, items, input) {
+  let row = "", html = "";
+  const curK = norm(input.value);
+  items.slice(0, AKA_LIMIT).forEach(it => {
+    /* grp がある候補（他のユーザーが登録した授業など）はその見出しでまとめる */
+    const r = it.grp || gojuonRow(it.y);
+    if (r !== row) { html += `<div class="sughead">${esc(r)}</div>`; row = r; }
+    const on = curK && norm(it.n) === curK;
+    html += `<button type="button" class="sugitem${on ? " cur" : ""}" data-pick="${esc(it.n)}">`
+      + `<span class="col"><span class="nm">${esc(it.n)}</span>${it.y && !it.grp ? `<span class="yc">${esc(it.y)}</span>` : ""}</span>`
+      + `${it.c ? `<span class="cnt">${it.c}人</span>` : ""}</button>`;
+  });
+  listEl.innerHTML = html || `<div class="sugempty">候補が見つかりません。そのまま入力できます。</div>`;
+  listEl.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => {
+    input.value = b.dataset.pick;
+    hideAka(listEl);
+    if (typeof input._akaAfter === "function") input._akaAfter(b.dataset.pick);
+  });
+  listEl.classList.add("on");
+  const cur = listEl.querySelector(".sugitem.cur");
+  listEl.scrollTop = cur ? Math.max(0, cur.offsetTop - listEl.clientHeight / 2) : 0;
+}
+/* 入力欄と候補リストを結びつける。itemsFn は開くたびに呼ばれる */
+function bindAka(input, listEl, itemsFn) {
+  if (!input || !listEl) return;
+  const draw = () => {
+    const rawItems = itemsFn() || [];
+    const grpItems = rawItems.filter(x => x.grp);
+    const plain = akaSort(akaUniq(rawItems.filter(x => !x.grp)));
+    const raw = String(input.value || "").normalize("NFKC").toLowerCase().replace(/\s+/g, "");
+    const k = norm(input.value);
+    const exact = !!k && rawItems.some(x => norm(x.n) === k);
+    let items = plain;
+    if (!exact && raw) {
+      /* 入力があるときは前方一致を先に、その中は五十音順 */
+      const qh = toHira(raw);
+      const hits = plain.filter(x => akaHit(x, input.value));
+      const pre = hits.filter(x => toHira(norm(x.y)).startsWith(qh) || toHira(norm(x.n)).startsWith(qh));
+      items = pre.concat(hits.filter(x => pre.indexOf(x) < 0));
+    }
+    drawAkaList(listEl, akaUniq(grpItems).concat(items), input);
+  };
+  input._akaDraw = draw;
+  input.addEventListener("focus", draw);
+  input.addEventListener("click", draw);
+  input.addEventListener("input", draw);
+  input.addEventListener("keydown", e => { if (e.key === "Escape") hideAka(listEl); });
+}
+
+/* 主要大学（よみ順に並べ替えて表示） */
+const UNIV_LIST = parseAka(`
+青山学院大学|あおやまがくいんだいがく
+亜細亜大学|あじあだいがく
+愛知大学|あいちだいがく
+愛知学院大学|あいちがくいんだいがく
+愛知県立大学|あいちけんりつだいがく
+秋田大学|あきただいがく
+宇都宮大学|うつのみやだいがく
+追手門学院大学|おうてもんがくいんだいがく
+桜美林大学|おうびりんだいがく
+大妻女子大学|おおつまじょしだいがく
+大阪大学|おおさかだいがく
+大阪公立大学|おおさかこうりつだいがく
+大阪経済大学|おおさかけいざいだいがく
+大阪工業大学|おおさかこうぎょうだいがく
+大阪教育大学|おおさかきょういくだいがく
+大分大学|おおいただいがく
+岡山大学|おかやまだいがく
+お茶の水女子大学|おちゃのみずじょしだいがく
+香川大学|かがわだいがく
+学習院大学|がくしゅういんだいがく
+鹿児島大学|かごしまだいがく
+金沢大学|かなざわだいがく
+神奈川大学|かながわだいがく
+関西大学|かんさいだいがく
+関西学院大学|かんせいがくいんだいがく
+関西外国語大学|かんさいがいこくごだいがく
+関東学院大学|かんとうがくいんだいがく
+神田外語大学|かんだがいごだいがく
+北九州市立大学|きたきゅうしゅうしりつだいがく
+九州大学|きゅうしゅうだいがく
+共立女子大学|きょうりつじょしだいがく
+京都大学|きょうとだいがく
+京都産業大学|きょうとさんぎょうだいがく
+京都教育大学|きょうときょういくだいがく
+岐阜大学|ぎふだいがく
+近畿大学|きんだいだいがく
+群馬大学|ぐんまだいがく
+慶應義塾大学|けいおうぎじゅくだいがく
+甲南大学|こうなんだいがく
+神戸大学|こうべだいがく
+神戸学院大学|こうべがくいんだいがく
+高知大学|こうちだいがく
+工学院大学|こうがくいんだいがく
+国学院大学|こくがくいんだいがく
+国際基督教大学|こくさいきりすときょうだいがく
+国士舘大学|こくしかんだいがく
+駒澤大学|こまざわだいがく
+熊本大学|くまもとだいがく
+埼玉大学|さいたまだいがく
+佐賀大学|さがだいがく
+札幌大学|さっぽろだいがく
+静岡大学|しずおかだいがく
+芝浦工業大学|しばうらこうぎょうだいがく
+島根大学|しまねだいがく
+実践女子大学|じっせんじょしだいがく
+信州大学|しんしゅうだいがく
+上智大学|じょうちだいがく
+昭和女子大学|しょうわじょしだいがく
+白百合女子大学|しらゆりじょしだいがく
+成蹊大学|せいけいだいがく
+成城大学|せいじょうだいがく
+聖心女子大学|せいしんじょしだいがく
+専修大学|せんしゅうだいがく
+摂南大学|せつなんだいがく
+創価大学|そうかだいがく
+大東文化大学|だいとうぶんかだいがく
+拓殖大学|たくしょくだいがく
+玉川大学|たまがわだいがく
+千葉大学|ちばだいがく
+千葉商科大学|ちばしょうかだいがく
+中央大学|ちゅうおうだいがく
+中央学院大学|ちゅうおうがくいんだいがく
+筑波大学|つくばだいがく
+津田塾大学|つだじゅくだいがく
+帝京大学|ていきょうだいがく
+東海大学|とうかいだいがく
+東京大学|とうきょうだいがく
+東京科学大学|とうきょうかがくだいがく
+東京外国語大学|とうきょうがいこくごだいがく
+東京学芸大学|とうきょうがくげいだいがく
+東京工業大学|とうきょうこうぎょうだいがく
+東京電機大学|とうきょうでんきだいがく
+東京女子大学|とうきょうじょしだいがく
+東京農業大学|とうきょうのうぎょうだいがく
+東京理科大学|とうきょうりかだいがく
+東京経済大学|とうきょうけいざいだいがく
+東京工科大学|とうきょうこうかだいがく
+東京都市大学|とうきょうとしだいがく
+東京海洋大学|とうきょうかいようだいがく
+東京芸術大学|とうきょうげいじゅつだいがく
+東京家政大学|とうきょうかせいだいがく
+東北大学|とうほくだいがく
+東邦大学|とうほうだいがく
+東洋大学|とうようだいがく
+同志社大学|どうししゃだいがく
+同志社女子大学|どうししゃじょしだいがく
+獨協大学|どっきょうだいがく
+徳島大学|とくしまだいがく
+富山大学|とやまだいがく
+長崎大学|ながさきだいがく
+名古屋大学|なごやだいがく
+奈良女子大学|ならじょしだいがく
+鳴門教育大学|なるときょういくだいがく
+新潟大学|にいがただいがく
+日本大学|にほんだいがく
+日本女子大学|にほんじょしだいがく
+日本体育大学|にっぽんたいいくだいがく
+一橋大学|ひとつばしだいがく
+兵庫県立大学|ひょうごけんりつだいがく
+兵庫教育大学|ひょうごきょういくだいがく
+広島大学|ひろしまだいがく
+福井大学|ふくいだいがく
+文教大学|ぶんきょうだいがく
+佛教大学|ぶっきょうだいがく
+法政大学|ほうせいだいがく
+北海道大学|ほっかいどうだいがく
+北海道教育大学|ほっかいどうきょういくだいがく
+三重大学|みえだいがく
+明治大学|めいじだいがく
+明治学院大学|めいじがくいんだいがく
+名城大学|めいじょうだいがく
+桃山学院大学|ももやまがくいんだいがく
+武蔵大学|むさしだいがく
+武蔵野大学|むさしのだいがく
+山口大学|やまぐちだいがく
+山梨大学|やまなしだいがく
+横浜国立大学|よこはまこくりつだいがく
+横浜市立大学|よこはましりつだいがく
+立教大学|りっきょうだいがく
+立命館大学|りつめいかんだいがく
+立命館アジア太平洋大学|りつめいかんあじあたいへいようだいがく
+龍谷大学|りゅうこくだいがく
+琉球大学|りゅうきゅうだいがく
+流通経済大学|りゅうつうけいざいだいがく
+麗澤大学|れいたくだいがく
+和歌山大学|わかやまだいがく
+早稲田大学|わせだだいがく
+`);
+
+/* 立教大学の学部と学科（2026年度シラバスの学部構成に合わせる） */
+const RIKKYO_FAC = [
+  { n:"法学部", y:"ほうがくぶ", d:[["法学科","ほうがくか"],["国際ビジネス法学科","こくさいびじねすほうがくか"],["政治学科","せいじがくか"]] },
+  { n:"経済学部", y:"けいざいがくぶ", d:[["経済学科","けいざいがくか"],["経済政策学科","けいざいせいさくがくか"],["会計ファイナンス学科","かいけいふぁいなんすがくか"]] },
+  { n:"経営学部", y:"けいえいがくぶ", d:[["経営学科","けいえいがくか"],["国際経営学科","こくさいけいえいがくか"]] },
+  { n:"文学部", y:"ぶんがくぶ", d:[["キリスト教学科","きりすときょうがくか"],["文学科","ぶんがくか"],["史学科","しかがくか"],["教育学科","きょういくがくか"]] },
+  { n:"異文化コミュニケーション学部", y:"いぶんかこみゅにけーしょんがくぶ", d:[["異文化コミュニケーション学科","いぶんかこみゅにけーしょんがくか"]] },
+  { n:"社会学部", y:"しゃかいがくぶ", d:[["社会学科","しゃかいがくか"],["現代文化学科","げんだいぶんかがくか"],["メディア社会学科","めでぃあしゃかいがくか"]] },
+  { n:"理学部", y:"りがくぶ", d:[["数学科","すうがくか"],["物理学科","ぶつりがくか"],["化学科","かがくか"],["生命理学科","せいめいりがくか"]] },
+  { n:"環境学部", y:"かんきょうがくぶ", d:[["環境学科","かんきょうがくか"]] },
+  { n:"観光学部", y:"かんこうがくぶ", d:[["観光学科","かんこうがくか"],["交流文化学科","こうりゅうぶんかがくか"]] },
+  { n:"コミュニティ福祉学部", y:"こみゅにてぃふくしがくぶ", d:[["コミュニティ政策学科","こみゅにてぃせいさくがくか"],["福祉学科","ふくしがくか"]] },
+  { n:"現代心理学部", y:"げんだいしんりがくぶ", d:[["心理学科","しんりがくか"],["映像身体学科","えいぞうしんたいがくか"]] },
+  { n:"スポーツウエルネス学部", y:"すぽーつうえるねすがくぶ", d:[["スポーツウエルネス学科","すぽーつうえるねすがくか"]] },
+  { n:"グローバル・リベラルアーツプログラム（GLAP）", y:"ぐろーばるりべらるあーつぷろぐらむ", d:[] }
+];
+
+/* 他大学でも使う一般的な学部・学科 */
+const GENERIC_DEPTS = parseAka(`
+法学部 法学科|ほうがくぶほうがくか
+法学部 政治学科|ほうがくぶせいじがくか
+法学部 国際関係法学科|ほうがくぶこくさいかんけいほうがくか
+経済学部 経済学科|けいざいがくぶけいざいがくか
+経済学部 経済政策学科|けいざいがくぶけいざいせいさくがくか
+経営学部 経営学科|けいえいがくぶけいえいがくか
+経営学部 会計学科|けいえいがくぶかいけいがくか
+商学部 商学科|しょうがくぶしょうがくか
+商学部 会計学科|しょうがくぶかいけいがくか
+文学部 日本文学科|ぶんがくぶにほんぶんがくか
+文学部 英米文学科|ぶんがくぶえいべいぶんがくか
+文学部 史学科|ぶんがくぶしかがくか
+文学部 心理学科|ぶんがくぶしんりがくか
+教育学部 教育学科|きょういくがくぶきょういくがくか
+教育学部 幼児教育学科|きょういくがくぶようじきょういくがくか
+外国語学部 英米語学科|がいこくごがくぶえいべいごがくか
+外国語学部 英語学科|がいこくごがくぶえいごがくか
+外国語学部 中国語学科|がいこくごがくぶちゅうごくごがくか
+国際学部 国際学科|こくさいがくぶこくさいがくか
+国際関係学部 国際関係学科|こくさいかんけいがくぶこくさいかんけいがくか
+国際教養学部 国際教養学科|こくさいきょうようがくぶこくさいきょうようがくか
+社会学部 社会学科|しゃかいがくぶしゃかいがくか
+社会学部 メディア社会学科|しゃかいがくぶめでぃあしゃかいがくか
+社会福祉学部 福祉学科|しゃかいふくしがくぶふくしがくか
+心理学部 心理学科|しんりがくぶしんりがくか
+人間科学部 人間科学科|にんげんかがくぶにんげんかがくか
+総合政策学部 総合政策学科|そうごうせいさくがくぶそうごうせいさくがくか
+環境情報学部 環境情報学科|かんきょうじょうほうがくぶかんきょうじょうほうがくか
+情報学部 情報学科|じょうほうがくぶじょうほうがくか
+データサイエンス学部 データサイエンス学科|でーたさいえんすがくぶでーたさいえんすがくか
+理工学部 機械工学科|りこうがくぶきかいこうがくか
+理工学部 電気電子工学科|りこうがくぶでんきでんしこうがくか
+理工学部 情報工学科|りこうがくぶじょうほうこうがくか
+理工学部 建築学科|りこうがくぶけんちくがくか
+理工学部 応用化学科|りこうがくぶおうようかがくか
+工学部 機械工学科|こうがくぶきかいこうがくか
+工学部 情報工学科|こうがくぶじょうほうこうがくか
+工学部 建築学科|こうがくぶけんちくがくか
+建築学部 建築学科|けんちくがくぶけんちくがくか
+理学部 数学科|りがくぶすうがくか
+理学部 物理学科|りがくぶぶつりがくか
+理学部 化学科|りがくぶかがくか
+理学部 生物学科|りがくぶせいぶつがくか
+医学部 医学科|いがくぶいがくか
+医学部 看護学科|いがくぶかんごがくか
+看護学部 看護学科|かんごがくぶかんごがくか
+薬学部 薬学科|やくがくぶやくがくか
+農学部 農学科|のうがくぶのうがくか
+栄養学部 栄養学科|えいようがくぶえいようがくか
+家政学部 家政学科|かせいがくぶかせいがくか
+体育学部 体育学科|たいいくがくぶたいいくがくか
+スポーツ科学部 スポーツ科学科|すぽーつかがくぶすぽーつかがくか
+芸術学部 芸術学科|げいじゅつがくぶげいじゅつがくか
+美術学部 美術学科|びじゅつがくぶびじゅつがくか
+音楽学部 音楽学科|おんがくがくぶおんがくがくか
+観光学部 観光学科|かんこうがくぶかんこうがくか
+福祉学部 福祉学科|ふくしがくぶふくしがくか
+教養学部 教養学科|きょうようがくぶきょうようがくか
+`);
+
+/* 他大学向けの一般的な授業名 */
+const GENERIC_COURSES = parseAka(`
+英語|えいご
+英語コミュニケーション|えいごこみゅにけーしょん
+英語リーディング|えいごりーでぃんぐ
+英語ライティング|えいごらいてぃんぐ
+第二外国語（中国語）|だいにがいこくごちゅうごくご
+第二外国語（スペイン語）|だいにがいこくごすぺいんご
+第二外国語（フランス語）|だいにがいこくごふらんすご
+第二外国語（ドイツ語）|だいにがいこくごどいつご
+日本語|にほんご
+文章表現|ぶんしょうひょうげん
+プレゼンテーション|ぷれぜんてーしょん
+数学|すうがく
+線形代数|せんけいだいすう
+微分積分|びぶんせきぶん
+物理学|ぶつりがく
+化学|かがく
+生物学|せいぶつがく
+地学|ちがく
+情報処理入門|じょうほうしょりにゅうもん
+情報リテラシー|じょうほうりてらしー
+プログラミング入門|ぷろぐらみんぐにゅうもん
+データサイエンス入門|でーたさいえんすにゅうもん
+統計学|とうけいがく
+マクロ経済学|まくろけいざいがく
+ミクロ経済学|みくろけいざいがく
+経済学入門|けいざいがくにゅうもん
+経営学入門|けいえいがくにゅうもん
+会計学入門|かいけいがくにゅうもん
+法学入門|ほうがくにゅうもん
+憲法|けんぽう
+民法総則|みんぽうそうそく
+政治学|せいじがく
+行政学|ぎょうせいがく
+国際関係論|こくさいかんけいろん
+社会学入門|しゃかいがくにゅうもん
+社会調査法|しゃかいちょうさほう
+心理学入門|しんりがくにゅうもん
+教育学|きょういくがく
+言語学|げんごがく
+文学|ぶんがく
+日本史|にほんし
+世界史|せかいし
+地理学|ちりがく
+歴史学|れきしがく
+哲学|てつがく
+倫理学|りんりがく
+芸術学|げいじゅつがく
+音楽|おんがく
+美術|びじゅつ
+メディア論|めでぃあろん
+ジェンダー論|じぇんだーろん
+環境科学|かんきょうかがく
+生命科学|せいめいかがく
+スポーツ実技|すぽーつじつぎ
+体育|たいいく
+健康教育|けんこうきょういく
+キャリア形成|きゃりあけいせい
+ボランティア|ぼらんてぃあ
+地域研究|ちいきけんきゅう
+`);
+
+const RIKKYO_FAC_COURSES = {
   "法学部": parseAka(`
 法学入門|ほうがくにゅうもん
 政治学入門|せいじがくにゅうもん
 民法概論|みんぽうがいろん
-憲法|けんぽう
 民法|みんぽう
 刑法|けいほう
 商法|しょうほう
+憲法|けんぽう
 民事訴訟法|みんじそしょうほう
-倒産法|とうさんほう
-民事執行・保全法|みんじしっこうほぜんほう
 刑事訴訟法|けいじそしょうほう
-行政法１|ぎょうせいほういち
-金融取引法１|きんゆうとりひきほういち
+行政法１|ぎょうせいほう１
+行政法２|ぎょうせいほう２
+倒産法|とうさんほう
+民事執行・保全法|みんじしっこう・ほぜんほう
+金融取引法１|きんゆうとりひきほう１
 労働法|ろうどうほう
 社会保障法|しゃかいほしょうほう
-経済法１|けいざいほういち
-英米法１|えいべいほういち
-外国法|がいこくほう
-国際法１|こくさいほういち
+経済法１|けいざいほう１
+知的財産法|ちてきざいさんほう
+国際法１|こくさいほう１
 国際私法|こくさいしほう
 刑事学|けいじがく
 法制史|ほうせいし
 法哲学|ほうてつがく
-法社会学１|ほうしゃかいがくいち
+法社会学１|ほうしゃかいがく１
+外国法|がいこくほう
+比較法|ひかくほう
+環境法１|かんきょうほう１
+租税法１|そぜいほう１
+比較憲法|ひかくけんぽう
+国際経済法１|こくさいけいざいほう１
+国際ビジネス法総合１Ａ|こくさいびじねすほうそうごう１Ａ
+法政ゲートウェイ講義|ほうせいげーとうぇいこうぎ
 現代政治理論|げんだいせいじりろん
-日本政治論|にほんせいじろん
+日本政治論|にっぽんせいじろん
 比較政治理論|ひかくせいじりろん
 国際政治史|こくさいせいじし
 アメリカ政治論|あめりかせいじろん
 アジア政治論|あじあせいじろん
-日本政治史|にほんせいじし
+日本政治史|にっぽんせいじし
 ヨーロッパ政治論|よーろっぱせいじろん
-日本政治思想史|にほんせいじしそうし
+日本政治思想史|にっぽんせいじしそうし
 欧州政治思想史|おうしゅうせいじしそうし
 国際政治|こくさいせいじ
 環境政治|かんきょうせいじ
 地方自治|ちほうじち
-行政学１|ぎょうせいがくいち
+行政学１|ぎょうせいがく１
 公共政策論|こうきょうせいさくろん
-経済原論|けいざいげんろん
-政治過程論１|せいじかていろんいち
-比較法|ひかくほう
-国際民事手続法|こくさいみんじてつづきほう
-国際経済法１|こくさいけいざいほういち
-日本外交論|にほんがいこうろん
-環境法１|かんきょうほういち
-知的財産法|ちてきざいさんほう
-租税法１|そぜいほういち
-比較憲法|ひかくけんぽう
-法政ゲートウェイ講義|ほうせいげーとうぇいこうぎ
-社会科学情報処理|しゃかいかがくじょうほうしょり
-日本史概説|にほんしがいせつ
-世界史概説|せかいしがいせつ
-キャリア意識の形成|きゃりあいしきのけいせい
-基礎文献講読|きそぶんけんこうどく
-`),
-  "文学部": parseAka(`
-キリスト教学入門講義１|きりすときょうがくにゅうもんこうぎいち
-キリスト教学特論|きりすときょうがくとくろん
-ギリシア語１|ぎりしあごいち
-ラテン語１|らてんごいち
-ヘブライ語１|へぶらいごいち
-日本文学概論|にほんぶんがくがいろん
-英米文学概論|えいべいぶんがくがいろん
-フランス文学・文化概論|ふらんすぶんがくぶんかがいろん
-日本語学概論１|にほんごがくがいろんいち
-漢文学概論|かんぶんがくがいろん
-文芸・思想概論|ぶんげいしそうがいろん
-世界史概論１|せかいしがいろんいち
-日本史概論１|にほんしがいろんいち
-超域文化学概論|ちょういきぶんかがくがいろん
-宗教思想１|しゅうきょうしそういち
-倫理思想|りんりしそう
-哲学概論１|てつがくがいろんいち
-現代倫理|げんだいりんり
-人間と哲学１|にんげんとてつがくいち
-哲学的人間学|てつがくてきにんげんがく
-教育学|きょういくがく
-教育心理学１|きょういくしんりがくいち
-教育社会学１|きょういくしゃかいがくいち
-教育史１|きょういくしいち
-教育哲学１|きょういくてつがくいち
-教育課程論|きょういくかていろん
-道徳教育の理論と方法|どうとくきょういくのりろんとほうほう
-特別支援教育の理論と方法|とくべつしえんきょういくのりろんとほうほう
-比較教育学１|ひかくきょういくがくいち
-社会教育・生涯学習論|しゃかいきょういくしょうがいがくしゅうろん
-地理学概説１|ちりがくがいせついち
-地誌学１|ちしがくいち
-自然地理学１|しぜんちりがくいち
-比較政治史１|ひかくせいじしいち
-心理学１|しんりがくいち
-史学講義２|しがくこうぎに
-哲学講義２|てつがくこうぎに
-文学講義１|ぶんがくこうぎいち
-日本語学概論２|にほんごがくがいろんに
-人文情報・メディア学入門|じんぶんじょうほうめでぃあがくにゅうもん
-テキストマイニング論|てきすとまいにんぐろん
-国語科教育法ａ|こくごかきょういくほうえー
-英語科教育法ａ|えいごかきょういくほうえー
-教職論|きょうしょくろん
-情報処理１|じょうほうしょりいち
+政治過程論１|せいじかていろん１
+社会調査法|しゃかいちょうさほう
+統計学|とうけいがく
+日本外交論|にっぽんがいこうろん
+法学特殊講義|ほうがくとくしゅこうぎ
+Introduction to Legal Studies A|introduction to legal studies a
+Contract A|contract a
+Legal Writing|legal writing
+Moot Court|moot court
+First-Year Seminar|first-year seminar
 `),
   "経済学部": parseAka(`
-経済学１|けいざいがくいち
-経済学２|けいざいがくに
-政策分析概論|せいさくぶんせきがいろん
+経済学１|けいざいがく１
+経済学２|けいざいがく２
+ミクロ・マクロ経済学入門|みくろ・まくろけいざいがくにゅうもん
 経済数学入門|けいざいすうがくにゅうもん
-経営学１|けいえいがくいち
-経済史１|けいざいしいち
+経済史１|けいざいし１
 社会経済学入門|しゃかいけいざいがくにゅうもん
-ミクロ・マクロ経済学入門|みくろまくろけいざいがくにゅうもん
-会計学１|かいけいがくいち
-簿記１|ぼきいち
-ファイナンス基礎|ふぁいなんすきそ
-初級ミクロ経済学１|しょきゅうみくろけいざいがくいち
-初級マクロ経済学１|しょきゅうまくろけいざいがくいち
+初級ミクロ経済学１|しょきゅうみくろけいざいがく１
+初級マクロ経済学１|しょきゅうまくろけいざいがく１
 中級ミクロ経済学|ちゅうきゅうみくろけいざいがく
 中級マクロ経済学|ちゅうきゅうまくろけいざいがく
-経済学史１|けいざいがくしいち
-計量経済学１|けいりょうけいざいがくいち
+経済学史１|けいざいがくし１
+景気変動論１|けいきへんどうろん１
+計量経済学１|けいりょうけいざいがく１
 数理経済学|すうりけいざいがく
-経済統計学１|けいざいとうけいがくいち
-ヨーロッパ経済史１|よーろっぱけいざいしいち
-日本経済史１|にほんけいざいしいち
-アメリカ経済史１|あめりかけいざいしいち
-アジア経済史１|あじあけいざいしいち
+経済統計学１|けいざいとうけいがく１
+ヨーロッパ経済史１|よーろっぱけいざいし１
+日本経済史１|にほんけいざいし１
+アメリカ経済史１|あめりかけいざいし１
+アジア経済史１|あじあけいざいし１
 社会思想史|しゃかいしそうし
-経済政策論１|けいざいせいさくろんいち
-日本経済論１|にほんけいざいろんいち
-公共経済学１|こうきょうけいざいがくいち
-財政学１|ざいせいがくいち
+経済政策論１|けいざいせいさくろん１
+日本経済論１|にほんけいざいろん１
+公共経済学１|こうきょうけいざいがく１
+財政学１|ざいせいがく１
 医療経済論|いりょうけいざいろん
 福祉経済論|ふくしけいざいろん
+金融論１|きんゆうろん１
 金融工学|きんゆうこうがく
-産業経済論１|さんぎょうけいざいろんいち
-社会政策論１|しゃかいせいさくろんいち
-租税論１|そぜいろんいち
-地方財政論１|ちほうざいせいろんいち
-中小企業論１|ちゅうしょうきぎょうろんいち
-環境経済学１|かんきょうけいざいがくいち
-労働経済論１|ろうどうけいざいろんいち
-国際経済論|こくさいけいざいろん
-世界経済論|せかいけいざいろん
-開発経済学|かいはつけいざいがく
-国際貿易論|こくさいぼうえきろん
-金融論１|きんゆうろんいち
 証券経済論|しょうけんけいざいろん
 国際金融論|こくさいきんゆうろん
-コーポレートファイナンス１|こーぽれーとふぁいなんすいち
+国際経済論|こくさいけいざいろん
+国際貿易論|こくさいぼうえきろん
+開発経済学|かいはつけいざいがく
+中国経済論|ちゅうごくけいざいろん
+労働経済論１|ろうどうけいざいろん１
+社会政策論１|しゃかいせいさくろん１
+環境経済学１|かんきょうけいざいがく１
+産業経済論１|さんぎょうけいざいろん１
+都市政策論１|としせいさくろん１
+農業経済論|のうぎょうけいざいろん
+中小企業論１|ちゅうしょうきぎょうろん１
+会計学１|かいけいがく１
+簿記１|ぼき１
+財務会計論１|ざいむかいけいろん１
+管理会計論１|かんりかいけいろん１
+経営学１|けいえいがく１
+ファイナンス基礎|ふぁいなんすきそ
+政策分析概論|せいさくぶんせきがいろん
+コーポレートファイナンス１|こーぽれーとふぁいなんす１
 保険論|ほけんろん
-財務会計論１|ざいむかいけいろんいち
-管理会計論１|かんりかいけいろんいち
-原価計算論１|げんかさんけいろんいち
-現代企業論１|げんだいきぎょうろんいち
-国際経営論１|こくさいけいえいろんいち
-マ－ケティング論１|まーけてぃんぐろんいち
-統計学１|とうけいがくいち
+租税論１|そぜいろん１
+地方財政論１|ちほうざいせいろん１
+流通経済論|りゅうつうけいざいろん
+生活経済論|せいかつけいざいろん
 `),
-  "理学部": parseAka(`
-線形代数学１|せんけいだいすうがくいち
-微分と積分入門|びぶんとせきぶんにゅうもん
-微分と積分１|びぶんとせきぶんいち
-計算機入門１|けいさんきにゅうもんいち
-群論入門|ぐんろんにゅうもん
-集合と写像|しゅうごうとしゃぞう
-整数論入門|せいすうろんにゅうもん
-微分方程式入門|びぶんほうていしきにゅうもん
-確率と統計１|かくりつととうけいいち
-代数学１|だいすうがくいち
-幾何学１|きかがくいち
-解析学１|かいせきがくいち
-情報数理１|じょうほうすうりいち
-現代数学概論|げんだいすうがくがいろん
-力学１|りきがくいち
-電磁気学１|でんじきがくいち
-物理数学１|ぶつりすうがくいち
-量子力学１|りょうしりきがくいち
-統計力学１|とうけいりきがくいち
-熱力学|ねつりきがく
-解析力学|かいせきりきがく
-物理学概論|ぶつりがくがいろん
-化学実験|かがくじっしゅう
-生物学実験|せいぶつがくじっしゅう
-基礎物理実験|きそぶつりじっしゅう
-宇宙物理概論|うちゅうぶつりがいろん
-惑星物理概論|わくせいぶつりがいろん
-流体力学|りゅうたいりきがく
-物性物理学|ぶっせいぶつりがく
-素粒子概論|そりゅうしがいろん
-量子光学|りょうしこうがく
-化学|かがく
-生物学|せいぶつがく
-物理学|ぶつりがく
-科学英語１|かがくえいごいち
-有機化学１|ゆうきかがくいち
-情報産業論|じょうほうさんぎょうろん
-物理入門ゼミナール|ぶつりにゅうもんぜみなーる
-エレクトロニクス|えれくとろにくす
-物理計測論|ぶつりけいそくろん
+  "経営学部": parseAka(`
+経営学入門|けいえいがくにゅうもん
+経済学入門|けいざいがくにゅうもん
+ビジネス概論Ａ|びじねすがいろんＡ
+会計学入門|かいけいがくにゅうもん
+グッド・ビジネス|ぐっど・びじねす
+コーポレート・ファイナンス|こーぽれーと・ふぁいなんす
+組織マネジメント|そしきまねじめんと
+マーケティング・マネジメント|まーけてぃんぐ・まねじめんと
+経営戦略論|けいえいせんりゃくろん
+マーケティング・リサーチ|まーけてぃんぐ・りさーち
+経営と心理|けいえいとしんり
+経営と社会|けいえいとしゃかい
+ビジネスエコノミクス|びじねすえこのみくす
+経営史|けいえいし
+ＩＣＴリテラシー|ＩＣＴりてらしー
+財務諸表分析|ざいむしょひょうぶんせき
+国際経営論|こくさいけいえいろん
+ビジネスリテラシー１|びじねすりてらしー１
+経営学のための数学|けいえいがくのためのすうがく
+データ・マイニング|でーた・まいにんぐ
+ＣＳＲ|ＣＳＲ
+コーポレートガバナンス|こーぽれーとがばなんす
+人材マネジメント論|じんざいまねじめんとろん
+組織行動論|そしきこうどうろん
+生産管理論|せいさんかんりろん
+比較組織論|ひかくそしきろん
+イノベーション・マネジメント|いのべーしょん・まねじめんと
+会計監査|かいけいかんさ
+税務会計|ぜいむかいけい
+インベストメント|いんべすとめんと
+マーケティング・セオリー|まーけてぃんぐ・せおりー
+リテイル・マーケティング|りている・まーけてぃんぐ
+流通システム論|りゅうつうしすてむろん
+サービス・マーケティング|さーびす・まーけてぃんぐ
+消費者行動論|しょうひしゃこうどうろん
+マーケティング・コミュニケーション|まーけてぃんぐ・こみゅにけーしょん
+財務会計|ざいむかいけい
+管理会計|かんりかいけい
+異文化コミュニケーション論|いぶんかこみゅにけーしょんろん
+リーダーシップ入門|りーだーしっぷにゅうもん
+企業人セミナー１|きぎょうじんせみなー１
+音楽産業・新ビジネス創生概論|おんがくさんぎょう・しんびじねすそうせいがいろん
+社会調査実習|しゃかいちょうさじっしゅう
+Business Negotiation|business negotiation
+Strategic Management|strategic management
+Finance|finance
+Financial Accounting|financial accounting
+Marketing Positioning Strategy|marketing positioning strategy
+`),
+  "文学部": parseAka(`
+日本文学概論|にほんぶんがくがいろん
+英米文学概論|えいべいぶんがくがいろん
+日本語学概論１|にほんごがくがいろん１
+漢文学概論|かんぶんがくがいろん
+文芸・思想概論|ぶんげい・しそうがいろん
+世界史概論１|せかいしがいろん１
+日本史概論１|にほんしがいろん１
+超域文化学概論|ちょういきぶんかがくがいろん
+ドイツ語圏文化概論１|どいつごけんぶんかがいろん１
+フランス文学・文化概論|ふらんすぶんがく・ぶんかがいろん
+日本文学研究法|にほんぶんがっけんきゅうほう
+日本文学講読１|にほんぶんがくこうどく１
+漢文学講読１|かんぶんがくこうどく１
+自然地理学１|しぜんちりがく１
+比較政治史１|ひかくせいじし１
+地理学概説１|ちりがくがいせつ１
+地誌学１|ちしがく１
+教育学|きょういくがく
+教育心理学１|きょういくしんりがく１
+教育社会学１|きょういくしゃかいがく１
+教育史１|きょういくし１
+教育哲学１|きょういくてつがく１
+比較教育学１|ひかくきょういくがく１
+国際教育論|こくさいきょういくろん
+教育課程論|きょういくかていろん
+教育方法学|きょういくほうほうがく
+道徳教育の理論と方法|どうとくきょういくのりろんとほうほう
+特別支援教育の理論と方法|とくべつしえんきょういくのりろんとほうほう
+生徒指導・進路指導|せいとしどう・しんろしどう
+教育相談|きょういくそうだん
+幼児教育学|ようじきょういくがく
+教育臨床論|きょういくりんしょうろん
+カウンセリング|かうんせりんぐ
+社会教育・生涯学習論|しゃかいきょういく・しょうがいがくしゅうろん
+教育制度・政策論|きょういくせいど・せいさくろん
+家庭教育論|かていきょういくろん
+教育と福祉|きょういくとふくし
+教育とメディア|きょういくとめでぃあ
+子ども文化論|こどもぶんかろん
+現代教育の諸問題１|げんだいきょういくのしょもんだい１
+哲学概論１|てつがくがいろん１
+現代倫理|げんだいりんり
+宗教思想１|しゅうきょうしそう１
+倫理思想|りんりしそう
+キリスト教学特論|きりすときょうがくとくろん
+キリスト教学入門講義１|きりすときょうがくにゅうもんこうぎ１
+ギリシア語１|ぎりしあご１
+ラテン語１|らてんご１
+ヘブライ語１|へぶらいご１
+人文情報・メディア学入門|じんぶんじょうほう・めでぃあがくにゅうもん
+人文情報・メディア学特論１|じんぶんじょうほう・めでぃあがくとくろん１
+テキストマイニング論|てきすとまいにんぐろん
+言葉と感性|ことばとかんせい
+ＳＤＧｓ入門|ＳＤＧｓにゅうもん
+心理学１|しんりがく１
+英語表現演習１|えいごひょうげんえんしゅう１
+書道１|しょどう１
 `),
   "社会学部": parseAka(`
 データ分析法|でーたぶんせきほう
 質的研究法|しつてきけんきゅうほう
-少子・高齢社会論|しょうしこうれいしゃかいろん
-共生社会論|きょうせいしゃかいろん
-公共政策とガバナンス|こうきょうせいさくとがばなんす
+社会学理論|しゃかいがくりろん
+社会学史|しゃかいがくし
+計量社会学|けいりょうしゃかいがく
 相互行為論|そうごこういろん
 家族社会学|かぞくしゃかいがく
 労働社会学|ろうどうしゃかいがく
@@ -927,17 +955,19 @@ const RIKKYO_FAC_DATA = {
 逸脱の社会学|いつだつのしゃかいがく
 社会階層論|しゃかいかいそうろん
 ライフコース論|らいふこーすろん
+少子・高齢社会論|しょうし・こうれいしゃかいろん
+共生社会論|きょうせいしゃかいろん
+公共政策とガバナンス|こうきょうせいさくとがばなんす
 社会運動論|しゃかいうんどうろん
-社会学理論|しゃかいがくりろん
-計量社会学|けいりょうしゃかいがく
-社会学史|しゃかいがくし
+データ対話型分析法|でーたたいわがたぶんせきほう
 差別と偏見の社会学|さべつとへんけんのしゃかいがく
 セクシュアリティの社会学|せくしゅありてぃのしゃかいがく
 アイデンティティ論|あいでんてぃてぃろん
-保健・医療の社会学|ほけんいりょうのしゃかいがく
+保健・医療の社会学|ほけん・いりょうのしゃかいがく
+平等と公正|びょうどうとこうせい
 社会問題の社会学|しゃかいもんだいのしゃかいがく
 歴史社会学|れきししゃかいがく
-社会人口学|しゃかいじんこうがく
+社会人口学|しゃかいじんくちがく
 文化の社会理論|ぶんかのしゃかいりろん
 都市社会構造論|とししゃかいこうぞうろん
 国際社会学|こくさいしゃかいがく
@@ -945,21 +975,71 @@ const RIKKYO_FAC_DATA = {
 消費文化論|しょうひぶんかろん
 都市文化論|としぶんかろん
 民族文化誌|みんぞくぶんかし
-エスニシティ論|えすにしていろん
-環境教育論|かんきょうきょういくろん
-環境政策論|かんきょうせいさくろん
-自然環境保全論|しぜんかんきょうほぜんろん
+エスニシティ論|えすにしてぃろん
+メディア社会学|めでぃあしゃかいがく
+世論調査論|よろんちょうさろん
 アートの社会学|あーとのしゃかいがく
 ポピュラーカルチャー論|ぽぴゅらーかるちゃーろん
+グローバル都市論|ぐろーばるとしろん
 まちづくり論|まちづくりろん
 多文化の社会理論|たぶんかのしゃかいりろん
-グローバル都市論|ぐろーばるとしろん
-社会学|しゃかいがく
-社会調査法|しゃかいちょうさほう
+環境政策論|かんきょうせいさくろん
+自然環境保全論|しぜんかんきょうほぜんろん
+環境の思想|かんきょうのしそう
+ニュースの社会学１|にゅーすのしゃかいがく１
+シミュレーションの社会学|しみゅれーしょんのしゃかいがく
+ＮＰＯ／ＮＧＯの社会学|ＮＰＯ／ＮＧＯのしゃかいがく
+マイグレーション論|まいぐれーしょんろん
+`),
+  "理学部": parseAka(`
+線形代数学１|せんけいだいすうがく１
+微分と積分入門|びぶんとせきぶんにゅうもん
+微分と積分１|びぶんとせきぶん１
+線形代数学入門|せんけいだいすうがくにゅうもん
+集合と写像|しゅうごうとしゃぞう
+群論入門|ぐんろんにゅうもん
+整数論入門|せいすうろんにゅうもん
+微分方程式入門|びぶんほうていしきにゅうもん
+確率と統計１|かくりつととうけい１
+確率論序論１|かくりつろんじょろん１
+数理統計学序論１|すうりとうけいがくじょろん１
+代数学１|だいすうがく１
+幾何学１|きかがく１
+解析学１|かいせきがく１
+情報数理１|じょうほうすうり１
+現代数学概論|げんだいすうがくがいろん
+力学１|りきがく１
+電磁気学１|でんじきがく１
+物理数学１|ぶつりすうがく１
+熱力学|ねつりきがく
+解析力学|かいせきりきがく
+量子力学１|りょうしりきがく１
+統計力学１|とうけいりきがく１
+波動と量子|はどうとりょうし
+物理学概論|ぶつりがくがいろん
+物性物理学|ぶっせいぶつりがく
+宇宙物理概論|うちゅうぶつりがいろん
+素粒子概論|そりゅうしがいろん
+流体力学|りゅうたいりきがく
+量子光学|りょうしこうがく
+惑星物理概論|わくせいぶつりがいろん
+原子核概論|げんしかくがいろん
+エレクトロニクス|えれくとろにくす
+科学英語１|かがくえいご１
+化学|かがく
+生物学|せいぶつがく
+基礎物理実験|きそぶつりじっけん
+化学実験|かがくじっけん
+生物学実験|せいぶつがくじっけん
+物理学実験１|ぶつりがくじっけん１
+計算機入門１|けいさんきにゅうもん１
+情報科学１|じょうほうかがく１
+数学セミナー３|すうがくせみなー３
+物理学特別講義１|ぶつりがくとくべつこうぎ１
 `),
   "観光学部": parseAka(`
 観光学概論|かんこうがくがいろん
-観光調査・研究法入門|かんこうちょうさけんきゅうほうにゅうもん
+観光調査・研究法入門|かんこうちょうさ・けんきゅうほうにゅうもん
 観光経営学|かんこうけいえいがく
 観光事業論|かんこうじぎょうろん
 観光史|かんこうし
@@ -967,13 +1047,11 @@ const RIKKYO_FAC_DATA = {
 地域経済学|ちいきけいざいがく
 観光行動論|かんこうこうどうろん
 マーケティング|まーけてぃんぐ
-外食産業論|がいしょくさんぎょうろん
 観光交通論|かんこうこうつうろん
 エコツーリズム論|えこつーりずむろん
 都市観光論|としかんこうろん
-観光政策・行政論|かんこうせいさくぎょうせいろん
+観光政策・行政論|かんこうせいさく・ぎょうせいろん
 国際観光政策論|こくさいかんこうせいさくろん
-消費論|しょうひろん
 観光心理学|かんこうしんりがく
 農村観光論|のうそんかんこうろん
 ヘリテージと観光|へりてーじとかんこう
@@ -981,308 +1059,250 @@ const RIKKYO_FAC_DATA = {
 地域経営論|ちいきけいえいろん
 地域社会論|ちいきしゃかいろん
 観光関連法|かんこうかんれんほう
-サービス・マネジメント|さーびすまねじめんと
-旅行情報システム|りょこうじょうほうしすてむ
+サービス・マネジメント|さーびす・まねじめんと
 旅行業経営実務|りょこうぎょうけいえいじつむ
 コンベンション産業論|こんべんしょんさんぎょうろん
-地域デザイン論|ちいきでざいろん
-環境・景観論|かんきょうけいかんろん
+地域デザイン論|ちいきでざいんろん
+環境・景観論|かんきょう・けいかんろん
 都市計画論|としけいかくろん
 ホテル運営論|ほてるうんえいろん
 宿泊産業論|しゅくはくさんぎょうろん
-政策評価論|せいさくひょうかろん
-経営戦略論|けいえいせんりゃくろん
 観光計画論|かんこうけいかくろん
-観光施設論|かんこうしせつろん
-簿記論|ぼきろん
-観光地経営論|かんこうちけいえいろん
-ホテル経営論|ほてるけいえいろん
-旅行産業論|りょこうさんぎょうろん
-経営財務論|けいえいざいむろん
-観光デザイン論|かんこうでざいろん
+観光デザイン論|かんこうでざいんろん
 観光感性論|かんこうかんせいろん
 観光リスクマネジメント|かんこうりすくまねじめんと
-投資計画論１|とうしけいかくろんいち
-施設・空間造形論|しせつくうかんぞうけいろん
+ＧＩＳ演習|ＧＩＳえんしゅう
+外食産業論|がいしょくさんぎょうろん
+投資計画論１|とうしけいかくろん１
+施設・空間造形論|しせつ・くうかんぞうけいろん
+Introduction to Tourism 1|introduction to tourism 1
 `),
   "コミュニティ福祉学部": parseAka(`
 ノーマライゼーション論|のーまらいぜーしょんろん
 現代キリスト教人間学|げんだいきりすときょうにんげんがく
 コミュニティ福祉とキリスト教|こみゅにてぃふくしときりすときょう
-社会福祉調査の基礎|しゃかいふくしちょうさのきそ
+社会調査法|しゃかいちょうさほう
 人権論|じんけんろん
+社会福祉調査の基礎|しゃかいふくしちょうさのきそ
 福祉文化論|ふくしぶんかろん
 生涯スポーツ論|しょうがいすぽーつろん
 社会保障総論|しゃかいほしょうそうろん
 いのちの倫理学|いのちのりんりがく
 障害学入門|しょうがいがくにゅうもん
-人間心理の深層|にんげんしんりのしんそう
-日本の文化と思想|にほんのぶんかとしそう
-発育・発達・加齢論|はついくはったつかれいろん
+家族社会学|かぞくしゃかいがく
+発育・発達・加齢論|はついく・はったつ・かれいろん
 コミュニティ平和論|こみゅにてぃへいわろん
 ファシリテーション論|ふぁしりてーしょんろん
-公共哲学|こうきょうてつがく
-社会理論と社会システム|しゃかいりろんとしゃかいしすてむ
-生涯学習概論１|しょうがいがくしゅうがいろんいち
-社会福祉の原理と政策１|しゃかいふくしのげんりとせいさくいち
+社会福祉の原理と政策１|しゃかいふくしのげんりとせいさく１
 社会福祉入門演習|しゃかいふくしにゅうもんえんしゅう
-現代社会と福祉１|げんだいしゃかいとふくしいち
-ソーシャルワーク演習|そーしゃるわーくえんしゅう
 児童福祉論|じどうふくしろん
-家族福祉論|かぞくふくしろん
-ソーシャルワークの理論と方法１|そーしゃるわーくのりろんとほうほういち
-メンタルヘルスと福祉|めんたるへるすとふくし
-ソーシャルワークの基盤と専門職１|そーしゃるわーくのきばんとせんもんしょくいち
-精神保健福祉の原理１|せいしんほけんふくしのげんりいち
-介護概論|かいごがいろん
 高齢者福祉論|こうれいしゃふくしろん
-医学概論|いがくがいろん
 障害者福祉論|しょうがいしゃふくしろん
 公的扶助論|こうてきふじょろん
-貧困に対する支援|ひんこんにたいするしえん
-地域福祉論１|ちいきふくしろんいち
-女性福祉論|じょせいふくしろん
-介護技術論|かいごぎじゅつろん
-精神保健福祉論１|せいしんほけんふくしろんいち
+地域福祉論１|ちいきふくしろん１
 医療福祉論|いりょうふくしろん
 保健医療と福祉|ほけんいりょうとふくし
-刑事司法と福祉|けいじしほうとふくし
-社会保障論|しゃかいほしょうろん
-権利擁護と成年後見制度|けんりようごとせいねんこうけんせいど
+精神保健福祉論１|せいしんほけんふくしろん１
+ソーシャルワーク論１|そーしゃるわーくろん１
+ソーシャルワーク演習|そーしゃるわーくえんしゅう
 ケアマネジメント論|けあまねじめんとろん
+権利擁護と成年後見制度|けんりようごとせいねんこうけんせいど
 司法福祉論|しほうふくしろん
-リハビリテーション論|りはびりてーしょんろん
-発達障害支援論|はったつしょうがいしえんろん
 福祉マネジメント論|ふくしまねじめんとろん
-ジェンダー論|じぇんだーろん
-異文化スタディ|いぶんかすたでぃ
-`),
-  "スポーツウエルネス学部": parseAka(`
-スポーツウエルネス学入門|すぽーつうえるねすがくにゅうもん
-スポーツマンシップ論|すぽーつまんしっぷろん
-スポーツリーダーシップ論|すぽーつりーだーしっぷろん
-スポーツウエルネスワークショップＡ|すぽーつうえるねすわーくしょっぷえー
-ウエルネス科学総論|うえるねすかがくそうろん
-スポーツ科学総論|すぽーつかがくそうろん
-運動方法学|うんどうほうほうがく
-運動生理学|うんどうせいりがく
-生理学|せいりがく
-運動処方・療法|うんどうしょほうりょうほう
-解剖学１|かいぼうがくいち
-ウエルネスと時間生物学|うえるねすとじかんせいぶつがく
-ウエルネス理解のための基礎生命科学|うえるねすりかいのためのきそせいめいかがく
-環境・サスティナビリティ論|かんきょうさすてぃなびりてぃろん
-抗加齢医学とウエルネス|こうかれいがくとうえるねす
-体育原理・体育史|たいいくげんりたいいくし
-スポーツ教育論|すぽーつきょういくろん
-データサイエンス概論|でーたさいえんすがいろん
-身体文化論|しんたいぶんかろん
-スポーツウエルネス心理学|すぽーつうえるねすしんりがく
-ストレングス・コンディショニング論|すとれんぐすこんでぃしょにんぐろん
-運動・スポーツ栄養学|うんどうすぽーつえいようがく
-スポーツ社会学|すぽーつしゃかいがく
-測定評価演習|そくていひょうかえんしゅう
-アダプテッド・スポーツ論|あだぷてっどすぽーつろん
-スポーツ政策|すぽーつせいさく
-健康政策|けんこうせいさく
-スポーツコーチ学|すぽーつこーちがく
-コーチングスキル|こーちんぐすきる
-スポーツ・健康産業論|すぽーつけんこうさんぎょうろん
-コンディショニング概論|こんでぃしょにんぐがいろん
-アスレティックトレーナーの役割|あすれてぃっくとれーなーのやくわり
-キャリア形成論|きゃりあけいせいろん
-`),
-  "経営学部": parseAka(`
-経営学入門|けいえいがくにゅうもん
-経済学入門|けいざいがくにゅうもん
-ビジネス概論Ａ|びじねすがいろんえー
-会計学入門|かいけいがくにゅうもん
-グッド・ビジネス|ぐっどびじねす
-コーポレート・ファイナンス|こーぽれーとふぁいなんす
-組織マネジメント|そしきまねじめんと
-マーケティング・マネジメント|まーけてぃんぐまねじめんと
-マーケティング・リサーチ|まーけてぃんぐりさーち
-経営と心理|けいえいとしんり
-経営と社会|けいえいとしゃかい
-ビジネスエコノミクス|びじねすえこのみくす
-経営史|けいえいし
-ＩＣＴリテラシー|あいしーてぃーりてらしー
-財務諸表分析|ざいむしょひょうぶんせき
-国際経営論|こくさいけいえいろん
-ビジネスリテラシー１|びじねすりてらしーいち
-経営学のための数学|けいえいがくのためのすうがく
-データ・マイニング|でーたまいにんぐ
-ＣＳＲ|しーえすあーる
-コーポレートガバナンス|こーぽれーとがばなんす
-人材マネジメント論|じんざいまねじめんとろん
-組織と戦略|そしきとせんりゃく
-マネジメントの理論|まねじめんとのりろん
-組織行動論|そしきこうどうろん
-生産管理論|せいさんかんりろん
-比較組織論|ひかくそしきろん
-イノベーション・マネジメント|いのべーしょんまねじめんと
-会計監査|かいけいかんさ
-税務会計|ぜいむかいけい
-インベストメント|いんべすとめんと
-マーケティング・セオリー|まーけてぃんぐせおりー
-リテイル・マーケティング|りているまーけてぃんぐ
-流通システム論|りゅうつうしすてむろん
-サービス・マーケティング|さーびすまーけてぃんぐ
-消費者行動論|しょうひしゃこうどうろん
-マーケティング・コミュニケーション|まーけてぃんぐこみゅにけーしょん
-財務会計|ざいむかいけい
-管理会計|かんりかいけい
-デジタル・トランスフォ－メ－ション|でじたるとらんすふぉーめーしょん
-社会調査実習|しゃかいちょうさじっしゅう
-リーダーシップ入門|りーだーしっぷにゅうもん
-異文化コミュニケーション論|いぶんかこみゅにけーしょんろん
-企業人セミナー１|きぎょうじんせみなーいち
-経営と技術|けいえいとぎじゅつ
-ファイナンスのための数学|ふぁいなんすのためのすうがく
+福祉情報論|ふくしじょうほうろん
+介護概論|かいごがいろん
+医学概論|いがくがいろん
+生涯学習概論１|しょうがいがくしゅうがいろん１
+社会教育経営論１|しゃかいきょういくけいえいろん１
+現代社会と福祉１|げんだいしゃかいとふくし１
+貧困に対する支援|ひんこんにたいするしえん
+精神保健福祉援助技術総論|せいしんほけんふくしえんじょぎじゅつそうろん
+女性福祉論|じょせいふくしろん
+家族をめぐる福祉問題|かぞくをめぐるふくしもんだい
+高齢者福祉実践論|こうれいしゃふくしじっせんろん
+地域福祉論２|ちいきふくしろん２
 `),
   "現代心理学部": parseAka(`
-心理学概論１|しんりがくがいろんいち
-心理学統計法１|しんりがくとうけいほういち
-心理学実験実習１|しんりがくじっけんじっしゅういち
-発達心理学|はったつしんりがく
-コミュニティ心理学|こみゅにてぃしんりがく
+心理学概論１|しんりがくがいろん１
+心理学研究法２|しんりがくけんきゅうほう２
 臨床心理学概論|りんしょうしんりがくがいろん
 知覚心理学|ちかくしんりがく
 学習心理学|がくしゅうしんりがく
-感情・人格心理学|かんじょうじんかくしんりがく
+感情・人格心理学|かんじょう・じんかくしんりがく
 生理心理学|せいりしんりがく
 社会心理学|しゃかいしんりがく
 教育心理学|きょういくしんりがく
-産業・組織心理学|さんぎょうそしきしんりがく
+産業・組織心理学|さんぎょう・そしきしんりがく
 家族心理学|かぞくしんりがく
 消費者心理学|しょうひしゃしんりがく
 文化心理学|ぶんかしんりがく
 言語心理学|げんごしんりがく
 神経心理学|しんけいしんりがく
-障害者・障害児心理学|しょうがいしゃしょうがいじしんりがく
+障害者・障害児心理学|しょうがいしゃ・しょうがいじしんりがく
 心理学的支援法|しんりがくてきしえんほう
-健康・医療心理学|けんこういりょうしんりがく
+健康・医療心理学|けんこう・いりょうしんりがく
 福祉心理学|ふくししんりがく
 学校心理学|がっこうしんりがく
-司法・犯罪心理学|しほうはんざいしんりがく
-人体の構造と機能及び疾病|じんたいのこうぞうときのうおよびしっぺい
-精神疾患とその治療|せいしんしっかんとそのちりょう
-自己理解・他者理解の心理学|じこりかいしゃりかいのしんりがく
+司法・犯罪心理学|しほう・はんざいしんりがく
+発達心理学|はったつしんりがく
+コミュニティ心理学|こみゅにてぃしんりがく
 行動分析学|こうどうぶんせきがく
 比較認知科学|ひかくにんちかがく
-社会調査概論|しゃかいちょうさがいろん
 公認心理師の職責|こうにんしんりしのしょくせき
 関係行政論|かんけいぎょうせいろん
-映像身体学入門１|えいぞうしんたいがくにゅうもんいち
+心理実習|しんりじっしゅう
+映像身体学入門１|えいぞうしんたいがくにゅうもん１
 身体社会論|しんたいしゃかいろん
 映像社会論|えいぞうしゃかいろん
 生態心理学|せいたいしんりがく
 身体表現史|しんたいひょうげんし
 映像表現史|えいぞうひょうげんし
-心理学研究法２|しんりがくけんきゅうほうに
-心理学文献講読１|しんりがくぶんけんこうどくいち
+社会調査概論|しゃかいちょうさがいろん
 キャリアと心理学|きゃりあとしんりがく
+心理学概論２|しんりがくがいろん２
+人体の構造と機能及び疾病|じんたいのこうぞうときのうおよびしっぺい
+心理学研究法３|しんりがくけんきゅうほう３
+心理学原書講読|しんりがくげんしょこうどく
 `),
   "異文化コミュニケーション学部": parseAka(`
-言語・コミュニケーション研究入門|げんごこみゅにけーしょんけんきゅうにゅうもん
+言語・コミュニケーション研究入門|げんご・こみゅにけーしょんけんきゅうにゅうもん
 グローバル研究入門|ぐろーばるけんきゅうにゅうもん
 異文化コミュニケーション研究入門|いぶんかこみゅにけーしょんけんきゅうにゅうもん
-コミュニケーションセミナー１|こみゅにけーしょんせみなーいち
-日本語コミュニケーションＡ|にほんごこみゅにけーしょんえー
-諸言語特別演習Ａ|しょげんごとくべつえんしゅうえー
-サ－ビスラ－ニングＡ|さーびすらーにんぐえー
-国内フィールドスタディＢ|こくないふぃーるどすたでぃびー
+Overview of Intercultural Communication Studies|overview of intercultural communication studies
+Introduction to Communication|introduction to communication
+Introduction to Linguistics|introduction to linguistics
+Introduction to Translation and Interpreting Studies|introduction to translation and interpreting studies
+Introduction to Intercultural Communication|introduction to intercultural communication
+Introduction to Cultural Studies|introduction to cultural studies
+Introduction to Cultural Anthropology|introduction to cultural anthropology
+Introduction to International Development and Cooperation|introduction to international development and cooperation
+Introduction to Media Communication|introduction to media communication
+Globalization and Gender|globalization and gender
+Transcultural Cinema|transcultural cinema
+Religion and Society in Asia|religion and society in asia
+Japan in Asia|japan in asia
+Multiculturalism in Japan|multiculturalism in japan
+Language Policy and Multilingualism|language policy and multilingualism
+Social Movements and Social Change|social movements and social change
+Motivation in Language Learning|motivation in language learning
+Intercultural Communication in the Language Classroom|intercultural communication in the language classroom
+Communication and Citizenship|communication and citizenship
+Teaching English to Speakers of Other Languages: Basic Principles|teaching english to speakers of other languages: basic principles
+Contemporary Culture in Japan|contemporary culture in japan
+Ethnicity and Globalization in Japan|ethnicity and globalization in japan
+日本語コミュニケーションＡ|にほんごこみゅにけーしょんＡ
+諸言語特別演習Ａ|しょげんごとくべつえんしゅうＡ
 海外日本語教育実践|かいがいにほんごきょういくじっせん
-海外日本語教育インターンシップ|かいがいにほんごきょういくいんたーんしっぷ
-キャリア実践演習Ａ|きゃりあじっせんえんしゅうえー
-専門演習３|せんもんえんしゅうさん
-ビジネス日本語コミュニケーション演習|びじねすにほんごこみゅにけーしょんえんしゅう
-Academic Skills A|あかでみっくすきるずえー
-Japan Studies Program A|じゃぱんすたでぃーずぷろぐらむえー
-College Life Planning A|かれっじらいふぷらんにんぐえー
-Seminar in English A|せみなーいんいんぐりっしゅえー
-Introduction to Linguistics|いんとろだくしょんとぅりんぐいすてぃくす
-Introduction to Media Communication|いんとろだくしょんとぅめでぃあこみゅにけーしょん
-Introduction to Translation and Interpreting Studies|いんとろだくしょんとぅとらんすれーしょんあんどいんたーぷりてぃんぐすたでぃーず
-Introduction to Communication|いんとろだくしょんとぅこみゅにけーしょん
-Introduction to Intercultural Communication|いんとろだくしょんとぅいんたーかるちゃるこみゅにけーしょん
-Introduction to Cultural Studies|いんとろだくしょんとぅかるちゃるすたでぃーず
-Introduction to International Development and Cooperation|いんとろだくしょんとぅいんたーなしょなるでべろっぷめんとあんどこーおぺれーしょん
-Introduction to Cultural Anthropology|いんとろだくしょんとぅかるちゃるあんすろぽろじー
-Introduction to the Study of English|いんとろだくしょんとぅざすたでぃーおぶいんぐりっしゅ
-Globalization and Gender|ぐろーばらいぜーしょんあんどじぇんだー
-Teaching English to Speakers of Other Languages: Basic Principles|てぃーちんぐいんぐりっしゅとぅすぴーかーずおぶあざーらんげじずべーしっくぷりんしぷるず
-Communication and Citizenship|こみゅにけーしょんあんどしてぃずんしっぷ
-Transcultural Cinema|とらんすかるちゃるしねま
-Contemporary Culture in Japan|こんてんぽらりーかるちゃーいんじゃぱん
-Religion and Society in Asia|りりじょんあんどそさいえてぃいんえいじあ
-Japan in Asia|じゃぱんいんえいじあ
-Ethnicity and Globalization in Japan|えすにしてぃあんどぐろーばらいぜーしょんいんじゃぱん
-Multiculturalism in Japan|まるちかるちゃりずむいんじゃぱん
-Language Policy and Multilingualism|らんげーじぽりしーあんどまるちりんがりずむ
-Social Movements and Social Change|そーしゃるむーぶめんつあんどそーしゃるちぇんじ
-Motivation in Language Learning|もてぃべーしょんいんらんげーじらーにんぐ
-Intercultural Communication in the Language Classroom|いんたーかるちゃるこみゅにけーしょんいんざらんげーじくらするーむ
-Advanced Seminar: Intercultural Communication|あどばんすとせみなーいんたーかるちゃるこみゅにけーしょん
-Psychological Research Methods 1|さいころじかるりさーちめそっずわん
-International Society and Sport|いんたーなしょなるそさいえてぃあんどすぽーつ
-Humanities Studies 1|ひゅーまにてぃーずすたでぃーずわん
-Comparative Family Law|こんぱらてぃぶふぁみりーろー
-Global Society and Local Communities|ぐろーばるそさいえてぃあんどろーかるこみゅにてぃーず
-Specialized Psychology Lecture|すぺしゃらいずどさいころじーれくちゃー
-Cultural Psychology|かるちゃるさいころじー
-Japanese Management1|じゃぱにーずまねじめんとわん
+Japan Studies Program A|japan studies program a
+Cultural Exchange|cultural exchange
+サ－ビスラ－ニングＡ|さ－びすら－にんぐＡ
+キャリア実践演習Ａ|きゃりあじっせんえんしゅうＡ
+専門演習３|せんもんえんしゅう３
+コミュニケーションセミナー１|こみゅにけーしょんせみなー１
+Academic Skills A|academic skills a
+国内フィールドスタディＢ|こくないふぃーるどすたでぃＢ
+College Life Planning A|college life planning a
 `),
-  "GLAP": parseAka(`
-Tutorial 1|ちゅーとりあるわん
-Tutorial 2|ちゅーとりあるつー
-Liberal Arts in Higher Education|りべらるあーついんはいやーえでゅけーしょん
-Second Year Seminar|せかんどいやーせみなー
-Final Year Seminar 1|ふぁいなるいやーせみなーわん
-Graduation Paper|ぐらでゅえーしょんぺーぱー
-World History|わーるどひすとりー
-Culture and Fine Arts|かるちゃーあんどふぁいんあーつ
-Political Sociology|ぽりてぃかるそしおろじー
-Nature of the Earth|ねいちゃーおぶじあーす
-Literature and Society|りてらちゃーあんどそさいえてぃ
-Economic Thought|えこのみっくそーと
-Health and Wellness|へるすあんどうえるねす
-Topics in Environment|とぴっくすいんえんばいろんめんと
-Topics in Natural Science|とぴっくすいんないちゅらるさいえんす
-Topics in Humanities and Arts|とぴっくすいんひゅーまにてぃーずあんどあーつ
-Career Planning|きゃりあぷらんにんぐ
-University Education in the World|ゆにばーしてぃえでゅけーしょんいんざわーるど
-University in Modern Society|ゆにばーしてぃいんもだんそさいえてぃ
-Study Abroad 1|すたでぃーあぶろっどわん
-Global Studies Pre-Seminar|ぐろーばるすたでぃーずぷりせみなー
-Cross-Fields Research|くろすふぃーるずりさーち
-Humanities First Seminar|ひゅーまにてぃーずふぁーすとせみなー
-Christianity in Japan|くりすちゃにてぃいんじゃぱん
-Japanese Literature in the World|じゃぱにーずりてらちゃーいんざわーるど
-Japan in Asian Context|じゃぱんいんえいじあんこんてくすと
-Traditional Arts in Japan|とらでぃしょなるあーついんじゃぱん
-Development of Gender Studies|でべろっぷめんとおぶじぇんだーすたでぃーず
-Intellectual History of Japan|いんてれくちゃるひすとりーおぶじゃぱん
-Citizenship First Seminar|してぃずんしっぷふぁーすとせみなー
-Principles of Sociology|ぷりんしぷるずおぶそしおろじー
-Global Sociology|ぐろーばるそしおろじー
-Global City|ぐろーばるしてぃ
-Gender/Minority Studies|じぇんだーまいのりてぃすたでぃーず
-International Relations|いんたーなしょなるりれーしょんず
-Business First Seminar|びじねすふぁーすとせみなー
-Business and Society|びじねすあんどそさいえてぃ
-Introduction to Finance|いんとろだくしょんとぅふぁいなんす
-Introduction to Accounting|いんとろだくしょんとぅあかうんてぃんぐ
-Introduction to Marketing|いんとろだくしょんとぅまーけてぃんぐ
-Financial Statement Analysis|ふぁいなんしゃるすてーとめんとあなりしす
-Marketing Research|まーけてぃんぐりさーち
-Business Communication|びじねすこみゅにけーしょん
+  "スポーツウエルネス学部": parseAka(`
+スポーツウエルネス学入門|すぽーつうえるねすがくにゅうもん
+スポーツマンシップ論|すぽーつまんしっぷろん
+スポーツリーダーシップ論|すぽーつりーだーしっぷろん
+ウエルネス科学総論|うえるねすかがくそうろん
+スポーツ科学総論|すぽーつかがくそうろん
+運動方法学|うんどうほうほうがく
+生涯スポーツ論|しょうがいすぽーつろん
+運動生理学|うんどうせいりがく
+生理学|せいりがく
+運動処方・療法|うんどうしょほう・りょうほう
+解剖学１|かいぼうがく１
+アスレティックトレーナーの役割|あすれてぃっくとれーなーのやくわり
+ウエルネスと時間生物学|うえるねすとじかんせいぶつがく
+ウエルネス理解のための基礎生命科学|うえるねすりかいのためのきそせいめいかがく
+環境・サスティナビリティ論|かんきょう・さすてぃなびりてぃろん
+抗加齢医学とウエルネス|こうかれいいがくとうえるねす
+体育原理・体育史|たいいくげんり・たいいくし
+スポーツ教育論|すぽーつきょういくろん
+データサイエンス概論|でーたさいえんすがいろん
+情報処理１|じょうほうしょり１
+キャリア形成論|きゃりあけいせいろん
+スポーツウエルネスワークショップＡ|すぽーつうえるねすわーくしょっぷＡ
+卒業研究指導演習|そつぎょうけんきゅうしどうえんしゅう
+運動方法学演習Ａ|うんどうほうほうがくえんしゅうＡ
 `),
+  "環境学部": parseAka(`
+リベラルアーツとしての環境学原論１|りべらるあーつとしてのかんきょうがくげんろん１
+環境科学入門１|かんきょうかがくにゅうもん１
+気候変動とカーボンニュートラル|きこうへんどうとかーぼんにゅーとらる
+生物多様性とネイチャーポジティブ|せいぶつたようせいとねいちゃーぽじてぃぶ
+環境汚染・公害とわたしたちの社会|かんきょうおせん・こうがいとわたしたちのしゃかい
+資源循環とサーキュラーエコノミー|しげんじゅんかんとさーきゅらーえこのみー
+環境アセスメントと持続可能な開発|かんきょうあせすめんととじぞくかのうなかいはつ
+環境データサイエンス|かんきょうでーたさいえんす
+自然環境と人間社会|しぜんかんきょうとにんげんしゃかい
+環境倫理|かんきょうりんり
+環境教育・ＥＳＤとシティズンシップ|かんきょうきょういく・ＥＳＤとしてぃずんしっぷ
+環境法入門|かんきょうほうにゅうもん
+環境政策・経済学入門|かんきょうせいさく・けいざいがくにゅうもん
+環境学のための社会調査法入門|かんきょうまなのためのしゃかいちょうさほうにゅうもん
+環境統計学基礎|かんきょうとうけいがくきそ
+環境物理学基礎|かんきょうぶつりがくきそ
+環境化学基礎|かんきょうかがくきそ
+環境生物学基礎|かんきょうせいぶつがくきそ
+環境地学基礎|かんきょうちがくきそ
+環境デザイン・マネジメント|かんきょうでざいん・まねじめんと
+環境リーダーシップＥＬ１|かんきょうりーだーしっぷＥＬ１
+環境リーダーシップＥＬ２|かんきょうりーだーしっぷＥＬ２
+環境フィールドスタディ１|かんきょうふぃーるどすたでぃ１
+大学への数学|だいがくへのすうがく
+自然科学のための数学|しぜんかがくのためのすうがく
+Environmental Issues in Japan and the World|environmental issues in japan and the world
+Natural Science of Triple Planetary Crisis|natural science of triple planetary crisis
+`),
+  "グローバル・リベラルアーツプログラム（GLAP）": parseAka(`
+Tutorial 1|tutorial 1
+Liberal Arts in Higher Education|liberal arts in higher education
+Globalism and Humanities|globalism and humanities
+Citizenship Education|citizenship education
+International Business|international business
+Second Year Seminar|second year seminar
+Final Year Seminar 1|final year seminar 1
+Graduation Paper|graduation paper
+World History|world history
+Culture and Fine Arts|culture and fine arts
+Political Sociology|political sociology
+Nature of the Earth|nature of the earth
+Literature and Society|literature and society
+Economic Thought|economic thought
+Health and Wellness|health and wellness
+Topics in Environment|topics in environment
+Topics in Natural Science|topics in natural science
+Topics in Humanities and Arts|topics in humanities and arts
+Career Planning|career planning
+Principles of Sociology|principles of sociology
+Global Sociology|global sociology
+Global City|global city
+Gender/Minority Studies|gender/minority studies
+International Relations|international relations
+UN and International Organizations|un and international organizations
+Introduction to Finance|introduction to finance
+Introduction to Accounting|introduction to accounting
+Introduction to Marketing|introduction to marketing
+Corporate Finance and Valuation|corporate finance and valuation
+Financial Statement Analysis|financial statement analysis
+Marketing Research|marketing research
+Business Communication|business communication
+Global Strategic Management|global strategic management
+Christianity in Japan|christianity in japan
+Japanese Literature in the World|japanese literature in the world
+`)
 };
-const RIKKYO_COMMON_DATA = parseAka(`
+
+/* 全学共通科目・全学共通カリキュラム（総合系・言語系） */
+const COMMON_COURSES = parseAka(`
 聖書と人間|せいしょとにんげん
 聖書考古学|せいしょこうこがく
 イスラームの世界|いすらーむのせかい
+「宗教」とは何か|「しゅうきょう」とはなにか
 現代社会と人間|げんだいしゃかいとにんげん
 論理的思考法|ろんりてきしこうほう
 教育と人間|きょういくとにんげん
@@ -1293,9 +1313,7 @@ const RIKKYO_COMMON_DATA = parseAka(`
 手話と人権を考える|しゅわとじんけんをかんがえる
 点字から考える人権|てんじからかんがえるじんけん
 ヨーロッパの文化とことば|よーろっぱのぶんかとことば
-ロシア・東欧の文化とことば|ろしあとうおうのぶんかとことば
-アフリカの文化とことば|あふりかのぶんかとことば
-イタリアの文化とことば|いたりあのぶんかとことば
+ロシア・東欧の文化とことば|ろしあ・とうおうのぶんかとことば
 ドイツ語圏の文化|どいつごけんのぶんか
 フランス語圏の文化|ふらんすごけんのぶんか
 スペイン語圏の文化|すぺいんごけんのぶんか
@@ -1303,7 +1321,7 @@ const RIKKYO_COMMON_DATA = parseAka(`
 朝鮮語圏の文化|ちょうせんごけんのぶんか
 教育学への扉|きょういくがくへのとびら
 睡眠文化論|すいみんぶんかろん
-立教学院とポール・ラッシュ|りっきょうがくいんとぽーるらっしゅ
+立教学院とポール・ラッシュ|りっきょうがくいんとぽーる・らっしゅ
 ジェンダーとキリスト教|じぇんだーときりすときょう
 哲学への扉|てつがくへのとびら
 歴史への扉|れきしへのとびら
@@ -1311,16 +1329,11 @@ const RIKKYO_COMMON_DATA = parseAka(`
 ラテンアメリカの文化とことば|らてんあめりかのぶんかとことば
 中東の文化とことば|ちゅうとうのぶんかとことば
 子どもの権利から考える国際協力|こどものけんりからかんがえるこくさいきょうりょく
-立教ゼミナール１|りっきょうぜみなーるいち
+立教ゼミナール１|りっきょうぜみなーる１
 ボランティア論|ぼらんてぃあろん
-ジェンダー・宗教・社会|じぇんだーしゅうきょうしゃかい
-多文化共生社会と日本|たぶんかきょうせいしゃかいとにほん
 仏教の世界|ぶっきょうのせかい
-日本の宗教|にほんのしゅうきょう
+日本の宗教|にっぽんのしゅうきょう
 日本文化と精神性|にほんぶんかとせいしんせい
-多文化社会と異文化コミュニケーション|たぶんかしゃかいといぶんかこみゅにけーしょん
-入門・経済教室|にゅうもんけいざいきょうしつ
-景気・格差問題と統計情報|けいきかくさもんだいととうけいじょうほう
 法と社会|ほうとしゃかい
 政治と社会|せいじとしゃかい
 グローバル社会における法と政治|ぐろーばるしゃかいにおけるほうとせいじ
@@ -1332,269 +1345,807 @@ const RIKKYO_COMMON_DATA = parseAka(`
 文化と社会|ぶんかとしゃかい
 いのちの尊厳と福祉を考える|いのちのそんげんとふくしをかんがえる
 コミュニティをデザインする|こみゅにてぃをでざいんする
-観光学への誘い|かんこうがくへのいざない
+観光学への誘い|かんこうがくへのさそい
 大学と現代社会|だいがくとげんだいしゃかい
-パレスチナ問題の歴史と現在|ぱれすちなもんだいのれきしとげんざい
-異文化コミュニケーションを考えるＡ|いぶんかこみゅにけーしょんをかんがえるえー
-対話を学ぶ|たいわをまなぶ
 人間と環境|にんげんとかんきょう
 持続可能性の理論と実践|じぞくかのうせいのりろんとじっせん
 社会調査入門|しゃかいちょうさにゅうもん
-社会調査の技法|しゃかいちょうさのぎほう
 データ分析入門|でーたぶんせきにゅうもん
 データの科学|でーたのかがく
-データサイエンス入門|でーたさいえんすにゅうもん
-データサイエンス応用|でーたさいえんすおうよう
-統計情報で社会・経済を診断する|とうけいじょうほうでしゃかいけいざいをしんだんする
-国際情勢を読み解く|こくさいじょうせいをよみとく
+統計情報で社会・経済を診断する|とうけいじょうほうでしゃかい・けいざいをしんだんする
 シティズンシップを考える|してぃずんしっぷをかんがえる
+対話を学ぶ|たいわをまなぶ
+異文化コミュニケーションを考えるＡ|いぶんかこみゅにけーしょんをかんがえるＡ
+現代社会の解読|げんだいしゃかいのかいどく
 世界の中のロシア|せかいのなかのろしあ
-英語リーティング＆ライティング１|えいごりーてぃんぐあんどらいてぃんぐいち
-英語リーティング＆ライティング２|えいごりーてぃんぐあんどらいてぃんぐに
-上級英語１|じょうきゅうえいごいち
-上級英語２|じょうきゅうえいごに
+パレスチナ問題の歴史と現在|ぱれすちなもんだいのれきしとげんざい
+Japanese Ethnology|japanese ethnology
+Peace and Human Rights 1|peace and human rights 1
+英語リーディング|えいごりーでぃんぐ
+英語ライティング|えいごらいてぃんぐ
+英語リスニング|えいごりすにんぐ
+英語スピーキング|えいごすぴーきんぐ
 英語プレゼンテーション|えいごぷれぜんてーしょん
-英語ディスカッション|えいごでぃすかっしょん
-英語ディベート|えいごでぃべーと
-英語eラーニング|えいごいーらーにんぐ
-ドイツ語１|どいつごいち
-ドイツ語２|どいつごに
-ドイツ語Ｂ|どいつごびー
-ドイツ語基礎１|どいつごきそいち
-フランス語１|ふらんすごいち
-フランス語２|ふらんすごに
-フランス語Ｂ|ふらんすごびー
-フランス語基礎１|ふらんすごきそいち
-上級フランス語ＷＲ１|じょうきゅうふらんすごだぶりゅーあーるいち
-スペイン語１|すぺいんごいち
-スペイン語２|すぺいんごに
-スペイン語総合１|すぺいんごそうごういち
-入門スペイン語|にゅうもんすぺいんご
-キャリアスペイン語１|きゃりあすぺいんごいち
-入門中国語|にゅうもんちゅうごくご
-中国語演習１|ちゅうごくごえんしゅういち
-キャリア中国語１|きゃりあちゅうごくごいち
-アカデミック中国語１|あかでみっくちゅうごくごいち
-上級中国語コミュニケーション１|じょうきゅうちゅうごくごこみゅにけーしょんいち
-中国語トレーニング１|ちゅうごくごとれーにんぐいち
-朝鮮語１|ちょうせんごいち
-朝鮮語２|ちょうせんごに
-朝鮮語総合１|ちょうせんごそうごういち
-入門朝鮮語|にゅうもんちょうせんご
-キャリア朝鮮語１|きゃりあちょうせんごいち
-アカデミック朝鮮語２|あかでみっくちょうせんごに
-上級朝鮮語演習１|じょうきゅうちょうせんごえんしゅういち
-ロシア語１|ろしあごいち
-ロシア語２|ろしあごに
-ロシア語総合１|ろしあごそうごういち
-ポルトガル語１|ぽるとがるごいち
-入門インドネシア語|にゅうもんいんどねしあご
-入門タイ語|にゅうもんたいご
-入門タガログ語|にゅうもんたがろぐご
-入門ベトナム語|にゅうもんべとなむご
-大学生の日本語Ａ２|だいがくせいのにほんごえーに
-ＮＥＸＵＳ日本語Ａ|ねくさすにほんごえー
-ＰＥＡＣＥ日本語１Ｄ|ぴーすにほんごいちでぃー
+上級英語２|じょうきゅうえいご２
+英語リーティング＆ライティング２|えいごりーてぃんぐ＆らいてぃんぐ２
+ドイツ語入門１|どいつごにゅうもん１
+フランス語入門１|ふらんすごにゅうもん１
+中国語入門１|ちゅうごくごにゅうもん１
+朝鮮語入門１|ちょうせんごにゅうもん１
+スペイン語入門１|すぺいんごにゅうもん１
+日本語表現|にほんごひょうげん
+体育実技|たいいくじつぎ
+情報リテラシー|じょうほうりてらしー
 `);
-const RIKKYO_FAC = Object.keys(RIKKYO_FAC_DATA).reduce((o, f) => { o[f] = RIKKYO_FAC_DATA[f].map(x => x.n); return o; }, {});
-const RIKKYO_COMMON = RIKKYO_COMMON_DATA.map(x => x.n);
-/* 授業名 → よみ（同じ大学の他ユーザーが登録した名前にもよみを付けたいとき用） */
-const COURSE_YOMI = new Map();
-Object.keys(RIKKYO_FAC_DATA).forEach(f => RIKKYO_FAC_DATA[f].forEach(x => { const k = norm(x.n); if (k && x.y && !COURSE_YOMI.has(k)) COURSE_YOMI.set(k, x.y); }));
-RIKKYO_COMMON_DATA.forEach(x => { const k = norm(x.n); if (k && x.y && !COURSE_YOMI.has(k)) COURSE_YOMI.set(k, x.y); });
-const yomiOf = name => COURSE_YOMI.get(norm(name)) || "";
-/* 五十音順に並べ替え（よみが無い名前は元の順のまま末尾へ） */
-function sortCoursesByYomi(list) {
-  return list.map((x, i) => ({ x, i, row: AKA_ROWS.indexOf(gojuonRow(yomiOf(x.name))) }))
-    .sort((a, b) => {
-      const ay = yomiOf(a.x.name), by = yomiOf(b.x.name);
-      if (!ay !== !by) return ay ? -1 : 1;
-      if (a.row !== b.row) return a.row - b.row;
-      const c = toHira(ay).localeCompare(toHira(by), "ja");
-      if (c) return c;
-      const d = String(a.x.name).localeCompare(String(b.x.name), "ja");
-      return d || a.i - b.i;
-    }).map(o => o.x);
-}
-const GENERIC_COMMON = ["英語","経済学","経営学","社会学","心理学","法学","統計学","情報処理","日本史","哲学","体育","文章表現","国際関係論","環境学"];
-/* 他大学：主要学部の科目を少しだけ持たせる（なくても全学共通＋他ユーザー登録＋自由入力で動く） */
-const OTHER_FAC_COURSES = {
-  "早稲田大学": {
-    "法学部": ["憲法","民法","刑法","会社法","政治学原論","国際法"],
-    "政治経済学部": ["政治学原論","経済学原理","ミクロ経済学","マクロ経済学","国際政治学"],
-    "商学部": ["商学原理","会計学","マーケティング論","ファイナンス論"],
-    "基幹理工学部": ["解析学","線形代数学","力学","情報理工学"]
-  },
-  "慶應義塾大学": {
-    "法学部": ["憲法","民法","刑法","会社法","政治学"],
-    "経済学部": ["ミクロ経済学","マクロ経済学","経済学史","計量経済学"],
-    "商学部": ["商学","会計学","マーケティング論"],
-    "文学部": ["英米文学","日本文学","史学","哲学"]
-  },
-  "明治大学": {
-    "法学部": ["憲法","民法","刑法","会社法"],
-    "政治経済学部": ["政治学","経済学","ミクロ経済学","マクロ経済学"],
-    "商学部": ["商学","会計学","マーケティング論"],
-    "情報コミュニケーション学部": ["情報社会論","メディア論","社会調査法"]
-  },
-  "中央大学": {
-    "法学部": ["憲法","民法","刑法","会社法","政治学"],
-    "商学部": ["商学","会計学","金融論"],
-    "経済学部": ["ミクロ経済学","マクロ経済学","経済政策"]
-  },
-  "法政大学": {
-    "法学部": ["憲法","民法","刑法","政治学"],
-    "経済学部": ["ミクロ経済学","マクロ経済学","経済政策"],
-    "社会学部": ["社会学","社会調査法","メディア社会論"]
-  },
-  "上智大学": {
-    "法学部": ["憲法","民法","刑法","国際関係法"],
-    "外国語学部": ["英語","英語圏文化論","言語学"],
-    "総合人間科学部": ["心理学","社会学","教育学"]
-  },
-  "青山学院大学": {
-    "法学部": ["憲法","民法","刑法"],
-    "経済学部": ["ミクロ経済学","マクロ経済学"],
-    "文学部": ["英米文学","日本文学","史学"]
-  },
-  "東京大学": {
-    "法学部": ["憲法","民法","刑法","政治学"],
-    "経済学部": ["ミクロ経済学","マクロ経済学","経済史"],
-    "工学部": ["解析学","線形代数学","力学","情報工学"]
-  },
-  "一橋大学": {
-    "商学部": ["商学","会計学","マーケティング"],
-    "経済学部": ["ミクロ経済学","マクロ経済学","経済史"],
-    "法学部": ["憲法","民法","国際法"]
-  },
-  "学習院大学": {
-    "法学部": ["憲法","民法","刑法"],
-    "経済学部": ["ミクロ経済学","マクロ経済学"],
-    "文学部": ["英米文学","日本文学","史学"]
-  }
-};
 
-/* ================= 状態 ================= */
+
+/* 学部・学科・授業名のよみ索引 */
+const YOMI_INDEX = new Map();
+[UNIV_LIST, GENERIC_DEPTS, GENERIC_COURSES].forEach(arr =>
+  arr.forEach(x => { const k = norm(x.n); if (k && x.y && !YOMI_INDEX.has(k)) YOMI_INDEX.set(k, x.y); }));
+Object.keys(RIKKYO_FAC_COURSES).forEach(f => RIKKYO_FAC_COURSES[f].forEach(x => {
+  const k = norm(x.n); if (k && x.y && !YOMI_INDEX.has(k)) YOMI_INDEX.set(k, x.y);
+}));
+COMMON_COURSES.forEach(x => { const k = norm(x.n); if (k && x.y && !YOMI_INDEX.has(k)) YOMI_INDEX.set(k, x.y); });
+RIKKYO_FAC.forEach(f => {
+  if (!YOMI_INDEX.has(norm(f.n))) YOMI_INDEX.set(norm(f.n), f.y);
+  f.d.forEach(d => { if (!YOMI_INDEX.has(norm(d[0]))) YOMI_INDEX.set(norm(d[0]), d[1]); });
+});
+const yomiFor = name => YOMI_INDEX.get(norm(name)) || "";
+
+/* ============================================================
+   状態とリロード保持（cc_ui_state）
+   ============================================================ */
 let session = null, myProfile = null, myCourses = [];
-let tab = "home", openTid = null, editOpen = false, addOpen = false, notifOpen = false;
-let searchQ = "", courseFilter = "all", dmSeg = "talk";
+let tab = "home", openTid = null, openPeer = null, openCourse = "";
+let fil = "all", homeQuery = "", q = "", cfil = "";
 let authMode = "login", authErr = "", authOk = "", authEmail = "", recoveryDone = false;
 let recoveryInvalid = false, recoveryTimer = null;
 let signupConfirmPending = initialUrlHas(/type=signup/), signupTimer = null;
 let rtChannel = null;
-let curUniv = "", curFac = "", curDep = "";
-let boardCache = { univ: "", rows: [], at: 0 };
-let hints = { key: null, univ: "", peers: [], loading: false };
-const PREFS_KEY = "cc_ui_prefs";
-let prefs = (() => { try { return JSON.parse(localStorage.getItem(PREFS_KEY) || "{}") || {}; } catch (e) { return {}; } })();
-const savePrefs = () => { try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (e) {} };
-/* 画面状態の記憶：リフレッシュ（再読み込み）しても同じタブ／DMスレッドに戻る */
+
 const UI_KEY = "cc_ui_state";
-const UI_TABS = ["home", "search", "dm", "profile"];
+const TABS = ["home","search","dm","profile"];
+function loadUIState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(UI_KEY) || "null");
+    if (!s || typeof s !== "object") return;
+    if (typeof s.tab === "string" && TABS.indexOf(s.tab) >= 0) tab = s.tab;
+    if (typeof s.openTid === "string" && s.openTid) openTid = s.openTid;
+    if (typeof s.fil === "string" && ["all","current","done"].indexOf(s.fil) >= 0) fil = s.fil;
+    if (typeof s.homeQuery === "string") homeQuery = s.homeQuery;
+    if (typeof s.q === "string") q = s.q;
+    if (typeof s.cfil === "string") cfil = s.cfil;
+  } catch (e) { /* 読めないときは初期状態 */ }
+}
 function saveUIState() {
-  try { localStorage.setItem(UI_KEY, JSON.stringify({ tab, openTid: openTid || null, at: Date.now() })); } catch (e) {}
+  try { localStorage.setItem(UI_KEY, JSON.stringify({ tab, openTid, fil, homeQuery, q, cfil })); } catch (e) {}
 }
-function clearUIState() { try { localStorage.removeItem(UI_KEY); } catch (e) {} }
-function applyUIState() {
-  let st = null;
-  try { st = JSON.parse(localStorage.getItem(UI_KEY) || "null"); } catch (e) { st = null; }
-  if (!st || typeof st !== "object") return;
-  const t = String(st.tab || "");
-  if (UI_TABS.indexOf(t) >= 0) tab = t;
-  const tid = String(st.openTid || "");
-  if (tab === "dm" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(tid)) openTid = tid;
-  else openTid = null;
-  editOpen = false; addOpen = false;
+function clearUIState() {
+  try { localStorage.removeItem(UI_KEY); } catch (e) {}
+  tab = "home"; openTid = null; fil = "all"; homeQuery = ""; q = ""; cfil = "";
 }
 
-/* ================= 共通部品 ================= */
-const app = () => $("#app");
-const paint = html => { app().innerHTML = html; };
-const ava = (name, id) => `<span class="ava ${avCls(id)}">${esc(initial(name))}</span>`;
-const pill = done => `<span class="pill ${done ? "done" : "cur"}">${done ? "履修済み" : "受講中"}</span>`;
-const section = (text, pink, more) => `<div class="sec"><span class="dot${pink ? " pink" : ""}"></span>${esc(text)}${more || ""}</div>`;
-const splitDept = (univ, department) => {
-  const d = String(department || "").trim();
-  if (!d) return { fac: "", dep: "" };
-  const f = facsOf(univ).find(x => d === x.n || d.startsWith(x.n));
-  if (f) return { fac: f.n, dep: d.slice(f.n.length).replace(/^[\s・,，、／\/|｜]+/, "").trim() };
-  const parts = d.split(/[\s・,，、／\/|｜]+/).filter(Boolean);
-  if (parts.length > 1) return { fac: parts[0], dep: parts.slice(1).join(" ") };
-  return { fac: d, dep: "" };
-};
-const yearNum = y => { const n = parseInt(y, 10); return isFinite(n) ? n : 0; };
-const rankOf = c => {
-  if (!c || c.status !== "done" || c.visibility === "none") return "";
-  const g = c.grade;
-  if (!g || g === "未回答") return "";
-  return g + "ランク帯";
-};
-const rankCls = g => ({ S: "s", A: "a", B: "b", C: "c", D: "d" }[String(g || "").charAt(0)] || "d");
-function relTag(p) {
-  const me = yearNum(myProfile && myProfile.year), you = yearNum(p.year);
-  if (!me || !you) return "";
-  if (you > me) return "先輩";
-  if (you === me) return "同期";
-  return "後輩";
-}
-function deptLine(p) {
-  const s = splitWeak(p.department);
-  const y = yearNum(p.year);
-  return `${s.fac || p.department || ""}${y ? " " + y + "年" : ""}`.trim();
-}
-const splitWeak = department => splitDept((myProfile && myProfile.university) || "", department);
-function commonText(commons) {
-  if (!commons.length) return "";
-  return "共通：" + commons.slice(0, 3).map(c => `${c.name}（${c.status === "done" ? "履修済み" : "受講中"}）`).join("・");
-}
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  tab = b.dataset.t;
+  if (tab !== "dm") openTid = null;
+  saveUIState(); render();
+});
 
-/* ================= データ読み込み ================= */
 async function loadMine() {
   const uid = session.user.id;
   const { data: prof } = await sb.from("profiles").select("*").eq("id", uid).single();
   myProfile = prof || { id: uid, display_name: "学生", university: "", department: "", year: "", verified: true };
   const { data: cs } = await sb.from("user_courses").select("*").eq("user_id", uid).order("created_at");
   myCourses = cs || [];
-  const s = splitDept(myProfile.university, myProfile.department);
-  curUniv = myProfile.university || "";
-  curFac = s.fac; curDep = s.dep;
 }
 
-async function loadBoard(force) {
-  const uid = session.user.id;
-  const univ = (myProfile && myProfile.university) || "";
-  if (!force && boardCache.univ === univ && Date.now() - boardCache.at < 15000) return boardCache.rows;
-  let { data } = await sb.from("peer_courses").select("*").limit(2000);
-  let rows = data || [];
-  if (univ) rows = rows.filter(r => !r.university || norm(r.university) === norm(univ));
-  rows = rows.filter(r => r.user_id !== uid);
-  boardCache = { univ, rows, at: Date.now() };
+async function render() {
+  const { data } = await sb.auth.getSession();
+  session = data.session;
+  if (signupConfirmPending) {
+    if (session) {
+      /* 確認メールのリンクから戻ってきてセッションが確立できた */
+      signupConfirmPending = false; clearTimeout(signupTimer);
+      authMode = "signupDone"; authErr = ""; authOk = "";
+      clearAuthUrl();
+      $("#nav").style.display = "none";
+      rSignupDone(); return;
+    }
+    /* ハッシュのトークン解析中かもしれません。少しだけ待つ */
+    $("#nav").style.display = "none";
+    $("#app").innerHTML = `<div style="text-align:center;margin:48px 0"><h1 style="font-size:20px;margin:0">メール認証を確認しています…</h1></div>`;
+    clearTimeout(signupTimer);
+    signupTimer = setTimeout(() => {
+      if (!signupConfirmPending) return;
+      signupConfirmPending = false;
+      authMode = "login"; authErr = SIGNUP_LINK_INVALID_MSG; authOk = "";
+      clearAuthUrl(); render();
+    }, 2500);
+    return;
+  }
+  if (!session || authMode === "recovery" || authMode === "signupDone") { $("#nav").style.display = "none"; rAuth(); return; }
+  $("#nav").style.display = "flex";
+  if (!myProfile) await loadMine();
+  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t === tab));
+  ({ home: rHome, search: rSearch, dm: rDM, profile: rProfile })[tab]();
+}
+
+/* ============================================================
+   共通の取得処理
+   ============================================================ */
+/* 同じ大学・同じ授業の他の学生（peer_courses ビュー） */
+async function fetchPeers() {
+  const mine = myCourses.map(c => norm(c.course_name));
+  if (!mine.length) return [];
+  const { data } = await sb.from("peer_courses").select("*").neq("user_id", session.user.id);
+  let rows = (data || []).filter(p => mine.indexOf(norm(p.course_name)) >= 0);
+  if (myProfile && myProfile.university) rows = rows.filter(p => norm(p.university) === norm(myProfile.university));
   return rows;
 }
-
-function groupPeers(rows) {
-  const map = new Map();
-  rows.forEach(r => {
-    if (!r || !r.user_id) return;
-    let p = map.get(r.user_id);
-    if (!p) {
-      p = { id: r.user_id, name: r.display_name || "ユーザー", university: r.university || "", department: r.department || "", year: r.year, courses: [] };
-      map.set(r.user_id, p);
-    }
-    p.courses.push({ name: r.course_name, status: r.status, grade: r.grade, visibility: r.visibility });
+/* DMスレッド（相手の名前つき） */
+async function fetchThreads() {
+  const uid = session.user.id;
+  const { data: ths } = await sb.from("threads").select("*")
+    .or(`user_a.eq.${uid},user_b.eq.${uid}`).order("last_message_at", { ascending: false, nullsFirst: false });
+  const threads = ths || [];
+  const ids = [...new Set(threads.flatMap(t => [t.user_a, t.user_b]))].filter(id => id !== uid);
+  let profs = {};
+  if (ids.length) {
+    const { data: ps } = await sb.from("profiles").select("id,display_name,university,department,year").in("id", ids);
+    (profs = {}), (ps || []).forEach(p => profs[p.id] = p);
+  }
+  return threads.map(t => {
+    const oid = t.user_a === uid ? t.user_b : t.user_a;
+    const p = profs[oid] || {};
+    return { id: t.id, oid, name: p.display_name || "ユーザー", year: p.year, department: p.department,
+             course: t.course_name || "", last: t.last_message || "", at: t.last_message_at };
   });
-  return [...map.values()];
+}
+/* 学年の関係：先輩／同期／後輩 */
+function relTag(year) {
+  const y0 = parseInt(myProfile && myProfile.year, 10), yp = parseInt(year, 10);
+  if (!y0 || !yp) return "";
+  if (yp < y0) return "先輩";
+  if (yp > y0) return "後輩";
+  return "同期";
+}
+/* 成績タグ（公開範囲を尊重） */
+function gradeTag(c) {
+  if (!c || c.status !== "done") return "";
+  const vis = c.visibility;
+  if (vis === "none") return "";
+  if (vis === "same") {
+    const shared = myCourses.some(m => norm(m.course_name) === norm(c.course_name));
+    if (!shared) return "";
+  }
+  const g = c.grade && c.grade !== "未回答" ? c.grade : "";
+  return g ? `<span class="rank">${esc(g)}ランク帯</span>` : "";
+}
+function statusPill(status) {
+  return status === "done" ? `<span class="pill done">履修済み</span>` : `<span class="pill cur">受講中</span>`;
 }
 
-function commonCourses(p) {
-  const mine = new Map(myCourses.map(c => [norm(c.course_name), c]));
-  return p.courses.filter(c => mine.has(norm(c.name)));
+/* ============================================================
+   ホーム
+   ============================================================ */
+async function rHome() {
+  $("#app").innerHTML = `<div class="tophead"><div class="logo"><span class="mark"></span><span class="bw">授業</span><span class="bg2">つながり</span></div></div><p class="sub">読み込み中…</p>`;
+  const [peers, threads] = await Promise.all([fetchPeers(), fetchThreads()]);
+  const name = (myProfile && myProfile.display_name) || "学生";
+
+  /* 相手ごとに共通の授業をまとめる */
+  const byUser = new Map();
+  peers.forEach(p => {
+    const k = p.user_id;
+    const e = byUser.get(k) || { user_id: k, name: p.display_name, department: p.department, year: p.year, courses: [] };
+    if (!e.courses.some(c => norm(c.course_name) === norm(p.course_name))) e.courses.push(p);
+    byUser.set(k, e);
+  });
+  const peerList = Array.from(byUser.values())
+    .sort((a, b) => b.courses.length - a.courses.length || String(a.name).localeCompare(String(b.name), "ja"))
+    .slice(0, 8);
+
+  const mineRows = myCourses.map(c => `
+    <div class="lrow">
+      <div class="txt">
+        <span class="nm">${esc(c.course_name)}</span>
+        <span class="sub">${c.status === "done" ? "履修済み" + (c.grade && c.grade !== "未回答" ? " ・ 成績 " + esc(c.grade) : "") + " ・ " + esc(VIS[c.visibility] || "") : "受講中（ヨコ）"}</span>
+      </div>
+      ${statusPill(c.status)}
+    </div>`).join("");
+
+  const peerRows = peerList.map(u => {
+    const c = u.courses[0];
+    const rel = relTag(u.year);
+    return `<div class="lrow tap" data-pf="${esc(u.user_id)}">
+      <div class="avatar ${avCls(u.user_id)}">${esc(initial(u.name))}</div>
+      <div class="txt">
+        <span class="nm">${esc(u.name || "ユーザー")}${rel ? `<span class="tag">${esc(rel)}</span>` : ""}${gradeTag(c)}</span>
+        <span class="sub">${esc(u.department || "学部未設定")}${u.year ? " " + esc(u.year) + "年" : ""}</span>
+        <div class="shared">共通：${esc(c.course_name)}（${c.status === "done" ? "履修済み" : "受講中"}）${u.courses.length > 1 ? ` ほか${u.courses.length - 1}科目` : ""}</div>
+      </div>
+      <span class="chev">›</span>
+    </div>`;
+  }).join("");
+
+  const dmRows = threads.slice(0, 3).map(t => {
+    const rel = relTag(t.year);
+    return `<div class="lrow tap" data-tid="${esc(t.id)}">
+      <div class="avatar ${avCls(t.oid)}">${esc(initial(t.name))}</div>
+      <div class="txt">
+        <span class="nm">${esc(t.name)}${rel ? `<span class="tag">${esc(rel)}</span>` : ""}</span>
+        <span class="sub dmline">${esc(t.last || "（まだメッセージなし）")}</span>
+      </div>
+      <span class="chev">›</span>
+    </div>`;
+  }).join("");
+
+  $("#app").innerHTML = `
+  <div class="tophead">
+    <div class="logo"><span class="mark"></span><span class="bw">授業</span><span class="bg2">つながり</span></div>
+    <button class="bell" id="bell" aria-label="通知">🔔<span class="dot ${threads.length ? "on" : ""}"></span></button>
+  </div>
+  <h1 class="greet">こんにちは、<b>${esc(name)}</b>さん</h1>
+  <div class="searchrow">
+    <input id="hq" placeholder="授業名・キーワードでさがす" value="${esc(homeQuery)}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    <button id="hsearch">検索</button>
+  </div>
+
+  <h2>わたしの授業</h2>
+  <div class="listcard">
+    ${mineRows || `<div class="empty">まだ授業が登録されていません。</div>`}
+    <div class="lrow addrow" id="gotoAdd">
+      <span>＋ 授業を追加する</span>
+      <span class="sub">受講中・履修済みを登録すると相手が見つかります</span>
+    </div>
+  </div>
+
+  <h2 class="pinkdot">同じ授業の人</h2>
+  <div class="listcard">
+    ${peerRows || `<div class="empty">${myCourses.length ? "同じ授業の学生はまだ登録していません。" : "先に授業を登録すると、同じ授業の人に出会えます。"}</div>`}
+  </div>
+
+  <h2>最近のDM</h2>
+  <div class="listcard">
+    ${dmRows || `<div class="empty">まだDMはありません。「さがす」から相談してみましょう。</div>`}
+  </div>`;
+
+  $("#bell").onclick = openNotif;
+  $("#hsearch").onclick = () => {
+    homeQuery = $("#hq").value.trim();
+    q = homeQuery; cfil = "";
+    tab = "search"; saveUIState(); render();
+  };
+  $("#hq").addEventListener("keydown", e => { if (e.key === "Enter") $("#hsearch").click(); });
+  $("#gotoAdd").onclick = async () => {
+    tab = "profile"; saveUIState(); await render();
+    const el = $("#cn");
+    if (el) { el.scrollIntoView({ block: "center", behavior: "smooth" }); try { el.focus(); } catch (e) {} }
+  };
+  document.querySelectorAll("#app [data-pf]").forEach(el => el.onclick = () => openPeerProfile(el.dataset.pf));
+  document.querySelectorAll("#app [data-tid]").forEach(el => el.onclick = () => {
+    openTid = el.dataset.tid; tab = "dm"; saveUIState(); render();
+  });
+  const nav = $("#ndot"); if (nav) nav.classList.toggle("on", threads.length > 0);
 }
 
-/* ================= 認証画面 ================= */
+/* 通知（ベル）：直近のDM一覧からスレッドへ */
+async function openNotif() {
+  const sheet = $("#nsheet"), box = $("#nsbody");
+  if (!sheet || !box) return;
+  sheet.classList.add("on");
+  document.body.style.overflow = "hidden";
+  box.innerHTML = `<div class="row" style="margin-bottom:6px"><b style="flex:1;font-size:16px">お知らせ</b><button class="x" id="nsclose">閉じる</button></div><p class="sub">読み込み中…</p>`;
+  $("#nsclose").onclick = closeNotif;
+  const threads = await fetchThreads();
+  if (!sheet.classList.contains("on")) return;
+  box.innerHTML = `<div class="row" style="margin-bottom:10px"><b style="flex:1;font-size:16px">お知らせ</b><button class="x" id="nsclose">閉じる</button></div>
+    <div class="sub" style="margin:0 0 8px">直近のDM</div>
+    <div class="listcard" style="background:rgba(255,255,255,0.05)">
+      ${threads.length ? threads.slice(0, 8).map(t => `
+        <div class="lrow tap" data-tid="${esc(t.id)}">
+          <div class="avatar ${avCls(t.oid)}">${esc(initial(t.name))}</div>
+          <div class="txt"><span class="nm">${esc(t.name)}</span>
+            <span class="sub dmline">${esc(t.last || "（まだメッセージなし）")}</span></div>
+          <span class="chev">›</span>
+        </div>`).join("") : `<div class="empty">新しい通知はありません。</div>`}
+    </div>`;
+  $("#nsclose").onclick = closeNotif;
+  box.querySelectorAll("[data-tid]").forEach(el => el.onclick = () => {
+    openTid = el.dataset.tid; tab = "dm"; closeNotif(); saveUIState(); render();
+  });
+}
+function closeNotif() {
+  const sheet = $("#nsheet");
+  if (!sheet) return;
+  sheet.classList.remove("on");
+  document.body.style.overflow = "";
+}
+
+/* ============================================================
+   さがす
+   ============================================================ */
+async function rSearch() {
+  $("#app").innerHTML = `<div class="tabtitle">さがす</div><p class="sub">読み込み中…</p>`;
+  const peers = await fetchPeers();
+  const qk = String(q || "").normalize("NFKC").toLowerCase().trim();
+  let rows = peers.filter(p => {
+    if (qk) {
+      const hay = (String(p.display_name || "") + " " + String(p.course_name || "")).normalize("NFKC").toLowerCase();
+      if (hay.indexOf(qk) < 0) return false;
+    }
+    if (cfil && norm(p.course_name) !== norm(cfil)) return false;
+    if (fil !== "all" && p.status !== fil) return false;
+    return true;
+  });
+  const byName = (a, b) => String(a.display_name || "").localeCompare(String(b.display_name || ""), "ja")
+    || String(a.course_name).localeCompare(String(b.course_name), "ja");
+  rows = rows.slice().sort(byName);
+
+  const chips = [`<button class="chip ${cfil ? "" : "on"}" data-cf="">すべて</button>`]
+    .concat(myCourses.map(c => `<button class="chip ${norm(cfil) === norm(c.course_name) ? "on" : ""}" data-cf="${esc(c.course_name)}">${esc(c.course_name)}</button>`))
+    .join("");
+  const seg = [["all","すべて"],["current","受講中"],["done","履修済み"]]
+    .map(([v, l]) => `<button class="chip ${fil === v ? "on" : ""}" data-fl="${v}">${l}</button>`).join("");
+
+  const list = rows.map(p => {
+    const rel = relTag(p.year);
+    return `<div class="lrow tap" data-pf="${esc(p.user_id)}">
+      <div class="avatar ${avCls(p.user_id)}">${esc(initial(p.display_name))}</div>
+      <div class="txt">
+        <span class="nm">${esc(p.display_name || "ユーザー")}${rel ? `<span class="tag">${esc(rel)}</span>` : ""}${gradeTag(p)}</span>
+        <span class="sub">${esc(p.department || "学部未設定")}${p.year ? " " + esc(p.year) + "年" : ""}</span>
+        <div class="shared">共通：${esc(p.course_name)}（${p.status === "done" ? "履修済み" : "受講中"}）</div>
+      </div>
+      <span class="chev">›</span>
+    </div>`;
+  }).join("");
+
+  $("#app").innerHTML = `
+    <div class="tabtitle">さがす</div>
+    <div class="searchrow" style="margin-bottom:12px">
+      <input id="sq" placeholder="名前・授業名でさがす" value="${esc(q)}" autocomplete="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="sub" style="margin:0 0 6px;font-weight:700;color:#dde3ff">授業でしぼりこむ</div>
+    <div class="chips" id="cfchips">${myCourses.length ? chips : `<button class="chip on" data-cf="">すべて</button>`}</div>
+    <div class="segrow" id="flchips">${seg}</div>
+    <div class="listcard">
+      ${list || `<div class="empty">${myCourses.length ? "条件に合う学生が見つかりませんでした。" : "先に「マイページ」で授業を登録してください。"}</div>`}
+    </div>`;
+
+  const sq = $("#sq");
+  sq.addEventListener("input", () => { q = sq.value; });
+  sq.addEventListener("keydown", e => { if (e.key === "Enter") { q = sq.value; saveUIState(); render(); } });
+  sq.addEventListener("blur", () => { if (q !== sq.value) { q = sq.value; saveUIState(); render(); } });
+  document.querySelectorAll("#cfchips [data-cf]").forEach(b => b.onclick = () => {
+    cfil = b.dataset.cf; saveUIState(); render();
+  });
+  document.querySelectorAll("#flchips [data-fl]").forEach(b => b.onclick = () => {
+    fil = b.dataset.fl; saveUIState(); render();
+  });
+  document.querySelectorAll("#app [data-pf]").forEach(el => el.onclick = () => openPeerProfile(el.dataset.pf));
+}
+
+async function startDM(otherId, course) {
+  const uid = session.user.id;
+  const [a, b] = [uid, otherId].sort();
+  const { data, error } = await sb.from("threads")
+    .upsert({ course_name: course, user_a: a, user_b: b }, { onConflict: "course_name,user_a,user_b" })
+    .select().single();
+  if (error) { alert("スレッドを作成できませんでした: " + error.message); return; }
+  tab = "dm"; openTid = data.id; saveUIState(); render();
+}
+
+/* ============================================================
+   DM
+   ============================================================ */
+async function rDM() {
+  if (openTid) return rChat();
+  const threads = await fetchThreads();
+  const list = threads.map(t => {
+    const rel = relTag(t.year);
+    return `<div class="lrow tap" data-tid="${esc(t.id)}">
+      <div class="avatar ${avCls(t.oid)}">${esc(initial(t.name))}</div>
+      <div class="txt">
+        <span class="nm">${esc(t.name)}${rel ? `<span class="tag">${esc(rel)}</span>` : ""}</span>
+        <span class="sub dmline">${t.course ? esc(t.course) + " ｜ " : ""}${esc(t.last || "（まだメッセージなし）")}</span>
+      </div>
+      <span class="chev">›</span>
+    </div>`;
+  }).join("");
+  $("#app").innerHTML = `<div class="tabtitle">DM</div>
+    <div class="listcard">${list || `<div class="empty">「さがす」から相談相手を選んでみましょう。</div>`}</div>`;
+  document.querySelectorAll("#app [data-tid]").forEach(el => el.onclick = () => {
+    openTid = el.dataset.tid; saveUIState(); render();
+  });
+  const nav = $("#ndot"); if (nav) nav.classList.toggle("on", threads.length > 0);
+}
+
+async function rChat() {
+  const uid = session.user.id;
+  const { data: t } = await sb.from("threads").select("*").eq("id", openTid).single();
+  if (!t) { openTid = null; saveUIState(); render(); return; } /* スレッドが無ければDM一覧へ */
+  const oid = t.user_a === uid ? t.user_b : t.user_a;
+  const { data: p } = await sb.from("profiles").select("*").eq("id", oid).single();
+  openPeer = p; openCourse = t.course_name;
+  const { data: msgs } = await sb.from("messages").select("*").eq("thread_id", openTid).order("created_at");
+  const list = msgs || [];
+  $("#app").innerHTML = `<div class="row" style="margin-bottom:8px"><button class="g" id="bk" style="flex:none">←</button><div class="tabtitle" style="flex:1;margin:0;font-size:20px" class="pf" data-pf="${esc(oid)}">${esc(p ? p.display_name : "ユーザー")}</div></div>
+  <p class="sub">${esc(t.course_name || "")} ・授業の進め方、課題、テスト対策などを相談できます。過去問そのものの転載は控えてください。</p>
+  <div class="msgs" id="ms">${list.map(m => `<div class="m ${m.sender_id === uid ? "me" : ""}">${esc(m.body)}</div>`).join("")}</div>
+  <div class="row"><textarea id="tx" rows="2" placeholder="メッセージを入力…"></textarea><button id="sd">送信</button></div>`;
+  const box = $("#ms"); if (box) box.scrollTop = box.scrollHeight;
+  const pfh = $("[data-pf]"); if (pfh) pfh.onclick = () => openPeerProfile(oid);
+  const titleEl = $("#app .tabtitle"); if (titleEl) { titleEl.classList.add("pf"); titleEl.onclick = () => openPeerProfile(oid); }
+  $("#bk").onclick = () => { openTid = null; if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; } saveUIState(); render(); };
+  $("#sd").onclick = async () => {
+    const v = $("#tx").value.trim(); if (!v) return;
+    const { error } = await sb.from("messages").insert({ thread_id: openTid, sender_id: uid, body: v });
+    if (error) { alert("送信できませんでした: " + error.message); return; }
+    render();
+  };
+  if (rtChannel) sb.removeChannel(rtChannel);
+  rtChannel = sb.channel("dm-" + openTid)
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: "thread_id=eq." + openTid },
+      payload => { if (payload.new.sender_id !== uid && openTid) render(); })
+    .subscribe();
+}
+
+/* ============================================================
+   相手のプロフィール（モーダル）
+   ============================================================ */
+function closePeerProfile() {
+  const sheet = $("#pmodal");
+  if (!sheet) return;
+  sheet.classList.remove("on");
+  const box = $("#pmbody"); if (box) box.innerHTML = "";
+  document.body.style.overflow = "";
+}
+
+function gradeLabel(c, mine) {
+  if (c.status !== "done") return "";
+  const vis = c.visibility;
+  if (vis === "none") return "成績 非公開";
+  if (vis === "same" && !mine.has(norm(c.course_name))) return "成績 同じ授業の人のみ公開";
+  return "成績 " + (c.grade || "未回答");
+}
+
+function renderPeerProfile(p, cs) {
+  const mine = new Set((myCourses || []).map(c => norm(c.course_name)));
+  const name = p.display_name || "ユーザー";
+  const row = c => {
+    const done = c.status === "done", g = gradeLabel(c, mine);
+    return `<div class="card" style="margin:0 0 8px;padding:10px 12px">
+      <b>${esc(c.course_name)}</b>
+      <div style="margin-top:2px"><span class="tag ${done ? "ok" : ""}">${done ? "履修済み（タテ）" : "受講中（ヨコ）"}</span>${g ? `<span class="tag grade">${esc(g)}</span>` : ""}</div>
+      <div style="margin-top:6px"><button class="g" data-pfdm="${esc(c.course_name)}" style="font-size:12px;padding:6px 10px">この授業で相談する</button></div>
+    </div>`;
+  };
+  const byName = (a, b) => String(a.course_name).localeCompare(String(b.course_name), "ja");
+  const cur = (cs || []).filter(c => c.status !== "done").slice().sort(byName);
+  const done = (cs || []).filter(c => c.status === "done").slice().sort(byName);
+  const rel = relTag(p.year);
+  return `<div class="row" style="align-items:flex-start">
+    <div class="avatar ${avCls(p.id)}">${esc(initial(name))}</div>
+    <div style="flex:1;min-width:0"><b style="font-size:16px">${esc(name)}</b>${rel ? `<span class="tag">${esc(rel)}</span>` : ""}
+      <div class="sub">${esc(p.university || "大学未設定")}</div>
+      <div class="sub">${esc(p.department || "学科未設定")}${p.year ? " ・ " + esc(p.year) + "年" : ""}</div>
+    </div>
+    <button class="x" id="pmclose">閉じる</button>
+  </div>
+  <h2>受講中（ヨコ）</h2>${cur.length ? cur.map(row).join("") : '<p class="sub">受講中の授業は登録されていません。</p>'}
+  <h2>履修済み（タテ）</h2>${done.length ? done.map(row).join("") : '<p class="sub">履修済みの授業は登録されていません。</p>'}`;
+}
+
+async function openPeerProfile(userId) {
+  const sheet = $("#pmodal"), box = $("#pmbody");
+  if (!sheet || !box || !userId) return;
+  box.innerHTML = `<div class="row"><div style="flex:1"></div><button class="x" id="pmclose">閉じる</button></div><p class="sub">読み込み中…</p>`;
+  sheet.classList.add("on");
+  document.body.style.overflow = "hidden";
+  $("#pmclose").onclick = closePeerProfile;
+  const [pr, cr] = await Promise.all([
+    sb.from("profiles").select("*").eq("id", userId).single(),
+    sb.from("peer_courses").select("*").eq("user_id", userId)
+  ]);
+  if (!sheet.classList.contains("on")) return; /* 取得中に閉じられた */
+  if (pr.error || !pr.data) {
+    box.innerHTML = `<div class="row"><div style="flex:1"></div><button class="x" id="pmclose">閉じる</button></div>
+      <div class="err">プロフィールを読み込めませんでした。${esc(pr.error ? pr.error.message : "")}</div>`;
+    $("#pmclose").onclick = closePeerProfile;
+    return;
+  }
+  box.innerHTML = renderPeerProfile(pr.data, cr.data || []);
+  $("#pmclose").onclick = closePeerProfile;
+  box.querySelectorAll("[data-pfdm]").forEach(b => b.onclick = () => {
+    const course = b.dataset.pfdm;
+    closePeerProfile();
+    startDM(userId, course);
+  });
+}
+
+/* ============================================================
+   大学 → 学部 → 学科 → 授業 の候補
+   ============================================================ */
+let hints = { key: null, univ: "", peers: [], depts: {}, loading: false };
+const isRikkyo = univ => /立教/.test(String(univ || ""));
+const defaultCourses = univ => (isRikkyo(univ) ? COMMON_COURSES : GENERIC_COURSES);
+
+/* 大学の学部一覧（立教は全学部、他大学は汎用＋登録済み） */
+function facCandidates() {
+  const univ = ($("#univ") && $("#univ").value) || (myProfile && myProfile.university) || "";
+  if (isRikkyo(univ)) return RIKKYO_FAC.map(f => ({ n: f.n, y: f.y }));
+  const seen = new Set(), out = [];
+  GENERIC_DEPTS.forEach(x => {
+    const fac = x.n.split(" ")[0];
+    if (!seen.has(fac)) { seen.add(fac); out.push({ n: fac, y: yomiFor(fac) }); }
+  });
+  ((hints.depts && hints.depts[norm(univ)]) || []).forEach(d => {
+    const fac = String(d.name).split(" ")[0];
+    if (fac && !seen.has(fac)) { seen.add(fac); out.push({ n: fac, y: yomiFor(fac) }); }
+  });
+  return out;
+}
+
+/* 学部の学科一覧（学部を選ぶと絞られる） */
+function depCandidates() {
+  const univ = ($("#univ") && $("#univ").value) || (myProfile && myProfile.university) || "";
+  const fac = ($("#fac") && $("#fac").value || "").trim();
+  const out = [];
+  if (isRikkyo(univ)) {
+    RIKKYO_FAC.forEach(f => {
+      if (fac && f.n !== fac) return;
+      f.d.forEach(d => out.push({ n: d[0], y: d[1] }));
+    });
+  }
+  GENERIC_DEPTS.forEach(x => {
+    const i = x.n.indexOf(" ");
+    const fx = i < 0 ? x.n : x.n.slice(0, i), dx = i < 0 ? "" : x.n.slice(i + 1);
+    if (!dx) return;
+    if (fac && fx !== fac) return;
+    out.push({ n: dx, y: x.y });
+  });
+  ((hints.depts && hints.depts[norm(univ)]) || []).forEach(d => {
+    const s = String(d.name);
+    const fx = fac && s.indexOf(fac) === 0 ? fac : "";
+    const dx = fx ? s.slice(fac.length).trim() : (s.split(" ").length > 1 ? s.split(" ").slice(1).join(" ") : "");
+    if (!dx) return;
+    out.push({ n: dx, y: yomiFor(dx), grp: "同じ大学の登録学科" });
+  });
+  return out;
+}
+
+/* 現在の学部の専門科目 */
+function facCourses() {
+  const univ = ($("#univ") && $("#univ").value) || (myProfile && myProfile.university) || "";
+  const fac = ($("#fac") && $("#fac").value || "").trim();
+  if (!isRikkyo(univ)) return [];
+  if (fac && RIKKYO_FAC_COURSES[fac]) return RIKKYO_FAC_COURSES[fac];
+  /* 学部未選択：学籍の学部、なければ全学部の科目を薄く混ぜず共通科目だけ */
+  const pf = facFromDepartment(myProfile && myProfile.department).fac;
+  return (pf && RIKKYO_FAC_COURSES[pf]) || [];
+}
+
+/* 授業名の候補：同じ大学の登録授業 → 学部の専門科目 → 全学共通 */
+function courseCandidates() {
+  const registered = new Set((myCourses || []).map(c => norm(c.course_name)));
+  const out = [], seen = new Set();
+  const put = (name, count, grp) => {
+    const k = norm(name);
+    if (!k || registered.has(k) || seen.has(k)) return;
+    seen.add(k); out.push({ n: String(name).trim(), y: yomiFor(name), c: count || 0, grp: grp || "" });
+  };
+  hints.peers.forEach(p => put(p.name, p.count, "同じ大学の登録授業"));
+  facCourses().forEach(x => put(x.n, 0));
+  const univ = ($("#univ") && $("#univ").value) || (myProfile && myProfile.university) || "";
+  defaultCourses(univ).forEach(x => put(x.n, 0));
+  return out;
+}
+
+function facFromDepartment(dept) {
+  const s = String(dept || "").trim();
+  if (!s) return { fac: "", dep: "" };
+  const all = RIKKYO_FAC.map(f => [f.n, f.d]);
+  let best = { fac: "", dep: "" };
+  all.forEach(([fn, deps]) => {
+    if (s.indexOf(fn) === 0) {
+      const rest = s.slice(fn.length).trim();
+      if (!best.fac || fn.length > best.fac.length) best = { fac: fn, dep: rest };
+    }
+  });
+  if (best.fac) return best;
+  const i = s.indexOf(" ");
+  if (i > 0) return { fac: s.slice(0, i), dep: s.slice(i + 1).trim() };
+  return { fac: s, dep: "" };
+}
+
+/* 同じ大学の他ユーザーが登録した授業（人数つき）と、学部・学科を取得 */
+async function loadCourseHints() {
+  const univ = String((myProfile && myProfile.university) || "").trim();
+  const key = norm(univ);
+  if (hints.key === key) return;
+  hints = { key, univ, peers: [], depts: {}, loading: !!key };
+  renderCourseHintAreas();
+  if (!key) return;
+  const uid = session && session.user ? session.user.id : "";
+  let data = [], error = null;
+  try { ({ data, error } = await sb.from("peer_courses").select("course_name,university,user_id,department").limit(2000)); }
+  catch (e) { error = e; }
+  if (hints.key !== key) return; /* 取得中に大学が変わった */
+  if (!error) {
+    const m = new Map(), depts = {};
+    (data || []).forEach(p => {
+      if (!p) return;
+      const uk = norm(p.university);
+      const d = String(p.department || "").trim();
+      if (uk && d) {
+        const dm = depts[uk] || (depts[uk] = new Map());
+        const dk = norm(d);
+        const de = dm.get(dk) || { name: d, users: new Set() };
+        de.users.add(p.user_id); dm.set(dk, de);
+      }
+      if (uk !== key || !p.course_name || p.user_id === uid) return;
+      const k = norm(p.course_name);
+      let e = m.get(k);
+      if (!e) { e = { name: String(p.course_name).trim(), users: new Set() }; m.set(k, e); }
+      e.users.add(p.user_id);
+    });
+    hints.peers = Array.from(m.values())
+      .sort((a, b) => b.users.size - a.users.size || a.name.localeCompare(b.name, "ja"))
+      .map(e => ({ name: e.name, count: e.users.size }));
+    Object.keys(depts).forEach(k => {
+      depts[k] = Array.from(depts[k].values()).map(e => ({ name: e.name, count: e.users.size }));
+    });
+    hints.depts = depts;
+  }
+  hints.loading = false;
+  renderCourseHintAreas();
+}
+
+const CHIP_MAX = 6;
+function pickCourseName(name) {
+  const inp = $("#cn"); if (!inp) return;
+  inp.value = name;
+  hideAka($("#cnlist"));
+}
+
+function renderCourseHintAreas() {
+  const box = $("#cnchips"), cap = $("#cncap");
+  if (!box) return;
+  const picked = courseCandidates().slice(0, CHIP_MAX);
+  box.innerHTML = picked.map(c => `<button type="button" class="chip" data-pick="${esc(c.n)}">${esc(c.n)}${c.c ? `<span class="cnt">${c.c}人</span>` : ""}</button>`).join("");
+  box.style.display = picked.length ? "flex" : "none";
+  if (cap) cap.textContent = picked.length ? "タップで入力。候補は同じ大学の登録 → 学部の専門科目 → 全学共通の順に、あかさたな順で出ます。" : "";
+  box.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => pickCourseName(b.dataset.pick));
+  const inp = $("#cn"), list = $("#cnlist");
+  if (inp && inp._akaDraw && list && list.classList.contains("on")) inp._akaDraw();
+  const dinp = $("#dep"), dlist = $("#deplist");
+  if (dinp && dinp._akaDraw && dlist && dlist.classList.contains("on")) dinp._akaDraw();
+}
+
+/* 入力欄の外をタップしたら開いている候補を閉じる */
+document.addEventListener("pointerdown", e => {
+  const w = e.target && e.target.closest ? e.target.closest(".sugwrap") : null;
+  document.querySelectorAll(".suglist.on").forEach(el => { if (!w || !w.contains(el)) hideAka(el); });
+}, true);
+
+/* ============================================================
+   マイページ
+   ============================================================ */
+function rProfile() {
+  const user = myProfile;
+  const { fac: curFac, dep: curDep } = facFromDepartment(user.department);
+  const cs = myCourses.map(c => `<div class="card"><div class="row"><b>${esc(c.course_name)}</b><button class="x" data-del="${esc(c.id)}">削除</button></div>
+  <span class="tag ${c.status === "done" ? "ok" : ""}">${c.status === "done" ? "履修済み（タテ）" : "受講中（ヨコ）"}</span>
+  ${c.status === "done" ? `<span class="tag grade">成績 ${esc(c.grade)}</span><span class="tag vis">${VIS[c.visibility]}</span>` : ""}</div>`).join("");
+  $("#app").innerHTML = `<div class="tabtitle">マイページ</div>
+  <div class="card" style="background:linear-gradient(160deg,rgba(236,56,188,0.14),rgba(23,212,255,0.08));border-color:rgba(236,56,188,0.28)">
+    <div class="row">
+      <div class="avatar ${avCls(session.user.id)}" style="width:52px;height:52px;font-size:19px">${esc(initial(user.display_name))}</div>
+      <div>
+        <b style="font-size:17px">${esc(user.display_name)}</b> <span class="tag grade">学生認証済み</span>
+        <div class="sub">${esc(user.university || "大学未設定")}${user.department ? " ・ " + esc(user.department) : ""}${user.year ? " " + esc(user.year) + "年" : ""}</div>
+        <div class="sub">${esc(session.user.email)}</div>
+      </div>
+    </div>
+    <div class="sub" style="margin-top:10px">登録授業 ${myCourses.length}件</div>
+  </div>
+  <h2>プロフィール</h2>
+  <div class="card">
+    <label>表示名</label><input id="nm" value="${esc(user.display_name)}">
+    <label>大学名（タップで候補から選べます）</label><div class="sugwrap"><input id="univ" value="${esc(user.university)}" placeholder="例：立教大学" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="univlist"></div></div>
+    <label>学部（大学を選ぶと絞り込まれます）</label><div class="sugwrap"><input id="fac" value="${esc(curFac)}" placeholder="例：法学部" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="faclist"></div></div>
+    <label>学科（学部を選ぶと絞り込まれます）</label><div class="sugwrap"><input id="dep" value="${esc(curDep)}" placeholder="例：法学科" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="deplist"></div></div>
+    <div class="sub" id="deptprev" style="margin-top:6px">${esc(user.department || "学部・学科は未設定です")}</div>
+    <label>学年（任意）</label><select id="year"><option value="">未設定</option>${[1,2,3,4,5,6].map(n => `<option ${user.year == n ? "selected" : ""}>${n}</option>`).join("")}</select>
+    <p style="margin:10px 0 0"><button id="sv">プロフィールを保存</button></p>
+  </div>
+  <h2>履修情報</h2>${cs || '<p class="sub">まだ授業がありません。</p>'}
+  <div class="card" id="addcard"><label>授業名（学部の科目からも選べます）</label>
+  <div class="chips" id="cnchips"></div>
+  <div class="sugwrap"><input id="cn" placeholder="例：法学入門" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <div class="suglist" id="cnlist"></div></div>
+  <div class="sub" id="cncap" style="margin-top:4px"></div>
+  <div class="row"><div><label>状況</label><select id="cs"><option value="current">受講中</option><option value="done">履修済み</option></select></div>
+  <div><label>成績</label><select id="cg">${GRADES.map(g => `<option>${g}</option>`).join("")}</select></div></div>
+  <label>成績の公開範囲</label><select id="cv"><option value="same">同じ授業の人のみ</option><option value="all">全員に公開</option><option value="none">非公開</option></select>
+  <p style="margin:10px 0 0"><button id="ac" class="g">授業を追加</button></p></div>
+  <p style="margin:16px 0 0"><button id="logout" class="danger">ログアウト</button></p>`;
+
+  const refreshDeptPreview = () => {
+    const f = ($("#fac").value || "").trim(), d = ($("#dep").value || "").trim();
+    $("#deptprev").textContent = f ? (d ? f + " " + d : f) : "学部・学科は未設定です";
+  };
+
+  $("#logout").onclick = async () => {
+    await sb.auth.signOut();
+    myProfile = null; openTid = null;
+    clearUIState();          /* ログアウト時だけ保存した画面を消す */
+    if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; }
+    render();
+  };
+  $("#sv").onclick = async () => {
+    const fac = ($("#fac").value || "").trim(), dep = ($("#dep").value || "").trim();
+    const department = fac ? (dep ? fac + " " + dep : fac) : dep;
+    const upd = {
+      display_name: $("#nm").value.trim() || user.display_name,
+      university: $("#univ").value.trim(),
+      department,
+      year: $("#year").value ? parseInt($("#year").value) : null,
+      updated_at: new Date().toISOString()
+    };
+    const { error } = await sb.from("profiles").update(upd).eq("id", session.user.id);
+    if (error) { alert("保存できませんでした: " + error.message); return; }
+    Object.assign(myProfile, upd); $("#sv").textContent = "保存しました";
+    hints = { key: null, univ: "", peers: [], depts: {}, loading: false };
+    loadCourseHints();   /* 大学を変えたら候補も取り直す */
+    refreshDeptPreview();
+  };
+  $("#ac").onclick = async () => {
+    const n = $("#cn").value.trim(); if (!n) return;
+    const { error } = await sb.from("user_courses").insert({ user_id: session.user.id, course_name: n, status: $("#cs").value, grade: $("#cg").value, visibility: $("#cv").value });
+    if (error) { alert("追加できませんでした: " + error.message); return; }
+    await loadMine(); render();
+  };
+  document.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+    await sb.from("user_courses").delete().eq("id", b.dataset.del);
+    await loadMine(); render();
+  });
+
+  /* 大学 → 学部 → 学科 の連動（入力・候補選択のたびに下の欄を絞り込む） */
+  bindAka($("#univ"), $("#univlist"), () => UNIV_LIST);
+  bindAka($("#fac"), $("#faclist"), facCandidates);
+  bindAka($("#dep"), $("#deplist"), depCandidates);
+  $("#univ")._akaAfter = () => {
+    const f = $("#fac"), d = $("#dep");
+    if (f) { f.value = ""; }
+    if (d) { d.value = ""; }
+    hideAka($("#faclist")); hideAka($("#deplist"));
+    refreshDeptPreview(); renderCourseHintAreas();
+  };
+  $("#fac")._akaAfter = () => {
+    const d = $("#dep"); if (d) d.value = "";
+    hideAka($("#deplist")); refreshDeptPreview(); renderCourseHintAreas();
+  };
+  $("#dep")._akaAfter = () => { refreshDeptPreview(); };
+  const onUnivType = () => { const d = $("#dep"); if (d) d.value = ""; refreshDeptPreview(); renderCourseHintAreas(); };
+  $("#univ").addEventListener("input", onUnivType);
+  $("#fac").addEventListener("input", () => { refreshDeptPreview(); renderCourseHintAreas(); });
+  $("#dep").addEventListener("input", refreshDeptPreview);
+
+  bindAka($("#cn"), $("#cnlist"), courseCandidates);
+  $("#cn")._akaAfter = () => {};
+  renderCourseHintAreas();
+  loadCourseHints();
+}
+
+/* ============================================================
+   認証
+   ============================================================ */
 const DUP_MSG = "このメールアドレスはすでに登録されています。ログインするか、パスワードをお忘れの場合はリセットしてください。";
 const RESET_SENT_MSG = "パスワード再設定用のメールを送信しました。メール内のリンクを開いて新しいパスワードを設定してください。";
-const SIGNUP_DONE_MSG = "メールアドレスの認証が完了しました";
+const SIGNUP_DONE_MSG = "✅ メールアドレスの認証が完了しました！";
 const SIGNUP_LINK_INVALID_MSG = "この確認リンクは無効か、すでに認証済みです。そのままログインをお試しください。";
 const isUnivEmail = email => /\.ac\.jp$|\.edu$/i.test(String(email).split("@")[1] || "");
 const isRecoveryUrl = () => initialUrlHas(/type=recovery/);
@@ -1607,11 +2158,7 @@ function clearAuthUrl() {
     u.hash = "";
     ["code", "type", "error", "error_description", "error_code"].forEach(k => u.searchParams.delete(k));
     history.replaceState(null, "", u.pathname + (u.search || ""));
-  } catch (e) {}
-}
-
-function authHead() {
-  return `<div class="brand" style="margin-bottom:14px">授業つながり</div>`;
+  } catch (e) { /* 失敗しても表示は続行 */ }
 }
 
 function rAuth() {
@@ -1619,32 +2166,31 @@ function rAuth() {
   if (authMode === "forgot") return rForgot();
   if (authMode === "recovery") return rRecovery();
   const isReg = authMode === "register";
-  paint(`
-  ${authHead()}
-  <h1 class="hello" style="font-size:24px;line-height:1.5;margin-bottom:10px">同じ授業の人に、<br>気軽に相談しよう。</h1>
-  <p class="sub" style="font-size:12.5px;line-height:1.75;color:#a7aecb">大学のメールアドレスで学生認証をしてはじめます。今は立教大学に対応しています（対応大学は順次拡大予定）。</p>
-  <div class="card" style="margin-top:18px;padding:16px;border-color:rgba(62,216,246,.22)">
-    <div class="seg" style="margin-bottom:16px">
-      <button id="m_login" class="${!isReg ? "on" : ""}">ログイン</button>
-      <button id="m_reg" class="${isReg ? "on" : ""}">新規登録</button>
+  $("#app").innerHTML = `
+  <div class="tophead" style="margin-bottom:14px">
+    <div class="logo"><span class="mark"></span><span class="bw">授業</span><span class="bg2">つながり</span></div>
+  </div>
+  <h1 style="font-size:24px;margin:0 0 8px;line-height:1.4">同じ授業の人に、<br>気軽に相談しよう。</h1>
+  <p class="sub" style="margin:0 0 16px">大学のメールアドレスで学生認証をしてはじめます。立教大学をはじめ、大学ドメイン（.ac.jp / .edu）のアドレスだけ登録できます。</p>
+  <div class="card">
+    <div class="tabs">
+      <button class="${!isReg ? "" : "g"}" id="m_login">ログイン</button>
+      <button class="${isReg ? "" : "g"}" id="m_reg">新規登録</button>
     </div>
-    ${isReg ? `<label>ニックネーム / 表示名</label><input class="inp" id="a_name" placeholder="例：山田 太郎" autocomplete="nickname">
-    <label>大学名</label><input class="inp" id="a_univ" value="${esc(authUnivValue())}" placeholder="例：立教大学" autocomplete="organization">` : ""}
+    ${isReg ? `<label>ニックネーム / 表示名</label><input id="a_name" placeholder="例：山田 太郎">
+    <label>大学名（タップで候補から選べます）</label><div class="sugwrap"><input id="a_univ" value="立教大学" placeholder="例：立教大学" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="a_univlist"></div></div>` : ""}
     <label>大学メールアドレス</label>
-    <input class="inp" id="a_email" type="email" placeholder="name@rikkyo.ac.jp" value="${esc(authEmail)}" autocapitalize="off" spellcheck="false">
+    <input id="a_email" type="email" placeholder="例：taro@rikkyo.ac.jp" value="${esc(authEmail)}">
     <label>パスワード</label>
-    <input class="inp" id="a_pass" type="password" placeholder="6文字以上" autocomplete="${isReg ? "new-password" : "current-password"}">
+    <input id="a_pass" type="password" placeholder="6文字以上">
     ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
     ${authOk ? `<div class="okmsg">${esc(authOk)}</div>` : ""}
-    <button class="cta" id="a_submit" style="margin-top:18px">${isReg ? "大学メールで登録して始める" : "ログイン"}</button>
-    ${!isReg ? `<div style="text-align:center;margin-top:12px"><button id="a_forgot" style="font-size:11.5px;color:var(--muted)">パスワードを忘れた方はこちら</button></div>` : ""}
-  </div>
-  <div style="text-align:center;margin-top:16px;font-size:11.5px;color:var(--muted)">
-    ${isReg ? "すでに登録済みの方は" : "はじめての方は"} <button id="a_switch" style="color:var(--cyan);font-weight:700">${isReg ? "ログイン" : "新規登録"}</button> ${isReg ? "へ" : "から同じ流れで登録できます"}
-  </div>`);
+    <p style="margin:12px 0 0"><button id="a_submit" style="width:100%">${isReg ? "大学メールで登録して始める" : "ログイン"}</button></p>
+    ${isReg ? "" : `<p style="margin:6px 0 0;text-align:center"><button class="x" id="a_forgot">パスワードを忘れた方はこちら</button></p>`}
+  </div>`;
   $("#m_login").onclick = () => { authMode = "login"; authErr = ""; authOk = ""; render(); };
   $("#m_reg").onclick = () => { authMode = "register"; authErr = ""; authOk = ""; render(); };
-  $("#a_switch").onclick = () => { authMode = isReg ? "login" : "register"; authErr = ""; authOk = ""; render(); };
+  if (isReg) bindAka($("#a_univ"), $("#a_univlist"), () => UNIV_LIST);
   if (!isReg) $("#a_forgot").onclick = () => {
     authEmail = ($("#a_email").value || "").trim().toLowerCase();
     authMode = "forgot"; authErr = ""; authOk = ""; render();
@@ -1665,7 +2211,7 @@ function rAuth() {
       const { data, error } = await sb.auth.signUp({ email, password: pass, options: {
         data: { display_name: name, university: univ },
         emailRedirectTo: window.location.origin + window.location.pathname
-      }});
+      } });
       if (error) {
         authErr = /already\s*registered/i.test(error.message || "") ? DUP_MSG : error.message;
         render(); return;
@@ -1674,51 +2220,56 @@ function rAuth() {
         authErr = DUP_MSG; render(); return;
       }
       if (!data.session) {
+        /* メール確認待ち：メール内のリンクを開いてからログインしてもらう */
         setMailKind("signup");
         authOk = "確認メールを送りました。メール内のリンクを開いてからログインしてください。";
         authMode = "login"; render(); return;
       }
-      myProfile = null; tab = "profile"; editOpen = true; render();
+      myProfile = null; tab = "profile"; saveUIState(); render();
     } else {
       const btn = $("#a_submit"); if (btn) { btn.disabled = true; btn.textContent = "ログイン中…"; }
       const { error } = await sb.auth.signInWithPassword({ email, password: pass });
       if (error) { authErr = "メールアドレスまたはパスワードが違います。"; render(); return; }
-      myProfile = null; tab = "home"; render();
+      myProfile = null;
+      /* 初回ログインはホームから。保存された画面があればそれを復元する */
+      tab = "home"; openTid = null; saveUIState(); render();
     }
   };
 }
-function authUnivValue() { try { return $("#a_univ").value || "立教大学"; } catch (e) { return "立教大学"; } }
 
+/* 確認メールのリンクから戻ってきたときの完了画面 */
 function rSignupDone() {
   const email = session?.user?.email || authEmail || "";
-  paint(`
-  ${authHead()}
-  <h1 class="hello" style="font-size:24px">メール認証が完了しました</h1>
-  <p class="sub">${esc(email)}</p>
-  <div class="card" style="margin-top:18px;padding:18px;text-align:center">
-    <div style="font-size:28px;margin-bottom:8px">✅</div>
-    <div style="font-size:15px;font-weight:800;color:var(--mint)">${esc(SIGNUP_DONE_MSG)}</div>
-    <p class="sub" style="margin-top:10px">つぎはプロフィールを設定して、同じ授業の人とつながりましょう。</p>
-    <button class="cta" id="a_start" style="margin-top:18px">プロフィールを設定して始める</button>
-  </div>`);
+  $("#app").innerHTML = `
+  <div style="text-align:center;margin:12px 0 18px">
+    <h1 style="font-size:22px;margin:0">メール認証が完了しました</h1>
+    <p class="sub" style="margin:4px 0 0">${esc(email)}</p>
+  </div>
+  <div class="card">
+    <div class="okmsg" style="font-size:16px;font-weight:700;text-align:center">${esc(SIGNUP_DONE_MSG)}</div>
+    <p class="sub" style="margin:10px 0 0;text-align:center">つぎはプロフィールを設定して、同じ授業の人とつながりましょう。</p>
+    <p style="margin:16px 0 0"><button id="a_start" style="width:100%">プロフィールを設定して始める</button></p>
+  </div>`;
   $("#a_start").onclick = () => {
-    authMode = "login"; authErr = ""; authOk = ""; myProfile = null; tab = "profile"; editOpen = true; render();
+    authMode = "login"; authErr = ""; authOk = ""; myProfile = null; tab = "profile"; saveUIState(); render();
   };
 }
 
+/* パスワード再設定メールの送信 */
 function rForgot() {
-  paint(`
-  ${authHead()}
-  <h1 class="hello" style="font-size:24px">パスワード再設定</h1>
-  <p class="sub">登録した大学メールアドレスに再設定用のリンクを送ります。</p>
-  <div class="card" style="margin-top:18px;padding:16px;border-color:rgba(62,216,246,.22)">
+  $("#app").innerHTML = `
+  <div style="margin:8px 0 18px">
+    <h1 style="font-size:22px;margin:0 0 4px">パスワード再設定</h1>
+    <p class="sub" style="margin:0">登録した大学メールアドレスに再設定用のリンクを送ります</p>
+  </div>
+  <div class="card">
     <label>大学メールアドレス</label>
-    <input class="inp" id="a_email" type="email" placeholder="name@rikkyo.ac.jp" value="${esc(authEmail)}">
+    <input id="a_email" type="email" placeholder="例：taro@rikkyo.ac.jp" value="${esc(authEmail)}">
     ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
     ${authOk ? `<div class="okmsg">${esc(authOk)}</div>` : ""}
-    <button class="cta" id="a_send">リセットメールを送信</button>
-    <div style="text-align:center;margin-top:12px"><button id="a_back" style="font-size:11.5px;color:var(--muted)">ログインに戻る</button></div>
-  </div>`);
+    <p style="margin:12px 0 0"><button id="a_send" style="width:100%">リセットメールを送信</button></p>
+    <p style="margin:6px 0 0;text-align:center"><button class="x" id="a_back">ログインに戻る</button></p>
+  </div>`;
   $("#a_back").onclick = () => { authMode = "login"; authErr = ""; authOk = ""; render(); };
   $("#a_send").onclick = async () => {
     const email = $("#a_email").value.trim().toLowerCase();
@@ -1739,47 +2290,57 @@ function rForgot() {
   };
 }
 
+/* メール内リンクからの新しいパスワード設定 */
 function rRecovery() {
   if (recoveryDone) {
-    paint(`
-    ${authHead()}
-    <h1 class="hello" style="font-size:24px">パスワード再設定</h1>
-    <div class="card" style="margin-top:18px;padding:16px">
+    $("#app").innerHTML = `
+    <div style="text-align:center;margin:12px 0 18px">
+      <h1 style="font-size:22px;margin:0">パスワード再設定</h1>
+    </div>
+    <div class="card">
       <div class="okmsg">パスワードを更新しました。</div>
-      <button class="cta" id="a_go">アプリを使いはじめる</button>
-    </div>`);
+      <p style="margin:12px 0 0"><button id="a_go" style="width:100%">アプリを使いはじめる</button></p>
+    </div>`;
     $("#a_go").onclick = () => {
       authMode = "login"; authErr = ""; authOk = ""; recoveryDone = false;
-      myProfile = null; tab = "home"; clearAuthUrl(); render();
+      myProfile = null; tab = "home"; clearAuthUrl(); saveUIState(); render();
     };
     return;
   }
   const hasSession = !!session;
   if (!hasSession && !recoveryInvalid) {
-    paint(`${authHead()}<h1 class="hello" style="font-size:24px">新しいパスワードを設定</h1><p class="sub">再設定用のリンクを確認しています…</p>`);
+    $("#app").innerHTML = `
+    <div style="text-align:center;margin:12px 0 18px">
+      <h1 style="font-size:22px;margin:0">新しいパスワードを設定</h1>
+      <p class="sub" style="margin:4px 0 0">再設定用のリンクを確認しています…</p>
+    </div>`;
     clearTimeout(recoveryTimer);
     recoveryTimer = setTimeout(() => {
       if (authMode === "recovery" && !recoveryDone) { recoveryInvalid = true; render(); }
     }, 2500);
     return;
   }
-  paint(`
-  ${authHead()}
-  <h1 class="hello" style="font-size:24px">新しいパスワードを設定</h1>
-  <p class="sub">${hasSession ? "6文字以上の新しいパスワードを入力してください。" : "再設定用のリンクを確認できませんでした。"}</p>
-  <div class="card" style="margin-top:18px;padding:16px;border-color:rgba(62,216,246,.22)">
+  $("#app").innerHTML = `
+  <div style="margin:8px 0 18px">
+    <h1 style="font-size:22px;margin:0 0 4px">新しいパスワードを設定</h1>
+    <p class="sub" style="margin:0">${hasSession ? "6文字以上の新しいパスワードを入力してください" : "再設定用のリンクを確認できませんでした"}</p>
+  </div>
+  <div class="card">
   ${hasSession ? `
-    <label>新しいパスワード</label><input class="inp" id="a_np" type="password" placeholder="6文字以上" autocomplete="new-password">
-    <label>新しいパスワード（確認）</label><input class="inp" id="a_np2" type="password" placeholder="もう一度入力" autocomplete="new-password">
+    <label>新しいパスワード</label><input id="a_np" type="password" placeholder="6文字以上" autocomplete="new-password">
+    <label>新しいパスワード（確認）</label><input id="a_np2" type="password" placeholder="もう一度入力" autocomplete="new-password">
     ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
-    <button class="cta" id="a_upd">パスワードを更新</button>
+    <p style="margin:12px 0 0"><button id="a_upd" style="width:100%">パスワードを更新</button></p>
   ` : `
     <div class="err">リンクが無効か、有効期限が切れています。もう一度リセットメールを送信してください。</div>
-    <button class="cta" id="a_retry">リセットメールを送り直す</button>
+    <p style="margin:12px 0 0"><button id="a_retry" style="width:100%">リセットメールを送り直す</button></p>
   `}
-  </div>`);
+  </div>`;
   if (!hasSession) {
-    $("#a_retry").onclick = () => { authMode = "forgot"; authErr = ""; authOk = ""; recoveryInvalid = false; clearAuthUrl(); render(); };
+    $("#a_retry").onclick = () => {
+      authMode = "forgot"; authErr = ""; authOk = ""; recoveryInvalid = false;
+      clearAuthUrl(); render();
+    };
     return;
   }
   $("#a_upd").onclick = async () => {
@@ -1790,773 +2351,22 @@ function rRecovery() {
     const btn = $("#a_upd"); if (btn) { btn.disabled = true; btn.textContent = "更新中…"; }
     const { error } = await sb.auth.updateUser({ password: p1 });
     if (error) { authErr = "更新できませんでした: " + error.message; render(); return; }
-    recoveryDone = true; authErr = ""; myProfile = null; tab = "home"; clearAuthUrl(); render();
+    recoveryDone = true; authErr = ""; myProfile = null; tab = "home"; clearAuthUrl(); saveUIState(); render();
   };
 }
 
-/* ================= ホーム ================= */
-async function rHome() {
-  const name = (myProfile && myProfile.display_name) || "学生";
-  paint(`
-  <div class="homehead">
-    <div><div class="brand">授業つながり</div><h1 class="hello">こんにちは、${esc(name)}さん</h1></div>
-    <button class="bell" id="bell" aria-label="通知">🔔</button>
-  </div>
-  <div class="searchrow"><input id="hq" placeholder="授業名・先生・キーワードでさがす" autocomplete="off"><button class="sbtn" id="hs">検索</button></div>
-  <div id="homebody"><div class="empty">読み込み中…</div></div>`);
-  $("#bell").onclick = openNotif;
-  const go = () => { searchQ = ($("#hq").value || "").trim(); courseFilter = "all"; tab = "search"; render(); };
-  $("#hs").onclick = go;
-  $("#hq").addEventListener("keydown", e => { if (e.key === "Enter") go(); });
-
-  const [rows, threads] = await Promise.all([loadBoard(), loadThreads()]);
-  if (tab !== "home") return;
-  const peers = groupPeers(rows).filter(p => commonCourses(p).length);
-  peers.sort((a, b) => commonCourses(b).length - commonCourses(a).length || String(a.name).localeCompare(String(b.name), "ja"));
-  const mine = myCourses;
-  const cntByCourse = {};
-  peers.forEach(p => commonCourses(p).forEach(c => { cntByCourse[norm(c.name)] = (cntByCourse[norm(c.name)] || 0) + 1; }));
-  const recent = threads.slice(0, 3);
-
-  const courseRows = mine.length
-    ? mine.map(c => `<div class="rowi">${courseMeta(c, cntByCourse)}<span style="flex:1"></span>${pill(c.status === "done")}</div>`).join("")
-    : `<div class="rowi"><div class="cmeta">まだ授業が登録されていません。</div></div>`;
-
-  const body = `
-  ${section("わたしの授業")}
-  <div class="card">
-    ${courseRows}
-    <button class="addrow" id="addcourse"><span class="plus">＋</span><span>授業を追加する<span class="asub">受講中・履修済みを登録すると相手が見つかります</span></span></button>
-  </div>
-
-  ${section("同じ授業の人", true, `<button class="more" id="morepeers">すべて見る ›</button>`)}
-  <div class="card">
-    ${peers.length ? peers.slice(0, 5).map(p => peerCard(p, commonCourses(p))).join("") : `<div class="empty">同じ授業の人はまだ見つかっていません。授業を追加すると見つかりやすくなります。</div>`}
-  </div>
-
-  ${section("最近のDM", false, `<button class="more" id="moredm">DMへ ›</button>`)}
-  <div class="card">
-    ${recent.length ? recent.map(t => dmRow(t, threadsNames)).join("") : `<div class="empty">まだDMはありません。「さがす」から相談相手を選んでみましょう。</div>`}
-  </div>`;
-  const box = $("#homebody"); if (!box) return;
-  box.innerHTML = body;
-  $("#addcourse").onclick = () => goAddCourse();
-  $("#morepeers").onclick = () => { tab = "search"; courseFilter = "all"; render(); };
-  $("#moredm").onclick = () => { tab = "dm"; openTid = null; saveUIState(); render(); };
-}
-
-function courseMeta(c, counts) {
-  const bits = [];
-  if (c.status === "done" && c.grade && c.grade !== "未回答") bits.push("成績 " + c.grade);
-  if (c.status === "done" && c.visibility) bits.push(VIS[c.visibility] || "");
-  if (c.status !== "done") {
-    const n = (counts && counts[norm(c.course_name)]) || 0;
-    bits.push(n ? `同じ授業の人 ${n}人` : "まだ見つかっていません");
-  }
-  return `<div style="min-width:0;flex:1"><div class="cname">${esc(c.course_name)}</div><div class="cmeta">${esc(bits.filter(Boolean).join(" ・ ") || "登録済み")}</div></div>`;
-}
-
-function peerCard(p, commons) {
-  const rel = relTag(p);
-  const r = commons.map(c => rankOf(c)).find(Boolean) || "";
-  return `<div class="peer" data-peer="${esc(p.id)}">
-    ${ava(p.name, p.id)}
-    <div class="pbody">
-      <div class="prow"><b>${esc(p.name)}</b>${rel ? `<span class="tagx">${rel}</span>` : ""}${r ? `<span class="rank ${rankCls(r)}">${esc(r)}</span>` : ""}</div>
-      <div class="meta">${esc(deptLine(p))}</div>
-      <div class="common">${esc(commonText(commons))}</div>
-    </div>
-    <span class="chev">›</span>
-  </div>`;
-}
-
-function dmRow(t, names) {
-  const uid = session.user.id;
-  const oid = t.user_a === uid ? t.user_b : t.user_a;
-  const nm = (names && names[oid]) || t.peer_name || "ユーザー";
-  const msg = t.last_message || "（まだメッセージなし）";
-  return `<div class="peer" data-tid="${esc(t.id)}">
-    ${ava(nm, oid)}
-    <div class="pbody">
-      <div class="prow"><b>${esc(nm)}</b></div>
-      <div class="dmline"><em>${esc(t.course_name || "")}</em>${t.course_name ? " ｜ " : ""}${esc(msg)}</div>
-    </div>
-    <span class="chev">›</span>
-  </div>`;
-}
-
-/* ================= さがす ================= */
-async function rSearch() {
-  paint(`
-  <h1 class="hello" style="margin-bottom:14px">さがす</h1>
-  <div class="searchrow"><input id="sq" placeholder="名前・授業名でさがす" value="${esc(searchQ)}" autocomplete="off"></div>
-  <div style="margin-top:18px;font-size:11.5px;color:var(--muted)">授業でしぼりこむ</div>
-  <div class="chips" id="sfilter"></div>
-  <div class="card" id="slist"><div class="empty">読み込み中…</div></div>`);
-  $("#sq").addEventListener("input", e => { searchQ = e.target.value; paintList(); });
-  await loadBoard();
-  if (tab !== "search") return;
-  paintFilter();
-  paintList();
-}
-
-function paintFilter() {
-  const box = $("#sfilter"); if (!box) return;
-  const items = [{ k: "all", n: "すべて" }].concat(myCourses.slice(0, 6).map(c => ({ k: norm(c.course_name), n: c.course_name })));
-  if (courseFilter !== "all" && !items.some(i => i.k === courseFilter)) items.push({ k: courseFilter, n: courseFilter });
-  box.innerHTML = items.map(i => `<button class="chip ghost ${courseFilter === i.k ? "on" : ""}" data-flt="${esc(i.k)}">${esc(i.n)}</button>`).join("");
-  box.querySelectorAll("[data-flt]").forEach(b => b.onclick = () => { courseFilter = b.dataset.flt; paintFilter(); paintList(); });
-}
-
-function paintList() {
-  const box = $("#slist"); if (!box) return;
-  const q = norm(searchQ);
-  let peers = groupPeers(boardCache.rows);
-  if (courseFilter !== "all") peers = peers.filter(p => p.courses.some(c => norm(c.name) === courseFilter));
-  if (q) peers = peers.filter(p => norm(p.name).includes(q) || p.courses.some(c => norm(c.name).includes(q)));
-  peers = peers.filter(p => p.courses.length);
-  peers.sort((a, b) => commonCourses(b).length - commonCourses(a).length || String(a.name).localeCompare(String(b.name), "ja"));
-  if (!peers.length) {
-    box.innerHTML = `<div class="empty">${myCourses.length ? "条件に合う人が見つかりませんでした。授業名や名前を変えてみてください。" : "先にマイページで授業を登録すると、同じ授業の人を探せます。"}</div>`;
-    return;
-  }
-  box.innerHTML = peers.map(p => {
-    const cs = commonCourses(p);
-    return peerCard(p, cs);
-  }).join("");
-}
-
-/* ================= DM ================= */
-let threadsNames = {};
-async function loadThreads() {
-  const uid = session.user.id;
-  const { data } = await sb.from("threads").select("*")
-    .or(`user_a.eq.${uid},user_b.eq.${uid}`).order("last_message_at", { ascending: false, nullsFirst: false });
-  const threads = data || [];
-  const ids = [...new Set(threads.flatMap(t => [t.user_a, t.user_b]))].filter(id => id !== uid);
-  threadsNames = {};
-  if (ids.length) {
-    const { data: ps } = await sb.from("profiles").select("id,display_name").in("id", ids);
-    (ps || []).forEach(p => threadsNames[p.id] = p.display_name);
-  }
-  return threads;
-}
-
-async function rDM() {
-  if (openTid) return rChat();
-  paint(`<h1 class="hello" style="margin-bottom:14px">DM</h1>
-  <div class="seg"><button id="seg_talk" class="${dmSeg === "talk" ? "on" : ""}">トーク</button><button id="seg_req" class="${dmSeg === "req" ? "on" : ""}">リクエスト</button></div>
-  <div class="card" id="dmlist" style="margin-top:16px"><div class="empty">読み込み中…</div></div>`);
-  $("#seg_talk").onclick = () => { dmSeg = "talk"; render(); };
-  $("#seg_req").onclick = () => { dmSeg = "req"; render(); };
-  const threads = await loadThreads();
-  if (tab !== "dm" || openTid) return;
-  const box = $("#dmlist"); if (!box) return;
-  const list = dmSeg === "req" ? threads.filter(t => !t.last_message) : threads.filter(t => t.last_message);
-  box.innerHTML = list.length ? list.map(t => dmRow(t, threadsNames)).join("")
-    : `<div class="empty">${dmSeg === "req" ? "リクエストはありません。" : "まだトークがありません。「さがす」から相談相手を選んでみましょう。"}</div>`;
-}
-
-async function rChat() {
-  const uid = session.user.id;
-  paint(`<div class="empty">読み込み中…</div>`);
-  const { data: t } = await sb.from("threads").select("*").eq("id", openTid).single();
-  if (!t) { openTid = null; saveUIState(); render(); return; }
-  const oid = t.user_a === uid ? t.user_b : t.user_a;
-  const [{ data: p }, { data: msgs }] = await Promise.all([
-    sb.from("profiles").select("*").eq("id", oid).single(),
-    sb.from("messages").select("*").eq("thread_id", openTid).order("created_at")
-  ]);
-  const list = msgs || [];
-  const nm = (p && p.display_name) || "ユーザー";
-  paint(`
-  <div class="chathead">
-    <button class="backbtn" id="bk">‹</button>
-    <div class="who"><b>${esc(nm)}</b><div class="meta">${esc(t.course_name || "")} ・ ${esc(p ? (splitDept(p.university, p.department).fac || "") : "")}</div></div>
-    <button class="backbtn" id="pf" style="font-size:14px">›</button>
-  </div>
-  <div class="note" style="margin:0 0 6px">授業の進め方、課題、テスト対策などを相談できます。過去問そのものの転載は控えてください。</div>
-  <div class="msgs" id="ms">${list.map(m => `<div class="m ${m.sender_id === uid ? "me" : ""}">${esc(m.body)}</div>`).join("") || `<div class="empty" style="text-align:center">まだメッセージはありません。最初のひとことを送ってみましょう。</div>`}</div>
-  <div class="composer"><textarea id="tx" rows="1" placeholder="メッセージを入力…"></textarea><button class="send" id="sd">送信</button></div>`);
-  const box = $("#ms"); if (box) box.scrollTop = box.scrollHeight;
-  $("#pf").onclick = () => openPeerProfile(oid);
-  $("#bk").onclick = () => { openTid = null; saveUIState(); if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; } render(); };
-  $("#sd").onclick = async () => {
-    const v = $("#tx").value.trim(); if (!v) return;
-    const { error } = await sb.from("messages").insert({ thread_id: openTid, sender_id: uid, body: v });
-    if (error) { alert("送信できませんでした: " + error.message); return; }
-    render();
-  };
-  if (rtChannel) sb.removeChannel(rtChannel);
-  rtChannel = sb.channel("dm-" + openTid)
-    .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: "thread_id=eq." + openTid },
-      payload => { if (payload.new.sender_id !== uid && openTid && tab === "dm") render(); })
-    .subscribe();
-}
-
-async function startDM(otherId, course) {
-  const uid = session.user.id;
-  const [a, b] = [uid, otherId].sort();
-  const { data, error } = await sb.from("threads")
-    .upsert({ course_name: course, user_a: a, user_b: b }, { onConflict: "course_name,user_a,user_b" })
-    .select().single();
-  if (error) { alert("スレッドを作成できませんでした: " + error.message); return; }
-  closeSheets();
-  tab = "dm"; openTid = data.id; saveUIState(); render();
-}
-
-/* ================= マイページ ================= */
-function rProfile() {
-  const p = myProfile || {};
-  const dept = splitDept(p.university, p.department);
-  if (!editOpen) { curUniv = p.university || curUniv; curFac = dept.fac || curFac; curDep = dept.dep || curDep; }
-  const cnt = myCourses.length;
-  const curCnt = myCourses.filter(c => c.status !== "done").length;
-  const doneCnt = cnt - curCnt;
-  const facs = facsOf(p.university);
-  const deptLineTxt = [p.university, [dept.fac, dept.dep].filter(Boolean).join(" "), yearNum(p.year) ? p.year + "年" : ""].filter(Boolean).join(" ・ ");
-
-  const courseList = myCourses.map(c => `<div class="rowi">
-    <div style="flex:1;min-width:0">
-      <div class="cname">${esc(c.course_name)}</div>
-      <div class="cmeta">${esc(c.status === "done" ? [c.grade && c.grade !== "未回答" ? "成績 " + c.grade : "", c.visibility ? VIS[c.visibility] : ""].filter(Boolean).join(" ・ ") || "履修済み" : "この授業で相談できます")}</div>
-    </div>
-    ${pill(c.status === "done")}
-    <button class="xdel" data-del="${esc(c.id)}">×</button>
-  </div>`).join("");
-
-  paint(`
-  <h1 class="hello" style="margin-bottom:14px">マイページ</h1>
-  <div class="profcard">
-    <div class="top" id="proftop">
-      ${ava(p.display_name || "学生", session.user.id)}
-      <div style="flex:1;min-width:0">
-        <b>${esc(p.display_name || "学生")}</b>
-        <div class="sub">${esc(deptLineTxt || "大学・学部を設定してください")}</div>
-        <div class="sub">登録授業 ${cnt}件${curCnt ? ` （受講中 ${curCnt}）` : ""}${doneCnt ? ` （履修済み ${doneCnt}）` : ""}</div>
-      </div>
-      <span class="chev">›</span>
-    </div>
-    <button class="ghostbtn" id="editbtn">${editOpen ? "編集をとじる" : "プロフィールを編集"}</button>
-  </div>
-  ${editOpen ? editForm() : ""}
-
-  ${section("授業の管理")}
-  <div class="card">
-    <div class="rowtitle" id="addtoggle">
-      <div class="t"><b>授業を追加する</b><div class="sub">受講中 ${curCnt}件 ・ 履修済み ${doneCnt}件</div></div>
-      <span class="chev">${addOpen ? "⌄" : "›"}</span>
-    </div>
-    ${courseList}
-    ${addOpen ? addCourseForm() : ""}
-  </div>
-
-  <div class="card" style="margin-top:10px">
-    <div class="setrow">
-      <div class="t">成績の見せ方<div class="s">ランク帯のみ表示されます（生の成績は出ません）</div></div>
-      <select class="inp" id="defvis" style="width:auto;max-width:150px;height:38px;font-size:11.5px">
-        <option value="same"${(prefs.vis || "same") === "same" ? " selected" : ""}>同じ授業の人だけ</option>
-        <option value="all"${prefs.vis === "all" ? " selected" : ""}>全員</option>
-        <option value="none"${prefs.vis === "none" ? " selected" : ""}>誰にも見せない</option>
-      </select>
-    </div>
-  </div>
-
-  ${section("設定", true)}
-  <div class="card">
-    <div class="setrow"><div class="t">DMリクエストの通知</div><label class="sw"><input type="checkbox" data-pref="dmreq" ${prefs.dmreq !== false ? "checked" : ""}><span></span></label></div>
-    <div class="setrow"><div class="t">メッセージの通知</div><label class="sw"><input type="checkbox" data-pref="msg" ${prefs.msg !== false ? "checked" : ""}><span></span></label></div>
-    <div class="setrow"><div class="t">授業ページの新着通知</div><label class="sw"><input type="checkbox" data-pref="course" ${prefs.course ? "checked" : ""}><span></span></label></div>
-    <button class="rowi" id="logout" style="width:100%;text-align:left"><span style="flex:1;font-size:13px">ログアウト</span><span class="chev">›</span></button>
-  </div>
-  <div class="foot">授業つながりは大学公式のアプリではありません。</div>`);
-
-  $("#proftop").onclick = () => { editOpen = !editOpen; render(); };
-  $("#editbtn").onclick = () => { editOpen = !editOpen; render(); };
-  $("#addtoggle").onclick = () => { addOpen = !addOpen; render(); };
-  $("#logout").onclick = async () => { await sb.auth.signOut(); myProfile = null; openTid = null; tab = "home"; editOpen = false; addOpen = false; clearUIState(); render(); };
-  document.querySelectorAll("[data-pref]").forEach(cb => cb.onchange = () => { prefs[cb.dataset.pref] = cb.checked; savePrefs(); });
-  document.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
-    if (!confirm("この授業の登録を削除しますか？")) return;
-    await sb.from("user_courses").delete().eq("id", b.dataset.del);
-    await loadMine(); render();
-  });
-  const dv = $("#defvis"); if (dv) dv.onchange = () => { prefs.vis = dv.value; savePrefs(); };
-  if (editOpen) setupEditForm();
-  if (addOpen) setupCourseForm();
-}
-
-function editForm() {
-  return `<div class="card" style="padding:16px;margin-top:10px">
-    <label>表示名</label><input class="inp" id="nm" value="${esc(myProfile.display_name || "")}" autocomplete="nickname">
-    <label>大学名</label>
-    <div class="sugwrap"><input class="inp" id="univ" value="${esc(curUniv)}" placeholder="例：立教大学" autocomplete="off"><div class="suglist" id="univlist"></div></div>
-    <div class="two">
-      <div><label>学部</label><select class="inp" id="fac">${facOptions(curUniv, curFac)}</select></div>
-      <div><label>学科</label><select class="inp" id="dep">${depOptions(curUniv, curFac, curDep)}</select></div>
-    </div>
-    <input class="inp" id="facfree" placeholder="学部名を入力" value="${esc(facFreeValue(curUniv, curFac))}" style="margin-top:8px;display:${isFreeFac(curUniv, curFac) ? "block" : "none"}">
-    <input class="inp" id="depfree" placeholder="学科名を入力（空欄でも保存できます）" value="${esc(depFreeValue(curUniv, curFac, curDep))}" style="margin-top:8px;display:${isFreeDep(curUniv, curFac, curDep) ? "block" : "none"}">
-    <label>学年</label><select class="inp" id="year"><option value="">未設定</option>${[1,2,3,4,5,6].map(n => `<option value="${n}"${String(myProfile.year) === String(n) ? " selected" : ""}>${n}年</option>`).join("")}</select>
-    <div class="sub hint" id="deptnote"></div>
-    <button class="cta" id="sv">保存する</button>
-  </div>`;
-}
-
-const isFreeFac = (univ, fac) => !!fac && !facsOf(univ).some(f => f.n === fac);
-const facFreeValue = (univ, fac) => (isFreeFac(univ, fac) ? fac : "");
-function isFreeDep(univ, fac, dep) {
-  if (!dep) return false;
-  const ds = depsOf(univ, fac);
-  return !ds.includes(dep);
-}
-const depFreeValue = (univ, fac, dep) => (isFreeDep(univ, fac, dep) ? dep : "");
-
-function facOptions(univ, selected) {
-  const fs = facsOf(univ);
-  let h = `<option value="">${fs.length ? "学部を選択" : "（学部データなし）"}</option>`;
-  fs.forEach(f => { h += `<option value="${esc(f.n)}"${f.n === selected ? " selected" : ""}>${esc(f.n)}</option>`; });
-  h += `<option value="__free"${isFreeFac(univ, selected) ? " selected" : ""}>その他（自由入力）</option>`;
-  return h;
-}
-function depOptions(univ, fac, selected) {
-  const ds = depsOf(univ, fac);
-  let h = `<option value="">${ds.length ? "学科を選択" : "（学科なし・自由入力可）"}</option>`;
-  ds.forEach(d => { h += `<option value="${esc(d)}"${d === selected ? " selected" : ""}>${esc(d)}</option>`; });
-  h += `<option value="__free"${isFreeDep(univ, fac, selected) ? " selected" : ""}>その他（自由入力）</option>`;
-  return h;
-}
-
-function setupEditForm() {
-  const univ = $("#univ"), fac = $("#fac"), dep = $("#dep");
-  const syncNote = () => {
-    const u = curUniv || "未設定", f = curFac, d = curDep;
-    const note = $("#deptnote"); if (!note) return;
-    const saved = [f, d].filter(Boolean).join(" ");
-    note.textContent = saved ? `保存される表記：${saved}` : "学部・学科は空欄でも保存できます。";
-  };
-  const rebuild = (keepFac, keepDep) => {
-    curUniv = univ.value.trim();
-    const fs = facsOf(curUniv);
-    const facVal = keepFac && (fs.some(f => f.n === keepFac)) ? keepFac : "";
-    fac.innerHTML = facOptions(curUniv, facVal) + "";
-    if (keepFac && isFreeFac(curUniv, keepFac)) fac.value = "__free";
-    curFac = fac.value === "__free" ? "" : fac.value;
-    const ff = $("#facfree");
-    ff.style.display = fac.value === "__free" ? "block" : "none";
-    if (fac.value === "__free") { ff.value = keepFac || ff.value || ""; curFac = ff.value.trim(); }
-    rebuildDep(keepDep);
-    syncNote();
-  };
-  const rebuildDep = keepDep => {
-    const ds = depsOf(curUniv, curFac);
-    const val = keepDep && (ds.includes(keepDep)) ? keepDep : "";
-    dep.innerHTML = depOptions(curUniv, curFac, val);
-    if (keepDep && isFreeDep(curUniv, curFac, keepDep)) dep.value = "__free";
-    const df = $("#depfree");
-    if (!df) return;
-    df.style.display = dep.value === "__free" ? "block" : "none";
-    if (dep.value === "__free") { df.value = keepDep || df.value || ""; curDep = df.value.trim(); }
-    else curDep = dep.value || "";
-    refreshCourseArea();
-    syncNote();
-  };
-
-  univ.addEventListener("input", () => { rebuild("", ""); drawUnivSuggest(univ.value); });
-  univ.addEventListener("focus", () => drawUnivSuggest(univ.value));
-  univ.addEventListener("keydown", e => { if (e.key === "Escape") hideSug("#univlist"); });
-  fac.onchange = () => {
-    if (fac.value === "__free") {
-      const ff = $("#facfree"); ff.style.display = "block"; ff.value = ff.value || "";
-      curFac = ff.value.trim() || "";
-      rebuildDep("");
-      return;
-    }
-    $("#facfree").style.display = "none";
-    curFac = fac.value;
-    rebuildDep("");
-  };
-  $("#facfree").oninput = e => { curFac = e.target.value.trim(); dep.innerHTML = depOptions(curUniv, "", ""); curDep = ""; $("#depfree").style.display = "none"; refreshCourseArea(); syncNote(); };
-  dep.onchange = () => {
-    if (dep.value === "__free") {
-      const df = $("#depfree"); df.style.display = "block";
-      curDep = df.value.trim() || "";
-    } else {
-      $("#depfree").style.display = "none"; curDep = dep.value || "";
-    }
-    syncNote();
-  };
-  $("#depfree").oninput = e => { curDep = e.target.value.trim(); syncNote(); };
-  $("#sv").onclick = saveProfile;
-  syncNote();
-  refreshCourseArea();
-}
-async function saveProfile() {
-  const nm = ($("#nm").value || "").trim();
-  const univ = ($("#univ").value || "").trim();
-  const facSel = $("#fac").value;
-  const fac = facSel === "__free" ? (($("#facfree").value || "").trim()) : facSel;
-  const depSel = $("#dep").value;
-  const dep = depSel === "__free" ? (($("#depfree").value || "").trim()) : depSel;
-  const year = $("#year").value ? parseInt($("#year").value, 10) : null;
-  if (!univ) { alert("大学名を入力してください。"); return; }
-  const department = dep ? `${fac} ${dep}`.trim() : fac;
-  const btn = $("#sv"); if (btn) { btn.disabled = true; btn.textContent = "保存中…"; }
-  const upd = {
-    display_name: nm || myProfile.display_name || "学生",
-    university: univ,
-    department,
-    year,
-    updated_at: new Date().toISOString()
-  };
-  const { error } = await sb.from("profiles").update(upd).eq("id", session.user.id);
-  if (error) {
-    alert("保存できませんでした: " + error.message);
-    if (btn) { btn.disabled = false; btn.textContent = "保存する"; }
-    return;
-  }
-  Object.assign(myProfile, upd);
-  curUniv = univ; curFac = fac; curDep = dep;
-  hints.key = null;
-  boardCache.at = 0;
-  editOpen = false;
-  loadCourseHints();
-  await loadMine();
-  render();
-}
-
-function drawUnivSuggest(q) {
-  const list = $("#univlist"); if (!list) return;
-  const nq = norm(q);
-  let items = UNIV_NAMES.filter(n => !nq || norm(n).includes(nq));
-  if (nq && !items.length) items = [];
-  items = items.slice(0, 8);
-  if (!items.length) { list.classList.remove("on"); list.innerHTML = ""; return; }
-  list.innerHTML = items.map(n => `<button type="button" class="sugitem" data-univ="${esc(n)}"><span class="nm">${esc(n)}</span><span class="cnt">${facsOf(n).length}学部</span></button>`).join("");
-  list.querySelectorAll("[data-univ]").forEach(b => b.onclick = () => {
-    const inp = $("#univ"); inp.value = b.dataset.univ;
-    hideSug("#univlist");
-    inp.dispatchEvent(new Event("input"));
-  });
-  list.classList.add("on");
-}
-function hideSug(sel) { const l = $(sel); if (l) { l.classList.remove("on"); l.innerHTML = ""; } }
-
-/* ---- 授業の追加 ---- */
-function addCourseForm() {
-  const facLabel = curFac ? `${curFac}` : "全学共通";
-  return `<div style="padding:14px 15px;border-top:1px solid rgba(255,255,255,.055)">
-    <label style="margin-top:0">授業名</label>
-    <div class="chips" id="cnchips"></div>
-    <div class="sugwrap"><input class="inp" id="cn" placeholder="例：民法(1)" autocomplete="off" autocapitalize="off" spellcheck="false"><div class="suglist" id="cnlist"></div></div>
-    <div class="sub hint" id="cncap" style="font-size:10.5px"></div>
-    <div class="two" style="margin-top:4px">
-      <div><label>状況</label><select class="inp" id="cs"><option value="current">受講中</option><option value="done">履修済み</option></select></div>
-      <div><label>成績</label><select class="inp" id="cg">${GRADES.map(g => `<option>${g}</option>`).join("")}</select></div>
-    </div>
-    <label>成績の公開範囲</label>
-    <select class="inp" id="cv">
-      <option value="same"${(prefs.vis || "same") === "same" ? " selected" : ""}>同じ授業の人のみ</option>
-      <option value="all"${prefs.vis === "all" ? " selected" : ""}>全員に公開</option>
-      <option value="none"${prefs.vis === "none" ? " selected" : ""}>非公開</option>
-    </select>
-    <button class="cta" id="ac" style="height:46px;font-size:13px">授業を追加</button>
-    <div class="sub hint" id="cnfacnote" style="font-size:10.5px">${esc(facLabel)}の科目と全学共通・語学から候補を出しています。候補にない授業はそのまま入力できます。</div>
-  </div>`;
-}
-
-function setupCourseForm() {
-  const inp = $("#cn"); if (!inp) return;
-  renderCourseArea();
-  inp.addEventListener("input", () => drawCourseSuggest(inp.value));
-  inp.addEventListener("focus", () => drawCourseSuggest(inp.value));
-  inp.addEventListener("keydown", e => { if (e.key === "Escape") hideSug("#cnlist"); });
-  $("#ac").onclick = async () => {
-    const n = $("#cn").value.trim();
-    if (!n) { inp.focus(); return; }
-    const btn = $("#ac"); if (btn) { btn.disabled = true; btn.textContent = "追加中…"; }
-    const { error } = await sb.from("user_courses").insert({
-      user_id: session.user.id, course_name: n, status: $("#cs").value, grade: $("#cg").value, visibility: $("#cv").value
-    });
-    if (error) { alert("追加できませんでした: " + error.message); if (btn) { btn.disabled = false; btn.textContent = "授業を追加"; } return; }
-    await loadMine(); addOpen = false; boardCache.at = 0; render();
-  };
-}
-
-function renderCourseArea() {
-  const box = $("#cnchips"); if (!box) return;
-  const items = courseCandidates("").slice(0, 6);
-  box.innerHTML = items.map(c => `<button type="button" class="chip" data-pick="${esc(c.name)}">${esc(c.name)}${c.count ? `<span class="cnt">${c.count}人</span>` : ""}</button>`).join("");
-  box.style.display = items.length ? "flex" : "none";
-  box.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => {
-    const inp = $("#cn"); if (!inp) return;
-    inp.value = b.dataset.pick; hideSug("#cnlist");
-  });
-  const cap = $("#cncap");
-  if (cap) cap.textContent = items.length ? "タップで入力。候補は学部の科目・全学共通・同じ大学の登録から出ています。" : "";
-  const fn = $("#cnfacnote");
-  if (fn) fn.textContent = `${curFac || "全学共通"}の科目と全学共通・語学から候補を出しています。候補にない授業はそのまま入力できます。`;
-}
-function refreshCourseArea() {
-  if ($("#cnchips")) renderCourseArea();
-  const cn = $("#cn"), list = $("#cnlist");
-  if (cn && list && list.classList.contains("on")) drawCourseSuggest(cn.value);
-}
-
-/* 授業候補：学部の専門科目 → 全学共通・語学 → 同じ大学の他ユーザーの登録
-   （各グループの中は「よみ」の五十音順＝あかさたな順） */
-function courseCandidates(q) {
-  const univ = univKey(curUniv || (myProfile && myProfile.university) || "");
-  const registered = new Set((myCourses || []).map(c => norm(c.course_name)));
-  const peers = new Map((hints.peers || []).map(p => [norm(p.name), p.count]));
-  const seen = new Set();
-  const push = (name, kind, bucket) => {
-    const k = norm(name);
-    if (!k || registered.has(k) || seen.has(k)) return;
-    seen.add(k);
-    bucket.push({ name, count: peers.get(k) || 0, kind });
-  };
-  const isRikkyo = univ.includes("立教");
-  const allFacs = isRikkyo ? RIKKYO_FAC : (OTHER_FAC_COURSES[univ] || {});
-  const nq = norm(q);
-  const facList = [], commonList = [], otherList = [], peerList = [];
-  (allFacs[curFac] || []).forEach(n => push(n, curFac || "学部", facList));
-  const common = isRikkyo ? RIKKYO_COMMON : GENERIC_COMMON;
-  common.forEach(n => push(n, "全学共通", commonList));
-  if (nq) Object.keys(allFacs).forEach(fn => { if (fn !== curFac) (allFacs[fn] || []).forEach(n => push(n, fn, otherList)); });
-  (hints.peers || []).forEach(p => push(p.name, "登録済み", peerList));
-  const list = sortCoursesByYomi(facList).concat(sortCoursesByYomi(commonList))
-    .concat(sortCoursesByYomi(otherList)).concat(sortCoursesByYomi(peerList));
-  if (!nq) return list;
-  /* 名前でもよみ（ひらがな・カタカナ）でも絞り込む。前方一致を先に */
-  const qh = toHira(nq);
-  const head = [], tail = [];
-  list.forEach(x => {
-    const k = norm(x.name), y = toHira(yomiOf(x.name));
-    if (k.startsWith(nq) || y.startsWith(qh)) head.push(x);
-    else if (k.includes(nq) || y.includes(qh)) tail.push(x);
-  });
-  return head.concat(tail);
-}
-
-function drawCourseSuggest(q) {
-  const list = $("#cnlist"); if (!list) return;
-  const items = courseCandidates(q || "").slice(0, 8);
-  if (!items.length) { hideSug("#cnlist"); return; }
-  list.innerHTML = items.map(c => `<button type="button" class="sugitem" data-sug="${esc(c.name)}"><span class="nm">${esc(c.name)}</span>${c.count ? `<span class="cnt">${c.count}人が登録</span>` : `<span class="cnt d">${esc(c.kind)}</span>`}</button>`).join("");
-  list.querySelectorAll("[data-sug]").forEach(b => b.onclick = () => {
-    const inp = $("#cn"); if (!inp) return;
-    inp.value = b.dataset.sug; hideSug("#cnlist");
-  });
-  list.classList.add("on");
-}
-
-async function loadCourseHints() {
-  const univ = univKey((myProfile && myProfile.university) || "");
-  const key = norm(univ);
-  if (hints.key === key) return;
-  hints = { key, univ, peers: [], loading: !!key };
-  if (!key) return;
-  const uid = session && session.user ? session.user.id : "";
-  let data = [], error = null;
-  try { ({ data, error } = await sb.from("peer_courses").select("course_name,university,user_id").limit(2000)); }
-  catch (e) { error = e; }
-  if (hints.key !== key) return;
-  if (!error) {
-    const m = new Map();
-    (data || []).forEach(p => {
-      if (!p || !p.course_name || p.user_id === uid) return;
-      if (norm(p.university) !== key) return;
-      const k = norm(p.course_name);
-      let e = m.get(k);
-      if (!e) { e = { name: String(p.course_name).trim(), users: new Set() }; m.set(k, e); }
-      e.users.add(p.user_id);
-    });
-    hints.peers = [...m.values()]
-      .sort((a, b) => b.users.size - a.users.size || a.name.localeCompare(b.name, "ja"))
-      .map(e => ({ name: e.name, count: e.users.size }));
-  }
-  hints.loading = false;
-  refreshCourseArea();
-}
-
-/* ================= 相手プロフィール ================= */
-function closeSheets() {
-  document.querySelectorAll(".sheet.on").forEach(s => s.classList.remove("on"));
-  document.body.style.overflow = "";
-}
-function openSheet(id) {
-  const s = $(id); if (!s) return;
-  s.classList.add("on"); document.body.style.overflow = "hidden";
-}
-
-async function openPeerProfile(userId) {
-  const body = $("#pmbody"); if (!body || !userId) return;
-  body.innerHTML = `<div class="pvtop"><button class="pvback" id="pmback">‹ もどる</button></div><div class="empty">読み込み中…</div>`;
-  openSheet("#pmodal");
-  body.scrollTop = 0;
-  body.querySelector("#pmback").onclick = closeSheets;
-
-  const [pr, cr] = await Promise.all([
-    sb.from("profiles").select("*").eq("id", userId).single(),
-    sb.from("peer_courses").select("*").eq("user_id", userId)
-  ]);
-  if (!$("#pmodal").classList.contains("on")) return;
-  if (pr.error || !pr.data) {
-    body.innerHTML = `<div class="pvtop"><button class="pvback" id="pmback">‹ もどる</button></div>
-      <div class="err">プロフィールを読み込めませんでした。${esc(pr.error ? pr.error.message : "")}</div>`;
-    body.querySelector("#pmback").onclick = closeSheets;
-    return;
-  }
-  body.innerHTML = renderPeerProfile(pr.data, cr.data || []);
-  body.querySelector("#pmback").onclick = closeSheets;
-  body.querySelectorAll("[data-consult]").forEach(b => b.onclick = () => startDM(userId, b.dataset.consult));
-  const first = body.querySelector("[data-consult]");
-  const cta = $("#pvcta");
-  if (cta) cta.onclick = () => { if (first) startDM(userId, first.dataset.consult); };
-}
-
-function renderPeerProfile(p, cs) {
-  const name = p.display_name || "ユーザー";
-  const rel = relTag(p);
-  const dept = splitDept(p.university, p.department);
-  const byName = (a, b) => String(a.course_name).localeCompare(String(b.course_name), "ja");
-  const cur = cs.filter(c => c.status !== "done").slice().sort(byName);
-  const done = cs.filter(c => c.status === "done").slice().sort(byName);
-  const common = cs.filter(c => myCourses.some(m => norm(m.course_name) === norm(c.course_name)));
-  const firstCommon = common[0] || cs[0];
-  const r = common.map(c => rankOf(c)).find(Boolean) || "";
-  const row = c => `<div class="rowi" data-consult="${esc(c.course_name)}" style="cursor:pointer">
-    <div style="flex:1;min-width:0"><div class="cname">${esc(c.course_name)}</div>
-    ${c.status === "done" && c.grade && c.grade !== "未回答" && c.visibility !== "none" ? `<div class="cmeta">成績 ${esc(c.grade)}</div>` : `<div class="cmeta">${c.status === "done" ? "履修済み" : "受講中"}</div>`}</div>
-    ${pill(c.status === "done")}
-  </div>`;
-  return `
-  <div class="pvtop"><button class="pvback" id="pmback">‹ もどる</button></div>
-  ${firstCommon ? `<div class="commonbox">
-    <div class="eyebrow">共通の授業</div>
-    <div class="cn">${esc(firstCommon.course_name)}</div>
-    <div class="line">あなた：${myCourses.some(m => norm(m.course_name) === norm(firstCommon.course_name)) ? "登録済み" : "未登録"} ／ ${esc(name)}さん：${firstCommon.status === "done" ? "履修済み" : "受講中"}${r ? ` <span class="rank ${rankCls(r)}">${esc(r)}</span>` : ""}</div>
-    <div class="hint">成績は生の値ではなくランク帯で表示されます（自己申告）。</div>
-  </div>` : ""}
-  <div class="who">
-    ${ava(name, p.id)}
-    <div style="flex:1;min-width:0">
-      <div class="prow"><b>${esc(name)}</b>${rel ? `<span class="tagx">${rel}</span>` : ""}</div>
-      <div class="meta">${esc(p.university || "")}${p.university && (dept.fac || yearNum(p.year)) ? " ・ " : ""}${esc([dept.fac, dept.dep].filter(Boolean).join(" "))}${yearNum(p.year) ? " " + esc(p.year) + "年" : ""}</div>
-    </div>
-  </div>
-  ${cur.length ? section("受講中の授業") + `<div class="card">${cur.map(row).join("")}</div>` : ""}
-  ${done.length ? section("履修した授業") + `<div class="card">${done.map(row).join("")}</div>` : ""}
-  ${!cs.length ? `<div class="card" style="margin-top:16px"><div class="empty">まだ授業が登録されていません。</div></div>` : ""}
-  ${firstCommon ? `<button class="cta" id="pvcta" style="margin-top:20px">「${esc(firstCommon.course_name)}」で相談する</button>` : ""}`;
-}
-
-/* ================= 通知 ================= */
-async function openNotif() {
-  const body = $("#nmbody");
-  body.innerHTML = `<h3>お知らせ</h3><div class="sub">新着メッセージや共通の授業をまとめて確認できます。</div><div class="empty">読み込み中…</div>`;
-  openSheet("#nmodal");
-  let threads = [], peers = [];
-  try { threads = await loadThreads(); } catch (e) {}
-  try { peers = groupPeers(await loadBoard()).filter(p => commonCourses(p).length); } catch (e) {}
-  if (!$("#nmodal").classList.contains("on")) return;
-  body.innerHTML = `<h3>お知らせ</h3>
-  <div class="sub" style="margin-bottom:8px">新着メッセージや共通の授業をまとめて確認できます。</div>
-  <button class="nrow" data-n="dm"><div class="t"><b>DM（${threads.length}件）</b><div class="s">${threads.length ? "最近のやりとりを確認する" : "まだDMはありません"}</div></div><span class="chev">›</span></button>
-  <button class="nrow" data-n="search"><div class="t"><b>同じ授業の人（${peers.length}人）</b><div class="s">共通の授業から相談相手をさがす</div></div><span class="chev">›</span></button>
-  <button class="nrow" data-n="add"><div class="t"><b>授業を追加する</b><div class="s">受講中・履修済みを登録すると相手が見つかります</div></div><span class="chev">›</span></button>
-  <button class="cta" id="nclose" style="margin-top:14px;height:44px;font-size:13px;background:rgba(255,255,255,.08);box-shadow:none">とじる</button>`;
-  $("#nclose").onclick = closeSheets;
-  body.querySelectorAll("[data-n]").forEach(b => b.onclick = () => {
-    const k = b.dataset.n;
-    closeSheets();
-    if (k === "dm") { tab = "dm"; openTid = null; render(); }
-    if (k === "search") { tab = "search"; courseFilter = "all"; render(); }
-    if (k === "add") goAddCourse();
-  });
-}
-
-function goAddCourse() {
-  editOpen = false; addOpen = true; tab = "profile"; render();
-  setTimeout(() => {
-    const el = $("#addtoggle");
-    if (el) el.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, 60);
-}
-
-/* ================= レンダリング ================= */
-async function render() {
-  const { data } = await sb.auth.getSession();
-  session = data.session;
-  if (signupConfirmPending) {
-    if (session) {
-      signupConfirmPending = false; clearTimeout(signupTimer);
-      authMode = "signupDone"; authErr = ""; authOk = "";
-      clearAuthUrl();
-      $("#nav").style.display = "none";
-      rSignupDone(); return;
-    }
-    $("#nav").style.display = "none";
-    paint(`<div class="emptybig"><div class="sig">✉️</div><h1 class="hello" style="font-size:20px">メール認証を確認しています…</h1></div>`);
-    clearTimeout(signupTimer);
-    signupTimer = setTimeout(() => {
-      if (!signupConfirmPending) return;
-      signupConfirmPending = false;
-      authMode = "login"; authErr = SIGNUP_LINK_INVALID_MSG; authOk = "";
-      clearAuthUrl(); render();
-    }, 2500);
-    return;
-  }
-  if (!session || authMode === "recovery" || authMode === "signupDone") {
-    $("#nav").style.display = "none";
-    document.body.style.overflow = "";
-    rAuth(); return;
-  }
-  $("#nav").style.display = "flex";
-  if (!myProfile) await loadMine();
-  if (hints.key !== norm((myProfile && myProfile.university) || "")) loadCourseHints();
-  document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t === tab));
-  const map = { home: rHome, search: rSearch, dm: rDM, profile: rProfile };
-  (map[tab] || rHome)();
-}
-
-/* ナビ */
-document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
-  tab = b.dataset.t; openTid = null; editOpen = false; addOpen = false;
-  saveUIState();
-  closeSheets();
-  window.scrollTo({ top: 0 });
-  render();
-});
-
-/* 共通のデリゲート（相手カード・DM行） */
-document.addEventListener("click", e => {
-  const t = e.target.closest("[data-tid]");
-  if (t) { openTid = t.dataset.tid; tab = "dm"; saveUIState(); render(); return; }
-  const p = e.target.closest("[data-peer]");
-  if (p) { openPeerProfile(p.dataset.peer); return; }
-});
-document.addEventListener("pointerdown", e => {
-  if (e.target && e.target.closest && (e.target.closest(".sugwrap"))) return;
-  hideSug("#univlist");
-});
-$("#pmodal").addEventListener("click", e => { if (e.target.id === "pmodal") closeSheets(); });
-$("#nmodal").addEventListener("click", e => { if (e.target.id === "nmodal") closeSheets(); });
-document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheets(); });
-
-/* 認証状態の変化 */
 sb.auth.onAuthStateChange((event) => {
   myProfile = null;
   if (event === "PASSWORD_RECOVERY") {
     authMode = "recovery"; authErr = ""; authOk = ""; recoveryDone = false;
-    setTimeout(render, 0);
+    setTimeout(render, 0); /* コールバック内で直接fetchするとSupabaseのロックで止まることがある */
   } else if (event === "SIGNED_IN" && authErr === SIGNUP_LINK_INVALID_MSG) {
     authErr = ""; setTimeout(render, 0);
   } else if (signupConfirmPending && (event === "SIGNED_IN" || event === "USER_UPDATED" || event === "INITIAL_SESSION")) {
     setTimeout(render, 0);
   }
 });
+/* 期限切れ・使用済みの確認リンク／再設定リンクで戻ってきた場合 */
 function authLinkError() {
   const raw = decodeURIComponent(INIT_URL.hash + "&" + INIT_URL.search);
   if (!/error=/.test(raw)) return "";
@@ -2570,9 +2380,18 @@ if (linkErr) signupConfirmPending = false;
 if (isRecoveryUrl()) { authMode = "recovery"; authErr = ""; authOk = ""; recoveryInvalid = false; }
 else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearAuthUrl(); }
 
-/* ログイン済みで開いたときは、前回のタブ／DMスレッドを復元する
-   （パスワード再設定・メール認証のURLで開いたときはそちらを優先） */
-if (!isRecoveryUrl() && !initialUrlHas(/type=signup/) && !linkErr) applyUIState();
+/* モーダル：背景タップ・Esc でも閉じる */
+{
+  const pms = $("#pmodal");
+  if (pms) pms.addEventListener("click", e => { if (e.target === pms) closePeerProfile(); });
+  const nms = $("#nsheet");
+  if (nms) nms.addEventListener("click", e => { if (e.target === nms) closeNotif(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { closePeerProfile(); closeNotif(); } });
+}
+
+/* 保存された画面（タブ・開いていたDM・絞り込み）を復元して起動 */
+loadUIState();
+if (openTid && tab !== "dm") openTid = null;
 render();
 </script>
 </body>
