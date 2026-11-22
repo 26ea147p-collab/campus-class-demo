@@ -38,7 +38,7 @@ nav button{flex:1;border-radius:0;background:transparent;color:var(--sub);paddin
 .sugitem .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sugitem .cnt{font-size:11px;color:var(--ac);background:var(--ac2);border-radius:99px;padding:1px 7px;flex:none}
 .sugitem .cnt.d{background:transparent;color:var(--sub)}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
 .chip{background:var(--ac2);color:var(--ac);font-size:12px;font-weight:600;padding:6px 10px;border-radius:99px;display:inline-flex;gap:5px;align-items:center;max-width:100%}
 .chip:active{opacity:.65}
 .chip .cnt{font-size:10px;opacity:.8}
@@ -544,9 +544,9 @@ function rProfile() {
   </div>
   <h2>履修情報</h2>${cs || '<p class="sub">まだ授業がありません。</p>'}
   <div class="card"><label>授業名</label>
+  <div class="chips" id="cnchips"></div>
   <div class="sugwrap"><input id="cn" placeholder="例：マクロ経済学" autocomplete="off" autocapitalize="off" spellcheck="false">
   <div class="suglist" id="cnlist"></div></div>
-  <div class="chips" id="cnchips"></div>
   <div class="sub" id="cncap" style="margin-top:4px"></div>
   <div class="row"><div><label>状況</label><select id="cs"><option value="current">受講中</option><option value="done">履修済み</option></select></div>
   <div><label>成績</label><select id="cg">${GRADES.map(g => `<option>${g}</option>`).join("")}</select></div></div>
