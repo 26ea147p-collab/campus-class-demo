@@ -42,6 +42,11 @@ nav button{flex:1;border-radius:0;background:transparent;color:var(--sub);paddin
 .chip{background:var(--ac2);color:var(--ac);font-size:12px;font-weight:600;padding:6px 10px;border-radius:99px;display:inline-flex;gap:5px;align-items:center;max-width:100%}
 .chip:active{opacity:.65}
 .chip .cnt{font-size:10px;opacity:.8}
+.pf{cursor:pointer}.pf:active{opacity:.6}
+.sheet{position:fixed;inset:0;z-index:50;display:none;overflow-y:auto;padding:16px;padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));background:rgba(15,18,28,.55)}
+.sheet.on{display:block}
+.sheetbox{max-width:560px;margin:6px auto;padding:14px;background:var(--bg);border:1px solid var(--bd);border-radius:16px}
+.sheetbox .card{background:var(--card)}
 </style>
 </head>
 <body>
@@ -51,6 +56,7 @@ nav button{flex:1;border-radius:0;background:transparent;color:var(--sub);paddin
   <button data-t="dm">DM</button>
   <button data-t="profile">マイページ</button>
 </nav>
+<div class="sheet" id="pmodal"><div class="sheetbox" id="pmbody"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ページを開いた時点の URL（確認・再設定リンクから戻ってきたかの判定に使う。SDK がハッシュを消す前に控える） */
@@ -337,7 +343,7 @@ async function rSearch() {
   const bycourse = {}; list.forEach(h => (bycourse[h.course_name] = bycourse[h.course_name] || []).push(h));
   const html = Object.keys(bycourse).map(n => `<h2>${esc(n)}</h2>` + bycourse[n].map(h => {
     const done = h.status === "done", g = h.visibility === "none" ? "非公開" : h.grade;
-    return `<div class="card"><div class="row"><div><b>${esc(h.display_name)}</b><div class="sub">${esc(h.department || "")}${h.year ? " " + esc(h.year) + "年" : ""}</div>
+    return `<div class="card"><div class="row"><div><b class="pf" data-pf="${esc(h.user_id)}">${esc(h.display_name)} <span class="sub">›</span></b><div class="sub">${esc(h.department || "")}${h.year ? " " + esc(h.year) + "年" : ""}</div>
     <span class="tag ${done ? "ok" : ""}">${done ? "履修済み（タテ）" : "受講中（ヨコ）"}</span>${done ? `<span class="tag">成績 ${esc(g)}</span>` : ""}</div>
     <button data-dm="${esc(h.user_id)}" data-c="${esc(h.course_name)}">相談する</button></div></div>`;
   }).join("")).join("");
@@ -346,6 +352,7 @@ async function rSearch() {
   ${myCourses.length ? (html || '<p class="sub">同じ授業のユーザーはまだいません。</p>') : '<p class="sub">先に「マイページ」で授業を登録してください。</p>'}`;
   $("#f").value = fil; $("#f").onchange = e => { fil = e.target.value; render(); };
   document.querySelectorAll("[data-dm]").forEach(b => b.onclick = () => startDM(b.dataset.dm, b.dataset.c));
+  document.querySelectorAll("[data-pf]").forEach(b => b.onclick = () => openPeerProfile(b.dataset.pf));
 }
 
 async function startDM(otherId, course) {
@@ -388,11 +395,12 @@ async function rChat() {
   openPeer = p; openCourse = t.course_name;
   const { data: msgs } = await sb.from("messages").select("*").eq("thread_id", openTid).order("created_at");
   const list = msgs || [];
-  $("#app").innerHTML = `<div class="row"><button class="g" id="bk">←</button><h1 style="margin:0">${esc(p ? p.display_name : "ユーザー")}</h1></div>
+  $("#app").innerHTML = `<div class="row"><button class="g" id="bk">←</button><h1 class="pf" data-pf="${esc(oid)}" style="margin:0">${esc(p ? p.display_name : "ユーザー")} <span class="sub">›</span></h1></div>
   <p class="sub">${esc(t.course_name || "")} ・授業の進め方、課題、テスト対策などを相談できます。過去問そのものの転載は控えてください。</p>
   <div class="msgs" id="ms">${list.map(m => `<div class="m ${m.sender_id === uid ? "me" : ""}">${esc(m.body)}</div>`).join("")}</div>
   <div class="row"><textarea id="tx" rows="2" placeholder="メッセージを入力…"></textarea><button id="sd">送信</button></div>`;
   const box = $("#ms"); if (box) box.scrollTop = box.scrollHeight;
+  const pfh = $("[data-pf]"); if (pfh) pfh.onclick = () => openPeerProfile(oid);
   $("#bk").onclick = () => { openTid = null; if (rtChannel) { sb.removeChannel(rtChannel); rtChannel = null; } render(); };
   $("#sd").onclick = async () => {
     const v = $("#tx").value.trim(); if (!v) return;
@@ -405,6 +413,76 @@ async function rChat() {
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: "thread_id=eq." + openTid },
       payload => { if (payload.new.sender_id !== uid && openTid) render(); })
     .subscribe();
+}
+
+/* 相手のプロフィール（モーダル） */
+function closePeerProfile() {
+  const sheet = $("#pmodal");
+  if (!sheet) return;
+  sheet.classList.remove("on");
+  const box = $("#pmbody"); if (box) box.innerHTML = "";
+  document.body.style.overflow = "";
+}
+
+function gradeLabel(c, mine) {
+  if (c.status !== "done") return "";
+  const vis = c.visibility;
+  if (vis === "none") return "成績 非公開";
+  if (vis === "same" && !mine.has(norm(c.course_name))) return "成績 同じ授業の人のみ公開";
+  return "成績 " + (c.grade || "未回答");
+}
+
+function renderPeerProfile(p, cs) {
+  const mine = new Set((myCourses || []).map(c => norm(c.course_name)));
+  const name = p.display_name || "ユーザー";
+  const row = c => {
+    const done = c.status === "done", g = gradeLabel(c, mine);
+    return `<div class="card" style="margin:0 0 8px;padding:10px 12px">
+      <b>${esc(c.course_name)}</b>
+      <div style="margin-top:2px"><span class="tag ${done ? "ok" : ""}">${done ? "履修済み（タテ）" : "受講中（ヨコ）"}</span>${g ? `<span class="tag">${esc(g)}</span>` : ""}</div>
+      <div style="margin-top:6px"><button class="g" data-pfdm="${esc(c.course_name)}" style="font-size:12px;padding:6px 10px">この授業で相談する</button></div>
+    </div>`;
+  };
+  const byName = (a, b) => String(a.course_name).localeCompare(String(b.course_name), "ja");
+  const cur = (cs || []).filter(c => c.status !== "done").slice().sort(byName);
+  const done = (cs || []).filter(c => c.status === "done").slice().sort(byName);
+  return `<div class="row" style="align-items:flex-start">
+    <div class="avatar">${esc(name.slice(0, 1))}</div>
+    <div style="flex:1;min-width:0"><b style="font-size:16px">${esc(name)}</b>
+      <div class="sub">${esc(p.university || "大学未設定")}</div>
+      <div class="sub">${esc(p.department || "学科未設定")}${p.year ? " ・ " + esc(p.year) + "年" : ""}</div>
+    </div>
+    <button class="x" id="pmclose">閉じる</button>
+  </div>
+  <h2>受講中（ヨコ）</h2>${cur.length ? cur.map(row).join("") : '<p class="sub">受講中の授業は登録されていません。</p>'}
+  <h2>履修済み（タテ）</h2>${done.length ? done.map(row).join("") : '<p class="sub">履修済みの授業は登録されていません。</p>'}`;
+}
+
+async function openPeerProfile(userId) {
+  const sheet = $("#pmodal"), box = $("#pmbody");
+  if (!sheet || !box || !userId) return;
+  box.innerHTML = `<div class="row"><div style="flex:1"></div><button class="x" id="pmclose">閉じる</button></div><p class="sub">読み込み中…</p>`;
+  sheet.classList.add("on");
+  document.body.style.overflow = "hidden";
+  $("#pmclose").onclick = closePeerProfile;
+  const [pr, cr] = await Promise.all([
+    sb.from("profiles").select("*").eq("id", userId).single(),
+    sb.from("peer_courses").select("*").eq("user_id", userId)
+  ]);
+  if (!sheet.classList.contains("on")) return; /* 取得中に閉じられた */
+  if (pr.error || !pr.data) {
+    box.innerHTML = `<div class="row"><div style="flex:1"></div><button class="x" id="pmclose">閉じる</button></div>
+      <div class="err">プロフィールを読み込めませんでした。${esc(pr.error ? pr.error.message : "")}</div>`;
+    $("#pmclose").onclick = closePeerProfile;
+    return;
+  }
+  box.innerHTML = renderPeerProfile(pr.data, cr.data || []);
+  $("#pmclose").onclick = closePeerProfile;
+  box.querySelectorAll("[data-pfdm]").forEach(b => b.onclick = () => {
+    const course = b.dataset.pfdm;
+    closePeerProfile();
+    startDM(userId, course);
+  });
 }
 
 /* 授業名の候補サジェスト（同じ大学の他ユーザーの登録＋定番科目） */
@@ -599,6 +677,12 @@ const linkErr = authLinkError();
 if (linkErr) signupConfirmPending = false; /* エラー付きで戻ったときは完了画面を出さない */
 if (isRecoveryUrl()) { authMode = "recovery"; authErr = ""; authOk = ""; recoveryInvalid = false; }
 else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearAuthUrl(); }
+/* 相手プロフィールのモーダル：背景タップ・Esc でも閉じる */
+{
+  const pms = $("#pmodal");
+  if (pms) pms.addEventListener("click", e => { if (e.target === pms) closePeerProfile(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closePeerProfile(); });
+}
 render();
 </script>
 </body>
