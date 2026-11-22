@@ -30,6 +30,18 @@ nav button{flex:1;border-radius:0;background:transparent;color:var(--sub);paddin
 .m.me{background:var(--ac);color:#fff;align-self:flex-end}
 .tabs{display:flex;gap:6px;margin-bottom:12px}.tabs button{flex:1}
 .avatar{width:40px;height:40px;border-radius:99px;background:var(--ac);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex:none}
+.sugwrap{position:relative}
+.suglist{position:absolute;z-index:30;left:0;right:0;top:calc(100% + 4px);background:var(--card);border:1px solid var(--bd);border-radius:12px;box-shadow:0 10px 26px rgba(0,0,0,.18);max-height:250px;overflow-y:auto;display:none}
+.suglist.on{display:block}
+.sugitem{display:flex;width:100%;gap:8px;align-items:center;justify-content:space-between;background:transparent;color:var(--tx);font-weight:500;text-align:left;border-radius:0;padding:10px 12px;border-bottom:1px solid var(--bd)}
+.sugitem:last-child{border-bottom:0}.sugitem:active,.sugitem:hover{background:var(--ac2)}
+.sugitem .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sugitem .cnt{font-size:11px;color:var(--ac);background:var(--ac2);border-radius:99px;padding:1px 7px;flex:none}
+.sugitem .cnt.d{background:transparent;color:var(--sub)}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{background:var(--ac2);color:var(--ac);font-size:12px;font-weight:600;padding:6px 10px;border-radius:99px;display:inline-flex;gap:5px;align-items:center;max-width:100%}
+.chip:active{opacity:.65}
+.chip .cnt{font-size:10px;opacity:.8}
 </style>
 </head>
 <body>
@@ -58,9 +70,6 @@ let tab = "search", openTid = null, openPeer = null, openCourse = "", fil = "all
 let authMode = "login", authErr = "", authOk = "", authEmail = "", recoveryDone = false;
 let recoveryInvalid = false, recoveryTimer = null;
 let signupConfirmPending = initialUrlHas(/type=signup/), signupTimer = null;
-let pendingEmail = "";
-function setPending(e) { pendingEmail = e; try { localStorage.setItem("cc_pending_email", e); } catch (x) {} }
-function clearPending() { pendingEmail = ""; try { localStorage.removeItem("cc_pending_email"); } catch (x) {} }
 let rtChannel = null;
 
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => { tab = b.dataset.t; openTid = null; render(); });
@@ -128,7 +137,6 @@ function rAuth() {
   if (authMode === "signupDone") return rSignupDone();
   if (authMode === "forgot") return rForgot();
   if (authMode === "recovery") return rRecovery();
-  if (authMode === "verify") return rVerify();
   const isReg = authMode === "register";
   $("#app").innerHTML = `
   <div style="text-align:center;margin:12px 0 18px">
@@ -194,52 +202,6 @@ function rAuth() {
       if (error) { authErr = "メールアドレスまたはパスワードが違います。"; render(); return; }
       myProfile = null; tab = "search"; render();
     }
-  };
-}
-
-/* メールに届いた6桁の確認コードを入力 */
-function rVerify() {
-  $("#app").innerHTML = `
-  <div style="text-align:center;margin:12px 0 18px">
-    <h1 style="font-size:22px;margin:0">確認コードの入力</h1>
-    <p class="sub" style="margin:4px 0 0">${esc(pendingEmail)} に6桁の確認コードを送りました</p>
-  </div>
-  <div class="card">
-    <label>確認コード（6桁）</label>
-    <input id="a_code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"
-      style="text-align:center;font-size:22px;letter-spacing:6px">
-    ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
-    ${authOk ? `<div class="okmsg">${esc(authOk)}</div>` : ""}
-    <p style="margin:12px 0 0"><button id="a_verify" style="width:100%">認証して始める</button></p>
-    <p style="margin:6px 0 0"><button id="a_resend" class="g" style="width:100%">コードを再送する</button></p>
-    <p style="margin:4px 0 0;text-align:center"><button class="x" id="a_cancel">戻る</button></p>
-  </div>`;
-  $("#a_cancel").onclick = () => { clearPending(); authMode = "login"; authErr = ""; authOk = ""; render(); };
-  $("#a_verify").onclick = async () => {
-    const code = ($("#a_code").value || "").replace(/[^0-9]/g, "");
-    authErr = ""; authOk = "";
-    if (code.length !== 6) { authErr = "メールに届いた6桁の確認コードを入力してください。"; render(); return; }
-    const btn = $("#a_verify"); if (btn) { btn.disabled = true; btn.textContent = "認証中…"; }
-    const { error } = await sb.auth.verifyOtp({ email: pendingEmail, token: code, type: "signup" });
-    if (error) {
-      authErr = /invalid|expired/i.test(error.message || "")
-        ? "認証コードが正しくないか、期限切れです。もう一度確認するか、コードを再送してください。"
-        : "認証できませんでした: " + error.message;
-      render(); return;
-    }
-    clearPending(); authMode = "login"; authErr = ""; authOk = ""; myProfile = null; tab = "profile"; render();
-  };
-  $("#a_resend").onclick = async () => {
-    authErr = ""; authOk = "";
-    const btn = $("#a_resend"); if (btn) { btn.disabled = true; btn.textContent = "送信中…"; }
-    const { error } = await sb.auth.resend({ type: "signup", email: pendingEmail });
-    if (error) {
-      authErr = /security purposes|rate.?limit|seconds/i.test(error.message || "")
-        ? "送信間隔が短すぎます。しばらく待ってからもう一度お試しください。"
-        : "再送できませんでした: " + error.message;
-      render(); return;
-    }
-    authOk = "確認コードを再送しました。メールをご確認ください。"; render();
   };
 }
 
@@ -445,6 +407,117 @@ async function rChat() {
     .subscribe();
 }
 
+/* 授業名の候補サジェスト（同じ大学の他ユーザーの登録＋定番科目） */
+const RIKKYO_COURSES = ["法政ゲートウェイ講義","英語プレゼンテーション","民法総則","情報処理入門","マクロ経済学","憲法","R&W2","法学入門","刑法総論","政治学入門","社会学入門","統計学入門","英語リーディング","英語ライティング"];
+const GENERIC_COURSES = ["英語","情報処理入門","マクロ経済学","ミクロ経済学","憲法","民法総則","統計学","心理学入門","社会学入門","日本史","哲学","体育"];
+const CHIP_MAX = 6, SUG_MAX = 8;
+/* key: 取得済みの大学（正規化済み）。同じ大学なら再取得しない */
+let hints = { key: null, univ: "", peers: [], loading: false };
+const defaultCourses = univ => (/立教/.test(String(univ || "")) ? RIKKYO_COURSES : GENERIC_COURSES);
+
+/* 同じ大学の他ユーザーが登録した授業を人数つきで取得（多い順） */
+async function loadCourseHints() {
+  const univ = String((myProfile && myProfile.university) || "").trim();
+  const key = norm(univ);
+  if (hints.key === key) return;
+  hints = { key, univ, peers: [], loading: !!key };
+  renderCourseHintAreas();
+  if (!key) return;
+  const uid = session && session.user ? session.user.id : "";
+  let data = [], error = null;
+  try { ({ data, error } = await sb.from("peer_courses").select("course_name,university,user_id").limit(2000)); }
+  catch (e) { error = e; }
+  if (hints.key !== key) return; /* 取得中に大学が変わった */
+  if (!error) {
+    const m = new Map();
+    (data || []).forEach(p => {
+      if (!p || !p.course_name || p.user_id === uid) return;
+      if (norm(p.university) !== key) return;
+      const k = norm(p.course_name);
+      let e = m.get(k);
+      if (!e) { e = { name: String(p.course_name).trim(), users: new Set() }; m.set(k, e); }
+      e.users.add(p.user_id);
+    });
+    hints.peers = Array.from(m.values())
+      .sort((a, b) => b.users.size - a.users.size || a.name.localeCompare(b.name, "ja"))
+      .map(e => ({ name: e.name, count: e.users.size }));
+  }
+  hints.loading = false;
+  renderCourseHintAreas();
+}
+
+/* 候補一覧：他ユーザーの登録（人数順）→ 定番科目。自分が登録済みのものは除く */
+function courseCandidates(q) {
+  const registered = new Set((myCourses || []).map(c => norm(c.course_name)));
+  const out = [], seen = new Set();
+  hints.peers.forEach(p => {
+    const k = norm(p.name);
+    if (!k || registered.has(k) || seen.has(k)) return;
+    seen.add(k); out.push({ name: p.name, count: p.count });
+  });
+  defaultCourses(hints.univ || (myProfile && myProfile.university)).forEach(n => {
+    const k = norm(n);
+    if (!k || registered.has(k) || seen.has(k)) return;
+    seen.add(k); out.push({ name: n, count: 0 });
+  });
+  const nq = norm(q);
+  if (!nq) return out;
+  const head = [], tail = [];
+  out.forEach(x => {
+    const k = norm(x.name);
+    if (k.startsWith(nq)) head.push(x);
+    else if (k.includes(nq)) tail.push(x);
+  });
+  return head.concat(tail);
+}
+
+function hideCourseSuggest() {
+  const list = $("#cnlist");
+  if (list) { list.classList.remove("on"); list.innerHTML = ""; }
+}
+
+function drawCourseSuggest(q) {
+  const list = $("#cnlist"); if (!list) return;
+  const items = courseCandidates(q || "").slice(0, SUG_MAX);
+  if (!items.length) { hideCourseSuggest(); return; }
+  list.innerHTML = items.map(c => `<button type="button" class="sugitem" data-sug="${esc(c.name)}" title="${esc(c.name)}">
+    <span class="nm">${esc(c.name)}</span>${c.count ? `<span class="cnt">${c.count}人が登録</span>` : `<span class="cnt d">定番</span>`}</button>`).join("");
+  list.querySelectorAll("[data-sug]").forEach(b => b.onclick = () => pickCourseName(b.dataset.sug));
+  list.classList.add("on");
+}
+
+function pickCourseName(name) {
+  const inp = $("#cn"); if (!inp) return;
+  inp.value = name;
+  hideCourseSuggest();
+}
+
+function renderCourseHintAreas() {
+  const box = $("#cnchips"), cap = $("#cncap");
+  if (!box) return;
+  const picked = courseCandidates("").slice(0, CHIP_MAX);
+  box.innerHTML = picked.map(c => `<button type="button" class="chip" data-pick="${esc(c.name)}">${esc(c.name)}${c.count ? `<span class="cnt">${c.count}人</span>` : ""}</button>`).join("");
+  box.style.display = picked.length ? "flex" : "none";
+  if (cap) cap.textContent = picked.length ? "タップで入力。候補は同じ大学の登録と定番科目から出ています。" : "";
+  box.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => pickCourseName(b.dataset.pick));
+  const list = $("#cnlist");
+  if (list && list.classList.contains("on")) drawCourseSuggest($("#cn") ? $("#cn").value : "");
+}
+
+/* 入力欄を開いている間の候補表示と、外側タップでの開じる処理 */
+function setupCourseHints() {
+  const inp = $("#cn"); if (!inp) return;
+  renderCourseHintAreas();
+  inp.addEventListener("input", () => drawCourseSuggest(inp.value));
+  inp.addEventListener("focus", () => drawCourseSuggest(inp.value));
+  inp.addEventListener("keydown", e => { if (e.key === "Escape" || e.key === "Esc") hideCourseSuggest(); });
+  loadCourseHints();
+}
+document.addEventListener("pointerdown", e => {
+  if (e.target && e.target.closest && e.target.closest(".sugwrap")) return;
+  hideCourseSuggest();
+}, true);
+
 /* マイページ */
 function rProfile() {
   const user = myProfile;
@@ -470,7 +543,11 @@ function rProfile() {
     <p style="margin:10px 0 0"><button id="sv">プロフィールを保存</button></p>
   </div>
   <h2>履修情報</h2>${cs || '<p class="sub">まだ授業がありません。</p>'}
-  <div class="card"><label>授業名</label><input id="cn" placeholder="例：マクロ経済学">
+  <div class="card"><label>授業名</label>
+  <div class="sugwrap"><input id="cn" placeholder="例：マクロ経済学" autocomplete="off" autocapitalize="off" spellcheck="false">
+  <div class="suglist" id="cnlist"></div></div>
+  <div class="chips" id="cnchips"></div>
+  <div class="sub" id="cncap" style="margin-top:4px"></div>
   <div class="row"><div><label>状況</label><select id="cs"><option value="current">受講中</option><option value="done">履修済み</option></select></div>
   <div><label>成績</label><select id="cg">${GRADES.map(g => `<option>${g}</option>`).join("")}</select></div></div>
   <label>成績の公開範囲</label><select id="cv"><option value="same">同じ授業の人のみ</option><option value="all">全員に公開</option><option value="none">非公開</option></select>
@@ -481,6 +558,7 @@ function rProfile() {
     const { error } = await sb.from("profiles").update(upd).eq("id", session.user.id);
     if (error) { alert("保存できませんでした: " + error.message); return; }
     Object.assign(myProfile, upd); $("#sv").textContent = "保存しました";
+    loadCourseHints(); /* 大学名を変えたら候補も取り直す */
   };
   $("#ac").onclick = async () => {
     const n = $("#cn").value.trim(); if (!n) return;
@@ -492,6 +570,7 @@ function rProfile() {
     await sb.from("user_courses").delete().eq("id", b.dataset.del);
     await loadMine(); render();
   });
+  setupCourseHints();
 }
 
 sb.auth.onAuthStateChange((event) => {
@@ -518,7 +597,6 @@ function authLinkError() {
 }
 const linkErr = authLinkError();
 if (linkErr) signupConfirmPending = false; /* エラー付きで戻ったときは完了画面を出さない */
-try { pendingEmail = localStorage.getItem("cc_pending_email") || ""; } catch (e) { pendingEmail = ""; }
 if (isRecoveryUrl()) { authMode = "recovery"; authErr = ""; authOk = ""; recoveryInvalid = false; }
 else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearAuthUrl(); }
 render();
