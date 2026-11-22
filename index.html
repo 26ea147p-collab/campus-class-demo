@@ -52,7 +52,11 @@ const GRADES = ["S","A","B","C","D","未回答"], VIS = {all:"全員に公開", 
 
 let session = null, myProfile = null, myCourses = [];
 let tab = "search", openTid = null, openPeer = null, openCourse = "", fil = "all";
-let authMode = "login", authErr = "", authOk = "";
+let authMode = "login", authErr = "", authOk = "", authEmail = "", recoveryDone = false;
+let recoveryInvalid = false, recoveryTimer = null;
+let pendingEmail = "";
+function setPending(e) { pendingEmail = e; try { localStorage.setItem("cc_pending_email", e); } catch (x) {} }
+function clearPending() { pendingEmail = ""; try { localStorage.removeItem("cc_pending_email"); } catch (x) {} }
 let rtChannel = null;
 
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => { tab = b.dataset.t; openTid = null; render(); });
@@ -68,15 +72,31 @@ async function loadMine() {
 async function render() {
   const { data } = await sb.auth.getSession();
   session = data.session;
-  $("#nav").style.display = session ? "flex" : "none";
-  if (!session) { rAuth(); return; }
+  if (!session || authMode === "recovery") { $("#nav").style.display = "none"; rAuth(); return; }
+  $("#nav").style.display = "flex";
   if (!myProfile) await loadMine();
   document.querySelectorAll("nav button").forEach(b => b.classList.toggle("on", b.dataset.t === tab));
   ({ search: rSearch, dm: rDM, profile: rProfile })[tab]();
 }
 
 /* AUTH */
+const DUP_MSG = "このメールアドレスはすでに登録されています。ログインするか、パスワードをお忘れの場合はリセットしてください。";
+const RESET_SENT_MSG = "パスワード再設定用のメールを送信しました。メール内のリンクを開いて新しいパスワードを設定してください。";
+const isUnivEmail = email => /\.ac\.jp$|\.edu$/i.test(String(email).split("@")[1] || "");
+const isRecoveryUrl = () => /type=recovery/.test((window.location.hash || "") + (window.location.search || ""));
+function clearRecoveryUrl() {
+  try {
+    const u = new URL(window.location.href);
+    u.hash = "";
+    ["code", "type", "error", "error_description", "error_code"].forEach(k => u.searchParams.delete(k));
+    history.replaceState(null, "", u.pathname + (u.search || ""));
+  } catch (e) { /* 失敗しても表示は続行 */ }
+}
+
 function rAuth() {
+  if (authMode === "forgot") return rForgot();
+  if (authMode === "recovery") return rRecovery();
+  if (authMode === "verify") return rVerify();
   const isReg = authMode === "register";
   $("#app").innerHTML = `
   <div style="text-align:center;margin:12px 0 18px">
@@ -91,34 +111,199 @@ function rAuth() {
     ${isReg ? `<label>ニックネーム / 表示名</label><input id="a_name" placeholder="例：山田 太郎">
     <label>大学名</label><input id="a_univ" value="立教大学" placeholder="例：立教大学">` : ""}
     <label>大学メールアドレス</label>
-    <input id="a_email" type="email" placeholder="例：taro@rikkyo.ac.jp">
+    <input id="a_email" type="email" placeholder="例：taro@rikkyo.ac.jp" value="${esc(authEmail)}">
     <label>パスワード</label>
     <input id="a_pass" type="password" placeholder="6文字以上">
     ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
     ${authOk ? `<div class="okmsg">${esc(authOk)}</div>` : ""}
     <p style="margin:12px 0 0"><button id="a_submit" style="width:100%">${isReg ? "大学メールで登録して始める" : "ログイン"}</button></p>
+    ${isReg ? "" : `<p style="margin:6px 0 0;text-align:center"><button class="x" id="a_forgot">パスワードを忘れた方はこちら</button></p>`}
   </div>`;
   $("#m_login").onclick = () => { authMode = "login"; authErr = ""; authOk = ""; render(); };
   $("#m_reg").onclick = () => { authMode = "register"; authErr = ""; authOk = ""; render(); };
+  if (!isReg) $("#a_forgot").onclick = () => {
+    authEmail = ($("#a_email").value || "").trim().toLowerCase();
+    authMode = "forgot"; authErr = ""; authOk = ""; render();
+  };
   $("#a_submit").onclick = async () => {
     const email = $("#a_email").value.trim().toLowerCase();
     const pass = $("#a_pass").value;
     authErr = ""; authOk = "";
     if (!email || !email.includes("@")) { authErr = "メールアドレスを入力してください。"; render(); return; }
-    if (!/\.ac\.jp$|\.edu$/i.test(email.split("@")[1] || "")) { authErr = "学生限定のため、大学ドメイン（.ac.jp など）のメールで登録してください。"; render(); return; }
+    if (!isUnivEmail(email)) { authErr = "学生限定のため、大学ドメイン（.ac.jp など）のメールで登録してください。"; render(); return; }
+    authEmail = email;
     if (isReg) {
       const name = $("#a_name").value.trim();
       const univ = $("#a_univ").value.trim();
       if (!name || !univ) { authErr = "表示名と大学名を入力してください。"; render(); return; }
+      if (pass.length < 6) { authErr = "パスワードは6文字以上で入力してください。"; render(); return; }
+      const btn = $("#a_submit"); if (btn) { btn.disabled = true; btn.textContent = "登録中…"; }
       const { data, error } = await sb.auth.signUp({ email, password: pass, options: { data: { display_name: name, university: univ } } });
-      if (error) { authErr = error.message; render(); return; }
-      if (!data.session) { authOk = "確認メールを送りました。メール内のリンクを開いてからログインしてください。"; authMode = "login"; render(); return; }
+      if (error) {
+        authErr = /already\s*registered/i.test(error.message || "") ? DUP_MSG : error.message;
+        render(); return;
+      }
+      if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        authErr = DUP_MSG; render(); return;
+      }
+      if (!data.session) {
+        /* メール確認待ち：6桁コードの入力画面へ */
+        setPending(email);
+        authErr = ""; authOk = "";
+        authMode = "verify"; render(); return;
+      }
       myProfile = null; tab = "profile"; render();
     } else {
+      const btn = $("#a_submit"); if (btn) { btn.disabled = true; btn.textContent = "ログイン中…"; }
       const { error } = await sb.auth.signInWithPassword({ email, password: pass });
       if (error) { authErr = "メールアドレスまたはパスワードが違います。"; render(); return; }
       myProfile = null; tab = "search"; render();
     }
+  };
+}
+
+/* メールに届いた6桁の確認コードを入力 */
+function rVerify() {
+  $("#app").innerHTML = `
+  <div style="text-align:center;margin:12px 0 18px">
+    <h1 style="font-size:22px;margin:0">確認コードの入力</h1>
+    <p class="sub" style="margin:4px 0 0">${esc(pendingEmail)} に6桁の確認コードを送りました</p>
+  </div>
+  <div class="card">
+    <label>確認コード（6桁）</label>
+    <input id="a_code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"
+      style="text-align:center;font-size:22px;letter-spacing:6px">
+    ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
+    ${authOk ? `<div class="okmsg">${esc(authOk)}</div>` : ""}
+    <p style="margin:12px 0 0"><button id="a_verify" style="width:100%">認証して始める</button></p>
+    <p style="margin:6px 0 0"><button id="a_resend" class="g" style="width:100%">コードを再送する</button></p>
+    <p style="margin:4px 0 0;text-align:center"><button class="x" id="a_cancel">戻る</button></p>
+  </div>`;
+  $("#a_cancel").onclick = () => { clearPending(); authMode = "login"; authErr = ""; authOk = ""; render(); };
+  $("#a_verify").onclick = async () => {
+    const code = ($("#a_code").value || "").replace(/[^0-9]/g, "");
+    authErr = ""; authOk = "";
+    if (code.length !== 6) { authErr = "メールに届いた6桁の確認コードを入力してください。"; render(); return; }
+    const btn = $("#a_verify"); if (btn) { btn.disabled = true; btn.textContent = "認証中…"; }
+    const { error } = await sb.auth.verifyOtp({ email: pendingEmail, token: code, type: "signup" });
+    if (error) {
+      authErr = /invalid|expired/i.test(error.message || "")
+        ? "認証コードが正しくないか、期限切れです。もう一度確認するか、コードを再送してください。"
+        : "認証できませんでした: " + error.message;
+      render(); return;
+    }
+    clearPending(); authMode = "login"; authErr = ""; authOk = ""; myProfile = null; tab = "profile"; render();
+  };
+  $("#a_resend").onclick = async () => {
+    authErr = ""; authOk = "";
+    const btn = $("#a_resend"); if (btn) { btn.disabled = true; btn.textContent = "送信中…"; }
+    const { error } = await sb.auth.resend({ type: "signup", email: pendingEmail });
+    if (error) {
+      authErr = /security purposes|rate.?limit|seconds/i.test(error.message || "")
+        ? "送信間隔が短すぎます。しばらく待ってからもう一度お試しください。"
+        : "再送できませんでした: " + error.message;
+      render(); return;
+    }
+    authOk = "確認コードを再送しました。メールをご確認ください。"; render();
+  };
+}
+
+/* パスワード再設定メールの送信 */
+function rForgot() {
+  $("#app").innerHTML = `
+  <div style="text-align:center;margin:12px 0 18px">
+    <h1 style="font-size:22px;margin:0">パスワード再設定</h1>
+    <p class="sub" style="margin:4px 0 0">登録した大学メールアドレスに再設定用のリンクを送ります</p>
+  </div>
+  <div class="card">
+    <label>大学メールアドレス</label>
+    <input id="a_email" type="email" placeholder="例：taro@rikkyo.ac.jp" value="${esc(authEmail)}">
+    ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
+    ${authOk ? `<div class="okmsg">${esc(authOk)}</div>` : ""}
+    <p style="margin:12px 0 0"><button id="a_send" style="width:100%">リセットメールを送信</button></p>
+    <p style="margin:6px 0 0;text-align:center"><button class="x" id="a_back">ログインに戻る</button></p>
+  </div>`;
+  $("#a_back").onclick = () => { authMode = "login"; authErr = ""; authOk = ""; render(); };
+  $("#a_send").onclick = async () => {
+    const email = $("#a_email").value.trim().toLowerCase();
+    authErr = ""; authOk = "";
+    if (!email || !email.includes("@")) { authErr = "メールアドレスを入力してください。"; render(); return; }
+    if (!isUnivEmail(email)) { authErr = "学生限定のため、大学ドメイン（.ac.jp など）のメールを入力してください。"; render(); return; }
+    authEmail = email;
+    const btn = $("#a_send"); if (btn) { btn.disabled = true; btn.textContent = "送信中…"; }
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
+    if (error) {
+      authErr = /security purposes|rate.?limit/i.test(error.message || "")
+        ? "送信回数が上限に達しました。しばらく待ってからもう一度お試しください。"
+        : "送信できませんでした: " + error.message;
+      render(); return;
+    }
+    authOk = RESET_SENT_MSG; render();
+  };
+}
+
+/* メール内リンクからの新しいパスワード設定 */
+function rRecovery() {
+  if (recoveryDone) {
+    $("#app").innerHTML = `
+    <div style="text-align:center;margin:12px 0 18px">
+      <h1 style="font-size:22px;margin:0">パスワード再設定</h1>
+    </div>
+    <div class="card">
+      <div class="okmsg">パスワードを更新しました。</div>
+      <p style="margin:12px 0 0"><button id="a_go" style="width:100%">アプリを使いはじめる</button></p>
+    </div>`;
+    $("#a_go").onclick = () => {
+      authMode = "login"; authErr = ""; authOk = ""; recoveryDone = false;
+      myProfile = null; tab = "search"; clearRecoveryUrl(); render();
+    };
+    return;
+  }
+  const hasSession = !!session;
+  if (!hasSession && !recoveryInvalid) {
+    $("#app").innerHTML = `
+    <div style="text-align:center;margin:12px 0 18px">
+      <h1 style="font-size:22px;margin:0">新しいパスワードを設定</h1>
+      <p class="sub" style="margin:4px 0 0">再設定用のリンクを確認しています…</p>
+    </div>`;
+    clearTimeout(recoveryTimer);
+    recoveryTimer = setTimeout(() => {
+      if (authMode === "recovery" && !recoveryDone) { recoveryInvalid = true; render(); }
+    }, 2500);
+    return;
+  }
+  $("#app").innerHTML = `
+  <div style="text-align:center;margin:12px 0 18px">
+    <h1 style="font-size:22px;margin:0">新しいパスワードを設定</h1>
+    <p class="sub" style="margin:4px 0 0">${hasSession ? "6文字以上の新しいパスワードを入力してください" : "再設定用のリンクを確認できませんでした"}</p>
+  </div>
+  <div class="card">
+  ${hasSession ? `
+    <label>新しいパスワード</label><input id="a_np" type="password" placeholder="6文字以上" autocomplete="new-password">
+    <label>新しいパスワード（確認）</label><input id="a_np2" type="password" placeholder="もう一度入力" autocomplete="new-password">
+    ${authErr ? `<div class="err">${esc(authErr)}</div>` : ""}
+    <p style="margin:12px 0 0"><button id="a_upd" style="width:100%">パスワードを更新</button></p>
+  ` : `
+    <div class="err">リンクが無効か、有効期限が切れています。もう一度リセットメールを送信してください。</div>
+    <p style="margin:12px 0 0"><button id="a_retry" style="width:100%">リセットメールを送り直す</button></p>
+  `}
+  </div>`;
+  if (!hasSession) {
+    $("#a_retry").onclick = () => {
+      authMode = "forgot"; authErr = ""; authOk = ""; recoveryInvalid = false;
+      clearRecoveryUrl(); render();
+    };
+    return;
+  }
+  $("#a_upd").onclick = async () => {
+    const p1 = $("#a_np").value, p2 = $("#a_np2").value;
+    authErr = "";
+    if (p1.length < 6) { authErr = "パスワードは6文字以上で入力してください。"; render(); return; }
+    if (p1 !== p2) { authErr = "確認用のパスワードが一致しません。"; render(); return; }
+    const btn = $("#a_upd"); if (btn) { btn.disabled = true; btn.textContent = "更新中…"; }
+    const { error } = await sb.auth.updateUser({ password: p1 });
+    if (error) { authErr = "更新できませんでした: " + error.message; render(); return; }
+    recoveryDone = true; authErr = ""; myProfile = null; tab = "search"; clearRecoveryUrl(); render();
   };
 }
 
@@ -255,7 +440,26 @@ function rProfile() {
   });
 }
 
-sb.auth.onAuthStateChange(() => { myProfile = null; });
+sb.auth.onAuthStateChange((event) => {
+  myProfile = null;
+  if (event === "PASSWORD_RECOVERY") {
+    authMode = "recovery"; authErr = ""; authOk = ""; recoveryDone = false;
+    setTimeout(render, 0); /* コールバック内で直接fetchするとSupabaseのロックで止まることがある */
+  }
+});
+/* 期限切れ・使用済みの再設定リンクで戻ってきた場合 */
+function recoveryLinkError() {
+  const raw = decodeURIComponent((window.location.hash || "") + "&" + (window.location.search || ""));
+  if (!/error=/.test(raw)) return "";
+  if (/otp_expired|access_denied|invalid|expired/i.test(raw))
+    return "再設定用のリンクが無効か、有効期限が切れています。「パスワードを忘れた方はこちら」からもう一度送信してください。";
+  return "";
+}
+const linkErr = recoveryLinkError();
+try { pendingEmail = localStorage.getItem("cc_pending_email") || ""; } catch (e) { pendingEmail = ""; }
+if (isRecoveryUrl()) { authMode = "recovery"; authErr = ""; authOk = ""; recoveryInvalid = false; }
+else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearRecoveryUrl(); }
+else if (pendingEmail) { authMode = "verify"; authErr = ""; authOk = ""; }
 render();
 </script>
 </body>
