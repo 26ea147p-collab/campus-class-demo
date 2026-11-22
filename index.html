@@ -2192,7 +2192,15 @@ function rProfile() {
   $("#dep")._akaAfter = () => { refreshDeptPreview(); };
   const onUnivType = () => { const d = $("#dep"); if (d) d.value = ""; refreshDeptPreview(); renderCourseHintAreas(); };
   $("#univ").addEventListener("input", onUnivType);
-  $("#fac").addEventListener("input", () => { refreshDeptPreview(); renderCourseHintAreas(); });
+  $("#fac").addEventListener("input", () => {
+    /* 学部名を入力し直したら、その学部にない学科は自動でクリアする */
+    const d = $("#dep");
+    if (d && d.value) {
+      const ds = depCandidates().map(x => x.n);
+      if (!ds.includes(d.value.trim())) d.value = "";
+    }
+    refreshDeptPreview(); renderCourseHintAreas();
+  });
   $("#dep").addEventListener("input", refreshDeptPreview);
 
   bindAka($("#cn"), $("#cnlist"), courseCandidates);
