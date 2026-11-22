@@ -2450,8 +2450,9 @@ else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearAut
   document.addEventListener("keydown", e => { if (e.key === "Escape") { closePeerProfile(); closeNotif(); } });
 }
 
-/* 保存された画面（タブ・開いていたDM・絞り込み）を復元して起動 */
-loadUIState();
+/* 保存された画面（タブ・開いていたDM・絞り込み）を復元して起動
+   （パスワード再設定・メール認証のURLで開いたときは、そちらの画面を優先） */
+if (!isRecoveryUrl() && !initialUrlHas(/type=signup/) && !linkErr) loadUIState();
 if (openTid && tab !== "dm") openTid = null;
 render();
 </script>
