@@ -11033,15 +11033,16 @@ function paintAdminPanel() {
   const hiName = hiRow ? esc(hiRow.display_name || "このユーザー") : "";
   let hiBanner = "";
   if (approveUid && !hasApproved) {
-    hiBanner = `<div class="card"><b>📩 承認リンクから開きました</b><div class="sub" style="margin-top:4px">承認制（<b>approved</b> 列）がまだ有効になっていないため、この画面からは承認できません。下の SQL を先に実行してください。</div></div>`;
+    hiBanner = "";   /* 列が無いときは下のカードの SQL 案内に任せる */
   } else if (approveUid && !hiRow) {
     hiBanner = `<div class="card"><b>📩 承認リンクから開きました</b><div class="sub" style="margin-top:4px">指定されたユーザー（<b>${esc(approveUid)}</b>）が見つかりませんでした。すでに削除されたか、別のサイトのリンクかもしれません。</div></div>`;
   } else if (hiRow && hiRow.approved === true) {
     hiBanner = `<div class="card" style="border-color:rgba(62,230,168,0.38)"><b>📩 承認リンクから開きました</b><div class="sub" style="margin-top:4px">${hiName}さんは <b style="color:#5ff0bb">すでに承認済み</b>です。必要なら「承認済みユーザー」から取り消せます。</div></div>`;
   } else if (hiRow) {
+    const rej = hasRejected && hiRow.rejected === true;
     hiBanner = `<div class="card" style="background:linear-gradient(160deg,rgba(236,56,188,0.18),rgba(23,212,255,0.09));border-color:rgba(236,56,188,0.48)">
       <b>📩 承認リンクから開きました</b>
-      <div class="sub" style="margin-top:4px">${hiName}さんが承認待ちです。下のボタンで許可できます。</div>
+      <div class="sub" style="margin-top:4px">${hiName}さん${rej ? "は拒否済み（非承認）です。" : "が承認待ちです。"}下のボタンで許可できます。</div>
       <p style="margin:10px 0 0"><button type="button" data-adm="ok" data-id="${esc(hiRow.id)}" style="width:100%">✅ ${hiName}さんを許可する</button></p>
     </div>`;
   }
