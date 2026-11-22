@@ -457,9 +457,7 @@ function paintAvatarPicker() {
 function closeAvatarPicker() {
   const sheet = $("#asheet");
   if (!sheet) return;
-  sheet.classList.remove("on");
-  const box = $("#asbody"); if (box) box.innerHTML = "";
-  document.body.style.overflow = "";
+  sheetClose(sheet, $("#asbody"));
 }
 async function applyAvatar(val) {
   const uid = session && session.user ? session.user.id : "";
@@ -3066,9 +3064,7 @@ async function rChat() {
 function closePeerProfile() {
   const sheet = $("#pmodal");
   if (!sheet) return;
-  sheet.classList.remove("on");
-  const box = $("#pmbody"); if (box) box.innerHTML = "";
-  document.body.style.overflow = "";
+  sheetClose(sheet, $("#pmbody"));
 }
 
 function gradeLabel(c, mine) {
@@ -3516,8 +3512,18 @@ function openTS() {
 function closeTS() {
   const s = $("#tsheet");
   if (!s) return;
-  s.classList.remove("on");
-  const b = $("#tsbody"); if (b) b.innerHTML = "";
+  sheetClose(s, $("#tsbody"));
+}
+
+/* モーダルを閉じる：フェードアウトが終わってから中身を消す
+   （閉じる瞬間に空の箱が縮んで見えないように） */
+function sheetClose(sheet, box) {
+  if (!sheet) return;
+  sheet.classList.remove("on");
+  if (box) {
+    clearTimeout(box._clearT);
+    box._clearT = setTimeout(() => { if (!sheet.classList.contains("on")) box.innerHTML = ""; }, 260);
+  }
   document.body.style.overflow = "";
 }
 
