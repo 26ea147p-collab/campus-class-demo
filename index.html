@@ -270,9 +270,17 @@ function bindAka(input, listEl, itemsFn) {
   if (!input || !listEl) return;
   const draw = () => {
     const all = akaSort(akaUniq(itemsFn() || []));
+    const raw = String(input.value || "").normalize("NFKC").toLowerCase().replace(/\s+/g, "");
     const k = norm(input.value);
     const exact = !!k && all.some(x => norm(x.n) === k);
-    const items = (exact || !String(input.value).trim()) ? all : all.filter(x => akaHit(x, input.value));
+    let items = all;
+    if (!exact && raw) {
+      /* 入力があるときは前方一致を先に、その中は五十音順 */
+      const qh = toHira(raw);
+      const hits = all.filter(x => akaHit(x, input.value));
+      const pre = hits.filter(x => toHira(norm(x.y)).startsWith(qh) || toHira(norm(x.n)).startsWith(qh));
+      items = pre.concat(hits.filter(x => pre.indexOf(x) < 0));
+    }
     drawAkaList(listEl, items, input);
   };
   input._akaDraw = draw;
