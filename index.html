@@ -11061,7 +11061,7 @@ function openSlotAdd(slot) {
     <p class="sub" style="margin:0 0 10px">${TT_TIME[p]} ・ ここに授業を入れます</p>
     ${unplaced.length ? `<div class="sub" style="font-weight:700;color:#dde3ff">未配置の受講中授業から置く</div>
       <div class="chips">${unplaced.map(c => `<button type="button" class="chip" data-put="${esc(c.id)}">＋ ${esc(c.course_name)}</button>`).join("")}</div>` : ""}
-    ${syl.length ? `<div class="sub" style="font-weight:700;color:#dde3ff;margin-top:6px">この時限のシラバス科目</div>
+    ${syl.length ? `<div class="sub" style="font-weight:700;color:#dde3ff;margin-top:6px">主なシラバス科目</div>
       <div class="chips">${syl.map(c => `<button type="button" class="chip" data-new="${esc(c.n)}">${esc(c.n)}</button>`).join("")}</div>` : ""}
     <label>授業名（あかさたな順の候補から選べます）</label>
     <div class="sugwrap"><input id="tscn" placeholder="例：法学入門" autocomplete="off" autocapitalize="off" spellcheck="false">
