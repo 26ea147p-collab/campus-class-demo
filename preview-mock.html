@@ -159,7 +159,7 @@ a{color:var(--cyan)}
 .chathead .who{min-width:0;flex:1}
 .chathead b{font-size:15px}
 .chathead .meta{font-size:11px}
-.msgs{display:flex;flex-direction:column;gap:8px;padding:10px 2px;margin-bottom:12px}
+.msgs{display:flex;flex-direction:column;gap:8px;padding:10px 2px;margin-bottom:12px;min-height:52vh}
 .m{max-width:82%;padding:10px 14px;border-radius:16px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);align-self:flex-start;white-space:pre-wrap;word-break:break-word;font-size:13px}
 .m.me{background:var(--grad);border-color:transparent;color:#fff;align-self:flex-end;box-shadow:0 8px 20px rgba(245,65,201,.2)}
 .composer{display:flex;gap:8px;align-items:flex-end;position:sticky;bottom:calc(88px + env(safe-area-inset-bottom,0px));background:linear-gradient(180deg,rgba(10,14,31,0),rgba(10,14,31,.92) 40%);padding:10px 0 4px}
@@ -300,7 +300,6 @@ nav button.on{color:#fff;background:var(--grad);box-shadow:0 8px 20px rgba(245,6
 <div class="sheet" id="pmodal"><div class="pv" id="pmbody"></div></div>
 <div class="sheet" id="nmodal"><div class="nbox" id="nmbody"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
 /* ===== LOCAL PREVIEW ONLY: mock Supabase (never published) ===== */
 (function(){
@@ -394,7 +393,6 @@ nav button.on{color:#fff;background:var(--grad);box-shadow:0 8px 20px rgba(245,6
   };
 })();
 </script>
-
 <script>
 /* ページを開いた時点の URL（確認・再設定リンクから戻ってきたかの判定に使う。SDK がハッシュを消す前に控える） */
 const INIT_URL = { hash: window.location.hash || "", search: window.location.search || "" };
@@ -1087,10 +1085,12 @@ async function rHome() {
   const peers = groupPeers(rows).filter(p => commonCourses(p).length);
   peers.sort((a, b) => commonCourses(b).length - commonCourses(a).length || String(a.name).localeCompare(String(b.name), "ja"));
   const mine = myCourses;
+  const cntByCourse = {};
+  peers.forEach(p => commonCourses(p).forEach(c => { cntByCourse[norm(c.name)] = (cntByCourse[norm(c.name)] || 0) + 1; }));
   const recent = threads.slice(0, 3);
 
   const courseRows = mine.length
-    ? mine.map(c => `<div class="rowi">${courseMeta(c)}<span style="flex:1"></span>${pill(c.status === "done")}</div>`).join("")
+    ? mine.map(c => `<div class="rowi">${courseMeta(c, cntByCourse)}<span style="flex:1"></span>${pill(c.status === "done")}</div>`).join("")
     : `<div class="rowi"><div class="cmeta">まだ授業が登録されていません。</div></div>`;
 
   const body = `
@@ -1116,11 +1116,14 @@ async function rHome() {
   $("#moredm").onclick = () => { tab = "dm"; openTid = null; render(); };
 }
 
-function courseMeta(c) {
-  const s = splitWeak((myProfile && myProfile.university) || "");
+function courseMeta(c, counts) {
   const bits = [];
   if (c.status === "done" && c.grade && c.grade !== "未回答") bits.push("成績 " + c.grade);
   if (c.status === "done" && c.visibility) bits.push(VIS[c.visibility] || "");
+  if (c.status !== "done") {
+    const n = (counts && counts[norm(c.course_name)]) || 0;
+    bits.push(n ? `同じ授業の人 ${n}人` : "まだ見つかっていません");
+  }
   return `<div style="min-width:0;flex:1"><div class="cname">${esc(c.course_name)}</div><div class="cmeta">${esc(bits.filter(Boolean).join(" ・ ") || "登録済み")}</div></div>`;
 }
 
@@ -1287,7 +1290,7 @@ function rProfile() {
   const courseList = myCourses.map(c => `<div class="rowi">
     <div style="flex:1;min-width:0">
       <div class="cname">${esc(c.course_name)}</div>
-      <div class="cmeta">${esc([c.status === "done" ? "履修済み" : "受講中", c.status === "done" && c.grade && c.grade !== "未回答" ? "成績 " + c.grade : "", c.status === "done" && c.visibility ? VIS[c.visibility] : ""].filter(Boolean).join(" ・ "))}</div>
+      <div class="cmeta">${esc(c.status === "done" ? [c.grade && c.grade !== "未回答" ? "成績 " + c.grade : "", c.visibility ? VIS[c.visibility] : ""].filter(Boolean).join(" ・ ") || "履修済み" : "この授業で相談できます")}</div>
     </div>
     ${pill(c.status === "done")}
     <button class="xdel" data-del="${esc(c.id)}">×</button>
@@ -1529,7 +1532,7 @@ function addCourseForm() {
       <option value="none"${prefs.vis === "none" ? " selected" : ""}>非公開</option>
     </select>
     <button class="cta" id="ac" style="height:46px;font-size:13px">授業を追加</button>
-    <div class="sub hint" style="font-size:10.5px">${esc(facLabel)}の科目と全学共通・語学から候補を出しています。候補にない授業はそのまま入力できます。</div>
+    <div class="sub hint" id="cnfacnote" style="font-size:10.5px">${esc(facLabel)}の科目と全学共通・語学から候補を出しています。候補にない授業はそのまま入力できます。</div>
   </div>`;
 }
 
@@ -1562,6 +1565,8 @@ function renderCourseArea() {
   });
   const cap = $("#cncap");
   if (cap) cap.textContent = items.length ? "タップで入力。候補は学部の科目・全学共通・同じ大学の登録から出ています。" : "";
+  const fn = $("#cnfacnote");
+  if (fn) fn.textContent = `${curFac || "全学共通"}の科目と全学共通・語学から候補を出しています。候補にない授業はそのまま入力できます。`;
 }
 function refreshCourseArea() {
   if ($("#cnchips")) renderCourseArea();
@@ -1582,13 +1587,15 @@ function courseCandidates(q) {
     out.push({ name, count: peers.get(k) || 0, kind });
   };
   const isRikkyo = univ.includes("立教");
-  const facs = isRikkyo ? (RIKKYO_FAC[curFac] || []) : ((OTHER_FAC_COURSES[univ] || {})[curFac] || []);
-  facs.forEach(n => push(n, curFac || "学部"));
+  const allFacs = isRikkyo ? RIKKYO_FAC : (OTHER_FAC_COURSES[univ] || {});
+  (allFacs[curFac] || []).forEach(n => push(n, curFac || "学部"));
   const common = isRikkyo ? RIKKYO_COMMON : GENERIC_COMMON;
   common.forEach(n => push(n, "全学共通"));
   (hints.peers || []).forEach(p => push(p.name, "登録済み"));
   const nq = norm(q);
   if (!nq) return out;
+  /* 検索語があるときは他学部の科目も対象にする（自由入力の手がかり） */
+  Object.keys(allFacs).forEach(fn => { if (fn !== curFac) (allFacs[fn] || []).forEach(n => push(n, fn)); });
   const head = [], tail = [];
   out.forEach(x => {
     const k = norm(x.name);
@@ -1691,7 +1698,7 @@ function renderPeerProfile(p, cs) {
     ${pill(c.status === "done")}
   </div>`;
   return `
-  <div class="pvtop"><button class="pvback" id="pmback">‹ もどる</button><button class="dots" id="pvmenu" aria-label="メニュー">⋯</button></div>
+  <div class="pvtop"><button class="pvback" id="pmback">‹ もどる</button></div>
   ${firstCommon ? `<div class="commonbox">
     <div class="eyebrow">共通の授業</div>
     <div class="cn">${esc(firstCommon.course_name)}</div>
