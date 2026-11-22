@@ -243,31 +243,57 @@ nav .ndot.on{display:block}
 /* ---- 画面切り替えのフェード＋スライド（タブやモードが変わったときだけ） ---- */
 @keyframes viewIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
 #app.vanim{animation:viewIn .24s cubic-bezier(0.22,1,0.36,1) both;will-change:transform,opacity}
-/* ---- 時間割グリッド（月〜土 × 1〜5限） ---- */
-.ttcard{padding:10px 9px 12px}
-.ttgrid{display:grid;grid-template-columns:27px repeat(6,minmax(0,1fr));gap:3px}
-.ttdh{font-size:10.5px;font-weight:800;text-align:center;color:#a9b8e2;letter-spacing:.05em;padding:0 0 2px}
+/* ---- 時間割グリッド（月〜土 × 1〜5限）
+   「すごい時間割」風：左列に時限＋実際の時刻、今日の曜日はピル、
+   コマは縦長の丸角カード、下部に小さな教室バッジ ---- */
+.ttcard{padding:12px 10px 14px}
+.ttgrid{display:grid;grid-template-columns:32px repeat(6,minmax(0,1fr));gap:4px;align-items:stretch}
+.ttdh{display:flex;align-items:flex-end;justify-content:center;padding:2px 0 5px;
+  font-size:11px;font-weight:800;color:#a9b8e2;letter-spacing:.04em}
+.ttdh .day{display:inline-flex;align-items:center;justify-content:center;width:25px;height:25px;border-radius:50%;line-height:1}
 .ttdh.wk{color:#7fa8ff}
-.ttdh.sat{color:#ff9ad5}
-.tth{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
-  font-size:8px;color:#7885b2;background:rgba(255,255,255,0.03);border-radius:8px;line-height:1.15;padding:2px 0}
-.tth b{font-size:11.5px;color:#cfd9f7;font-weight:800}
-.tt-cell{position:relative;min-height:57px;min-width:0;width:100%;padding:5px 3px;border-radius:9px;
-  background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.075);box-shadow:none;
+.ttdh.sat .day{color:#ff9ad5}
+.ttdh.today .day{color:#fff;background:linear-gradient(135deg,#2b8cff,#17d4ff);
+  box-shadow:0 0 0 3px rgba(23,212,255,0.13),0 4px 12px rgba(20,130,255,0.45)}
+.tth{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  background:transparent;border-radius:10px;line-height:1.05;padding:0}
+.tth b{font-size:14px;color:#dbe4ff;font-weight:800;letter-spacing:0}
+.tth .t{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:7.5px;color:#7c8ab8;
+  font-variant-numeric:tabular-nums;letter-spacing:0}
+.tth .t em{font-style:normal;line-height:1}
+.tth .t i{display:block;width:1px;height:5px;background:rgba(255,255,255,0.22)}
+.tt-cell{position:relative;min-height:80px;min-width:0;width:100%;padding:8px 4px 6px;border-radius:12px;
+  background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);box-shadow:none;
   display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
   color:#eef1fb;overflow:hidden}
-.tt-cell.empty{border-style:dashed;border-color:rgba(255,255,255,0.14);color:rgba(140,234,255,0.35)}
-.tt-cell.empty::after{content:"＋";font-size:13px;font-weight:700;line-height:1}
-.tt-cell.on{background:linear-gradient(150deg,var(--ttA),var(--ttB));border-color:rgba(255,255,255,0.20);
-  box-shadow:0 4px 14px rgba(0,0,0,0.28),inset 0 1px 0 rgba(255,255,255,0.18)}
-.tt-cell .ttn{font-size:9px;line-height:1.24;font-weight:800;letter-spacing:-0.01em;word-break:break-word;
-  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 4px rgba(0,0,0,0.35)}
-.tt0{--ttA:rgba(23,212,255,0.34);--ttB:rgba(10,90,190,0.30)}
-.tt1{--ttA:rgba(236,56,188,0.32);--ttB:rgba(120,30,190,0.30)}
-.tt2{--ttA:rgba(62,230,168,0.28);--ttB:rgba(10,120,110,0.28)}
-.tt3{--ttA:rgba(255,154,60,0.30);--ttB:rgba(200,50,90,0.26)}
-.tt4{--ttA:rgba(160,107,255,0.32);--ttB:rgba(60,50,200,0.28)}
-.tt5{--ttA:rgba(255,120,220,0.28);--ttB:rgba(23,120,255,0.26)}
+.tt-cell.empty{background:rgba(255,255,255,0.028);border-color:rgba(255,255,255,0.05)}
+.tt-cell.empty::after{content:"＋";font-size:12px;font-weight:600;line-height:1;color:rgba(150,205,255,0.18);
+  transition:color .18s ease}
+@media (hover:hover){.tt-cell.empty:hover::after{color:rgba(150,215,255,0.55)}}
+.tt-cell.empty:active::after{color:rgba(150,215,255,0.6)}
+.tt-cell.on{background:linear-gradient(160deg,var(--ttA),var(--ttB));border-color:rgba(255,255,255,0.17);
+  box-shadow:0 6px 16px rgba(2,8,26,0.38),inset 0 1px 0 rgba(255,255,255,0.16)}
+.tt-cell .ttn{margin:auto 0;width:100%;font-size:9.5px;line-height:1.28;font-weight:700;letter-spacing:-0.01em;
+  word-break:break-word;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;
+  text-shadow:0 1px 4px rgba(0,0,0,0.28)}
+.tt-cell .ttb{flex:none;max-width:100%;margin-top:4px;padding:3px 6px;border-radius:999px;
+  font-size:8px;font-weight:800;line-height:1;letter-spacing:.02em;white-space:nowrap;overflow:hidden;
+  text-overflow:ellipsis;background:rgba(255,255,255,0.9);color:#33477a;box-shadow:0 1px 3px rgba(2,8,26,0.25)}
+.tt0{--ttA:#3a94ff;--ttB:#1c53c4}
+.tt1{--ttA:#22bde8;--ttB:#0d6cb4}
+.tt2{--ttA:#7a83ff;--ttB:#3f3fc9}
+.tt3{--ttA:#35c9a9;--ttB:#117f74}
+.tt4{--ttA:#a675ff;--ttB:#5d38b6}
+.tt5{--ttA:#3772ee;--ttB:#153e9c}
+@media (max-width:420px){
+  .ttgrid{grid-template-columns:29px repeat(6,minmax(0,1fr));gap:3px}
+  .ttdh .day{width:23px;height:23px}
+  .tth b{font-size:13px}
+  .tth .t{font-size:7px}
+  .tt-cell{min-height:76px;padding:7px 3px 5px}
+  .tt-cell .ttn{font-size:9px}
+  .tt-cell .ttb{font-size:7.5px;padding:2.5px 5px}
+}
 @keyframes cellPop{0%{transform:scale(0.88);opacity:.35}60%{transform:scale(1.04)}100%{transform:none;opacity:1}}
 .tt-cell.flash{animation:cellPop .5s cubic-bezier(0.22,1,0.36,1)}
 .ttnote{font-size:11px;color:#7f8cb8;margin:9px 0 0;line-height:1.55}
@@ -2584,7 +2610,8 @@ function clearUIState() {
    ============================================================ */
 const TT_DOW = ["月","火","水","木","金","土"];
 const TT_PERS = [1,2,3,4,5];
-const TT_TIME = {1:"9:00〜10:40",2:"10:55〜12:35",3:"13:30〜15:10",4:"15:25〜17:05",5:"17:20〜19:00"};
+/* 立教大学の実際の授業時間帯 */
+const TT_TIME = {1:"08:50〜10:30",2:"10:45〜12:25",3:"13:30〜15:10",4:"15:20〜17:00",5:"17:10〜18:50"};
 let ttMap = {};          /* { "月2": course_id } */
 let ttSeg = "grid";
 let ttSegHome = "grid";   /* ホーム画面の「わたしの授業」の切り替え（マイページとは別に保持） */
@@ -2610,6 +2637,23 @@ function ttSet(slot, id) {
   ttSave();
 }
 function ttClear(id) { const s = slotOf(id); if (s) { delete ttMap[s]; ttSave(); } }
+/* 教室・メモ（任意）。授業IDごとにこの端末の localStorage にだけ保存する */
+const ttRoomKey = () => "cc_tt_rooms_" + ((session && session.user && session.user.id) || "anon");
+let ttRooms = {};
+function ttRoomLoad() {
+  let o = null;
+  try { o = JSON.parse(localStorage.getItem(ttRoomKey()) || "null"); } catch (e) { o = null; }
+  ttRooms = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+}
+function ttRoomSave() { try { localStorage.setItem(ttRoomKey(), JSON.stringify(ttRooms)); } catch (e) {} }
+const ttRoom = id => String(ttRooms[id] || "").slice(0, 12);
+function ttSetRoom(id, v) {
+  const s = String(v || "").trim().replace(/\s+/g, " ").slice(0, 12);
+  if (s) ttRooms[id] = s; else delete ttRooms[id];
+  ttRoomSave();
+}
+/* 今日の曜日（月=1〜土=6。日曜はハイライトなし） */
+const ttToday = () => { const g = new Date().getDay(); return g >= 1 && g <= 6 ? TT_DOW[g - 1] : ""; };
 /* マスに出す短い名前（括弧書きを落とす。省略しても全体はモーダルで見られる） */
 const ttShort = s => String(s || "").replace(/[（(【\[［][^）)】\]］]*[）)】\]］]/g, "").trim() || String(s || "");
 const ttColor = s => "tt" + (Array.from(norm(s)).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7) % 6);
@@ -2640,6 +2684,7 @@ async function loadMine() {
   const { data: cs } = await sb.from("user_courses").select("*").eq("user_id", uid).order("created_at");
   myCourses = cs || [];
   ttLoad();   /* 時間割のコマ配置（localStorage）を読み直し、消えた授業のコマを掃除 */
+  ttRoomLoad();
 }
 
 let booted = false;
@@ -3463,16 +3508,19 @@ function renderTTBox(box, seg) {
   }
 
   const unplaced = myCourses.filter(c => c.status !== "done" && !slotOf(c.id));
+  const today = ttToday();
   let cells = `<div class="ttgrid">`;
-  cells += `<div class="tth" style="background:transparent;font-size:7.5px">時限</div>`
-    + TT_DOW.map((d, i) => `<div class="ttdh${i === 5 ? " sat" : ""}">${d}</div>`).join("");
+  cells += `<div class="tth" aria-hidden="true"></div>`
+    + TT_DOW.map((d, i) => `<div class="ttdh${i === 5 ? " sat" : ""}${d === today ? " today" : ""}"><span class="day">${d}</span></div>`).join("");
   TT_PERS.forEach(p => {
-    cells += `<div class="tth"><b>${p}</b><span>${TT_TIME[p].split("〜")[0]}</span></div>`;
+    const [tStart, tEnd] = TT_TIME[p].split("〜");
+    cells += `<div class="tth"><b>${p}</b><span class="t"><em>${tStart}</em><i></i><em>${tEnd}</em></span></div>`;
     TT_DOW.forEach(d => {
       const slot = d + p, c = courseById(ttMap[slot]);
       if (c) {
+        const room = ttRoom(c.id);
         cells += `<button type="button" class="tt-cell on ${ttColor(c.course_name)}" data-slot="${slot}"
-          title="${esc(c.course_name)}（${slotLabel(slot)}）"><span class="ttn">${esc(ttShort(c.course_name))}</span></button>`;
+          title="${esc(c.course_name)}（${slotLabel(slot)}）"><span class="ttn">${esc(c.course_name)}</span><span class="ttb">${esc(room || "受講中")}</span></button>`;
       } else {
         cells += `<button type="button" class="tt-cell empty" data-slot="${slot}" aria-label="${slotLabel(slot)}に授業を追加"></button>`;
       }
@@ -3592,10 +3640,16 @@ function openSlotDetail(slot, id) {
   const c = courseById(id);
   if (!c) { delete ttMap[slot]; ttSave(); refreshTT(); return; }
   const s = sylSlot(c.course_name), p = Number(slot.slice(1));
+  const room = ttRoom(c.id);
   box.innerHTML = `
     <div class="row" style="margin-bottom:6px"><b style="flex:1;font-size:16px;line-height:1.45">${esc(c.course_name)}</b><button class="x" type="button" id="tsclose">閉じる</button></div>
     <div><span class="tag">${slotLabel(slot)}</span><span class="tag">受講中</span>${s && s !== slot ? `<span class="tag vis">シラバス：${s}</span>` : ""}</div>
-    <p class="sub" style="margin:4px 0 12px">${TT_TIME[p]}</p>
+    <p class="sub" style="margin:4px 0 10px">${TT_TIME[p]}</p>
+    <label for="ttroom">教室・メモ（任意）</label>
+    <div class="row" style="gap:8px;margin-bottom:12px">
+      <input id="ttroom" maxlength="12" placeholder="例：4253" value="${esc(room)}" autocomplete="off" style="flex:1;min-width:0">
+      <button type="button" class="g" id="ttroomsave" style="flex:none;padding:0 14px">保存</button>
+    </div>
     <p style="margin:0 0 8px"><button type="button" id="ttpeer" style="width:100%">同じ授業の人を見る</button></p>
     <p style="margin:0 0 8px"><button type="button" class="g" id="ttdm" style="width:100%">DMへ</button></p>
     <p style="margin:0 0 8px"><button type="button" class="g" id="ttmove" style="width:100%">コマを移動する</button></p>
@@ -3607,6 +3661,14 @@ function openSlotDetail(slot, id) {
   $("#ttpeer").onclick = () => { closeTS(); cfil = c.course_name; q = ""; tab = "search"; saveUIState(); render(); };
   $("#ttdm").onclick = () => { closeTS(); tab = "dm"; saveUIState(); render(); };
   $("#ttmove").onclick = () => openSlotPicker(c);
+  $("#ttroomsave").onclick = () => {
+    ttSetRoom(c.id, $("#ttroom").value);
+    const v = ttRoom(c.id);
+    /* ホーム／マイページどちらの時間割でも、同じコマのバッジをその場で更新する */
+    document.querySelectorAll(`.tt-cell[data-slot="${slot}"] .ttb`).forEach(el => { el.textContent = v || "受講中"; });
+    const b = $("#ttroomsave");
+    if (b) { b.textContent = "保存しました"; setTimeout(() => { if (b) b.textContent = "保存"; }, 1400); }
+  };
   $("#ttunplace").onclick = () => { ttClear(c.id); closeTS(); refreshTT(); };
   let armed = false;
   $("#ttdel").onclick = async () => {
