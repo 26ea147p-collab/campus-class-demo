@@ -663,10 +663,14 @@ function drawAkaList(listEl, items, input) {
   let row = "", html = "";
   const curK = norm(input.value);
   const shown = new Set();
-  items.slice(0, AKA_LIMIT).forEach(it => {
+  let plainShown = 0;
+  items.forEach(it => {
     /* 同じ科目名は一度だけ（先頭のまとまりに出した科目は、あかさたな側では省く） */
     const key = norm(it.n);
     if (shown.has(key)) return;
+    /* 上限はあかさたな側だけで数える（この時限のまとまりは別枠） */
+    if (!it.grp && plainShown >= AKA_LIMIT) return;
+    if (!it.grp) plainShown++;
     shown.add(key);
     /* grp がある候補（他のユーザーが登録した授業など）はその見出しでまとめる */
     const r = it.grp || gojuonRow(it.y);
