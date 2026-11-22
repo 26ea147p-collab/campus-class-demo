@@ -23,7 +23,7 @@
   padding-bottom:env(safe-area-inset-bottom,0px)
 }
 *{box-sizing:border-box}
-html{background:#070a19;scroll-padding-top:env(safe-area-inset-top,0px)}
+html{background:#070a19;scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth}
 body{
   margin:0;min-height:100vh;color:var(--tx);
   font:15px/1.55 -apple-system,"Hiragino Sans","Noto Sans JP",system-ui,sans-serif;
@@ -61,7 +61,8 @@ h2.pinkdot::before{background:linear-gradient(135deg,#ec38bc,#ff8ce3);box-shadow
 .brand{font-size:26px;font-weight:800;letter-spacing:0.03em;line-height:1.2}
 .brandbar{font-size:13px;font-weight:700;letter-spacing:0.06em;margin:0 0 14px;opacity:0.95}
 .card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px;margin-bottom:10px;
-  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 26px rgba(0,0,0,0.24)}
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);box-shadow:0 8px 26px rgba(0,0,0,0.24);
+  transition:transform .16s cubic-bezier(0.22,1,0.36,1),background .2s ease,box-shadow .2s ease}
 label{display:block;font-size:12px;color:var(--sub);margin:10px 0 5px;font-weight:600}
 input,select,textarea{width:100%;padding:11px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:12px;
   background:var(--card2);color:var(--tx);font:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03)}
@@ -74,8 +75,9 @@ select{appearance:none;-webkit-appearance:none;padding-right:34px;
 option{background:#101630;color:var(--tx)}
 button{border:0;border-radius:12px;padding:11px 16px;background:linear-gradient(90deg,#ec38bc,#17d4ff);
   color:#fff;font:inherit;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(236,56,188,0.22);
-  transition:filter .15s ease,opacity .15s ease}
-button:active{filter:brightness(1.1)}
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .16s cubic-bezier(0.22,1,0.36,1),filter .15s ease,opacity .15s ease,background .2s ease,box-shadow .2s ease}
+button:active{filter:brightness(1.08);transform:scale(0.97)}
 button:disabled{opacity:0.6}
 button.g{background:rgba(255,255,255,0.08);color:#e9edff;border:1px solid rgba(255,255,255,0.14);box-shadow:none}
 button.x{background:transparent;color:var(--sub);padding:6px 10px;font-weight:600;box-shadow:none}
@@ -145,8 +147,11 @@ nav .ndot.on{display:block}
   box-shadow:0 18px 40px rgba(0,0,0,0.6),0 0 0 1px rgba(23,212,255,0.10);
   backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   max-height:min(58vh,420px);overflow-y:auto;overscroll-behavior:contain;
-  -webkit-overflow-scrolling:touch;display:none}
-.suglist.on{display:block}
+  -webkit-overflow-scrolling:touch;display:block;
+  opacity:0;visibility:hidden;transform:translateY(-6px) scale(0.985);pointer-events:none;
+  transition:opacity .16s ease,transform .22s cubic-bezier(0.22,1,0.36,1),visibility 0s linear .18s}
+.suglist.on{opacity:1;visibility:visible;transform:none;pointer-events:auto;
+  transition:opacity .16s ease,transform .22s cubic-bezier(0.22,1,0.36,1),visibility 0s}
 .sughead{position:sticky;top:0;z-index:1;padding:6px 13px;font-size:11px;font-weight:800;letter-spacing:0.08em;
   color:#8ceaff;background:rgba(13,18,40,0.98);border-bottom:1px solid rgba(23,212,255,0.20)}
 .sugitem{display:flex;width:100%;gap:8px;align-items:center;justify-content:space-between;background:transparent;
@@ -165,19 +170,27 @@ nav .ndot.on{display:block}
 .sugitem .cnt.d{background:transparent;border-color:transparent;color:var(--sub)}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}
 .chip{background:rgba(23,212,255,0.12);color:#8ceaff;border:1px solid rgba(23,212,255,0.30);font-size:12px;
-  font-weight:600;padding:6px 11px;border-radius:99px;display:inline-flex;gap:5px;align-items:center;max-width:100%;box-shadow:none}
-.chip:active{opacity:0.65}
+  font-weight:600;padding:6px 11px;border-radius:99px;display:inline-flex;gap:5px;align-items:center;max-width:100%;box-shadow:none;
+  transition:transform .16s cubic-bezier(0.22,1,0.36,1),background .2s ease,box-shadow .2s ease,opacity .2s ease}
+.chip:active{opacity:0.85;transform:scale(0.96)}
 .chip .cnt{font-size:10px;opacity:0.85}
 .chip.on{background:linear-gradient(90deg,#ec38bc,#17d4ff);color:#fff;border-color:transparent;
   box-shadow:0 6px 16px rgba(236,56,188,0.32)}
 .pf{cursor:pointer}.pf:active{opacity:0.6}
-.sheet{position:fixed;inset:0;z-index:50;display:none;overflow-y:auto;padding:16px;
+.sheet{position:fixed;inset:0;z-index:50;display:block;overflow-y:auto;padding:16px;
   padding-bottom:calc(96px + env(safe-area-inset-bottom,0px));
-  background:rgba(4,6,16,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
-.sheet.on{display:block}
+  background:rgba(4,6,16,0.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+  opacity:0;visibility:hidden;pointer-events:none;
+  transition:opacity .22s ease,visibility 0s linear .22s;
+  -webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+.sheet.on{opacity:1;visibility:visible;pointer-events:auto;
+  transition:opacity .22s ease,visibility 0s linear 0s}
 .sheetbox{max-width:460px;margin:20px auto;padding:16px;background:rgba(13,18,42,0.94);
   border:1px solid rgba(255,255,255,0.12);border-radius:22px;
-  box-shadow:0 30px 70px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.06)}
+  box-shadow:0 30px 70px rgba(0,0,0,0.6),inset 0 1px 0 rgba(255,255,255,0.06);
+  opacity:0;transform:translateY(16px) scale(0.985);
+  transition:transform .28s cubic-bezier(0.22,1,0.36,1),opacity .22s ease}
+.sheet.on .sheetbox{opacity:1;transform:none}
 .sheetbox .card{background:rgba(255,255,255,0.05)}
 /* ---- Muse 風レイアウト ---- */
 .tophead{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 8px}
@@ -200,7 +213,8 @@ nav .ndot.on{display:block}
 .lrow{display:flex;align-items:center;gap:11px;padding:13px 14px;border-bottom:1px solid rgba(255,255,255,0.07)}
 .lrow:last-child{border-bottom:0}
 .lrow.tap{cursor:pointer}
-.lrow.tap:active{background:rgba(23,212,255,0.07)}
+.lrow.tap:active{background:rgba(23,212,255,0.07);transform:scale(0.995)}
+.lrow{transition:transform .16s cubic-bezier(0.22,1,0.36,1),background .2s ease}
 .lrow .txt{flex:1;min-width:0}
 .lrow .nm{font-weight:700;font-size:14.5px;display:flex;align-items:center;gap:7px;flex-wrap:wrap}
 .lrow .sub{display:block;margin-top:1px}
@@ -226,6 +240,47 @@ nav .ndot.on{display:block}
 .boottxt{font-size:13px;color:var(--sub);font-weight:600;letter-spacing:0.02em}
 @keyframes bootspin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.bootspin{animation-duration:2.4s}}
+/* ---- 画面切り替えのフェード＋スライド（タブやモードが変わったときだけ） ---- */
+@keyframes viewIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+#app.vanim{animation:viewIn .24s cubic-bezier(0.22,1,0.36,1) both;will-change:transform,opacity}
+/* ---- 時間割グリッド（月〜土 × 1〜5限） ---- */
+.ttcard{padding:10px 9px 12px}
+.ttgrid{display:grid;grid-template-columns:27px repeat(6,minmax(0,1fr));gap:3px}
+.ttdh{font-size:10.5px;font-weight:800;text-align:center;color:#a9b8e2;letter-spacing:.05em;padding:0 0 2px}
+.ttdh.wk{color:#7fa8ff}
+.ttdh.sat{color:#ff9ad5}
+.tth{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+  font-size:8px;color:#7885b2;background:rgba(255,255,255,0.03);border-radius:8px;line-height:1.15;padding:2px 0}
+.tth b{font-size:11.5px;color:#cfd9f7;font-weight:800}
+.tt-cell{position:relative;min-height:57px;min-width:0;width:100%;padding:5px 3px;border-radius:9px;
+  background:rgba(255,255,255,0.035);border:1px solid rgba(255,255,255,0.075);box-shadow:none;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  color:#eef1fb;overflow:hidden}
+.tt-cell.empty{border-style:dashed;border-color:rgba(255,255,255,0.14);color:rgba(140,234,255,0.35)}
+.tt-cell.empty::after{content:"＋";font-size:13px;font-weight:700;line-height:1}
+.tt-cell.on{background:linear-gradient(150deg,var(--ttA),var(--ttB));border-color:rgba(255,255,255,0.20);
+  box-shadow:0 4px 14px rgba(0,0,0,0.28),inset 0 1px 0 rgba(255,255,255,0.18)}
+.tt-cell .ttn{font-size:9px;line-height:1.24;font-weight:800;letter-spacing:-0.01em;word-break:break-word;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;text-shadow:0 1px 4px rgba(0,0,0,0.35)}
+.tt0{--ttA:rgba(23,212,255,0.34);--ttB:rgba(10,90,190,0.30)}
+.tt1{--ttA:rgba(236,56,188,0.32);--ttB:rgba(120,30,190,0.30)}
+.tt2{--ttA:rgba(62,230,168,0.28);--ttB:rgba(10,120,110,0.28)}
+.tt3{--ttA:rgba(255,154,60,0.30);--ttB:rgba(200,50,90,0.26)}
+.tt4{--ttA:rgba(160,107,255,0.32);--ttB:rgba(60,50,200,0.28)}
+.tt5{--ttA:rgba(255,120,220,0.28);--ttB:rgba(23,120,255,0.26)}
+@keyframes cellPop{0%{transform:scale(0.88);opacity:.35}60%{transform:scale(1.04)}100%{transform:none;opacity:1}}
+.tt-cell.flash{animation:cellPop .5s cubic-bezier(0.22,1,0.36,1)}
+.ttnote{font-size:11px;color:#7f8cb8;margin:9px 0 0;line-height:1.55}
+.ttpick{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin:6px 0 4px}
+.ttpick button{padding:8px 0;font-size:11px;border-radius:9px;background:rgba(23,212,255,0.10);
+  border:1px solid rgba(23,212,255,0.22);color:#bfefff;box-shadow:none;font-weight:700}
+.sheet .suglist{max-height:min(44vh,320px)}
+@media (prefers-reduced-motion:reduce){
+  @keyframes viewIn{from{opacity:1}to{opacity:1}}
+  #app.vanim,.tt-cell.flash{animation:none}
+  html{scroll-behavior:auto}
+  button,.card,.chip,.lrow,.suglist,.sheet,.sheetbox{transition:none}
+}
 </style>
 </head>
 <body>
@@ -239,6 +294,7 @@ nav .ndot.on{display:block}
 <div class="sheet" id="pmodal"><div class="sheetbox" id="pmbody"></div></div>
 <div class="sheet" id="nsheet"><div class="sheetbox" id="nsbody"></div></div>
 <div class="sheet" id="asheet"><div class="sheetbox" id="asbody"></div></div>
+<div class="sheet" id="tsheet"><div class="sheetbox" id="tsbody"></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 /* ページを開いた時点の URL（確認・再設定リンクから戻ってきたかの判定に使う。SDK がハッシュを消す前に控える） */
@@ -1725,6 +1781,762 @@ RIKKYO_FAC.forEach(f => {
 const yomiFor = name => YOMI_INDEX.get(norm(name)) || "";
 
 /* ============================================================
+   立教シラバスの曜日・時限（試し版）
+   法学部・全学共通（総合系／言語系）のシラバス一覧から作った対応表。
+   科目名の括弧書きを外した形で引き、なければ末尾の数字を外して引く。
+   例：法学入門（法学科１年）→ 法学入門 → 月2
+   ※ ローカルの表示補助にだけ使い、他の人には送らない。
+   ============================================================ */
+const SYL_SLOTS={
+"2年次演習A":"水4",
+"2年次演習B":"木5",
+"AcademicCommunication":"月2",
+"Accounting1":"木2",
+"Accounting2":"木2",
+"AdvancedLegalWriting":"水3",
+"Anglo-AmericanLawA":"木2",
+"Anglo-AmericanLawB":"水3",
+"BusinessCommunication":"水4",
+"BusinessandSociety":"火4",
+"CLILSeminars:AdvertisingandtheMedia":"金3",
+"CLILSeminars:Art":"水3",
+"CLILSeminars:Ecology":"水3",
+"CLILSeminars:GenderIssues":"水3",
+"CLILSeminars:GlobalizationandBusiness":"金2",
+"CLILSeminars:HealthandWellness":"水3",
+"CLILSeminars:History":"月4",
+"CLILSeminars:InterculturalCommunication":"月4",
+"CLILSeminars:InternationalRelationsandPolitics":"水2",
+"CLILSeminars:Japanology":"月2",
+"CLILSeminars:LanguageLearning":"火3",
+"CLILSeminars:Literature":"金4",
+"CLILSeminars:Movies":"金2",
+"CLILSeminars:Psychology":"金3",
+"CLILSeminars:SDGS":"水2",
+"CLILSeminars:Tourism":"金2",
+"CivilProcedure":"火2",
+"CollaborativeBusinessProjects":"月3",
+"CommunicationforGlobalBusiness":"金3",
+"ContemporaryCultureinJapan":"木3",
+"ContractA":"金3",
+"ContractB":"月4",
+"CorporateLawA":"水2",
+"CorporateLawB":"水4",
+"Cross-BorderLitigation":"火1",
+"CultureandFineArts":"月5",
+"CurrentNewsthroughEnglishMedia":"月2",
+"DisputeResolution":"水4",
+"Ecology:EnvironmentandSustainability1":"水4",
+"Ecology:EnvironmentandSustainability2":"水4",
+"EconomicThought":"月3",
+"EconomyandSociety":"水2",
+"EthnicityandGlobalizationinJapan":"月2",
+"ExploringChildren'sLiterature":"水4",
+"FiduciaryLaw":"水3",
+"Finance1":"木1",
+"Finance2":"木1",
+"FinancialLaw":"金5",
+"FinancialStatementAnalysis":"金4",
+"First-YearSeminar":"水4",
+"FoodCulturesandtheAcceptanceofJapaneseFoodintheWorld":"火5",
+"GL101":"火5",
+"GL102":"水4",
+"GL104":"火5",
+"GL111":"火5",
+"GL201":"水2",
+"GL202":"火3",
+"GlobalandJapanesePoliticalEconomy1":"火5",
+"GlobalandJapanesePoliticalEconomy2":"土2",
+"HealthScience":"火2",
+"HealthandWellness":"金2",
+"HumansandOtherAnimals":"木2",
+"ImageStudies":"水5",
+"ImportanceofGlobalPlantHealth":"火4",
+"IntellectualPropertyLaw":"火2",
+"InterculturalStudies":"火3",
+"InternationalBusinessLawA":"木4",
+"InternationalBusinessLawB":"水3",
+"InternationalBusinessLawC":"木4",
+"InternationalHumanities1":"金3",
+"InternationalHumanities2":"金2",
+"InternationalHumanities3":"水3",
+"IntroductiontoGenderStudies":"火2",
+"IntroductiontoGlobalStudiesA:Humanities":"月2",
+"IntroductiontoGlobalStudiesB:SocialScience":"水3",
+"IntroductiontoGlobalStudiesC:NaturalScience":"金3",
+"IntroductiontoInternationalCooperation":"土1",
+"IntroductiontoLegalStudiesA":"水2",
+"IntroductiontoLegalStudiesB":"火2",
+"IntroductiontoSociology":"木2",
+"IntroductiontoTourismStudies":"月3",
+"JapaneseArtsA":"水4",
+"JapaneseArtsB":"木3",
+"JapaneseCulture1":"水4",
+"JapaneseCulture2":"月3",
+"JapaneseEconomicHistory1":"木2",
+"JapaneseEconomicHistory2":"木2",
+"JapaneseEthnology":"金4",
+"JapaneseManagement1":"木1",
+"JapaneseManagement2":"木1",
+"JapaneseMind":"土2",
+"JapanesePoliticsandEconomy1":"月4",
+"JapanesePoliticsandEconomy2":"木3",
+"JapaneseRelationsinAsia1":"火1",
+"JapaneseRelationsinAsia2":"金4",
+"JapaneseSociety1":"水4",
+"JapaneseSociety2":"月3",
+"JapaneseSocietyandCulture1":"火5",
+"JapaneseSocietyandCulture2":"水5",
+"JapaninAsia":"火4",
+"LaborLaw":"木2",
+"LawandSocietyinJapanA":"木5",
+"LawandSocietyinJapanB":"木5",
+"LearningandTeachingToday1":"水4",
+"LearningandTeachingToday2":"水4",
+"LegalPresentation":"木4",
+"LegalWriting":"木4",
+"LiteratureandSociety":"火2",
+"MarketingManagementinJapan":"火2",
+"ModernConsumerCultureandSociety":"月5",
+"ModernJapaneseHistory1":"金3",
+"ModernJapaneseHistory2":"月3",
+"MootCourt":"月5",
+"MulticulturalisminJapan":"水2",
+"MultimodalCommunicationinEnglish":"月4",
+"NEXUS日本語A":"月3",
+"NEXUS日本語B":"月4",
+"NEXUS日本語C":"火2",
+"NEXUS日本語D":"水1",
+"NEXUS日本語E":"水2",
+"NEXUS日本語F4":"火4",
+"NEXUS日本語F5":"火4",
+"NEXUS日本語F6":"火3",
+"NEXUS日本語G":"木1",
+"NEXUS日本語H":"木2",
+"NEXUS日本語Ia":"金1",
+"NEXUS日本語Ib":"金1",
+"NEXUS日本語J":"金2",
+"Nativeと学ぶ社会開発":"月3",
+"NatureoftheEarth":"月1",
+"NegotiationBasics":"火3",
+"PEACE日本語1A":"月2",
+"PEACE日本語1B":"火4",
+"PEACE日本語1C":"水1",
+"PEACE日本語1D":"木2",
+"PEACE日本語1E":"金4",
+"PEACE日本語2A":"月2",
+"PEACE日本語2B":"火4",
+"PEACE日本語2C":"水1",
+"PEACE日本語2D":"木2",
+"PEACE日本語2E":"金4",
+"PEACE日本語3A":"月2",
+"PEACE日本語3B":"火4",
+"PEACE日本語3C":"水1",
+"PEACE日本語3D":"木2",
+"PEACE日本語3E":"金4",
+"PEACE日本語4A":"月4",
+"PEACE日本語4B":"火4",
+"PEACE日本語4C":"金2",
+"PEACE日本語4D":"水3",
+"PEACE日本語4E":"金4",
+"PEACE日本語5A":"月4",
+"PEACE日本語5B":"火4",
+"PEACE日本語5C":"金2",
+"PEACE日本語5D":"水3",
+"PEACE日本語5E":"金4",
+"PEACE日本語6A":"月3",
+"PEACE日本語6B":"火4",
+"PEACE日本語6C":"金3",
+"PEACE日本語6D":"水3",
+"PEACE日本語6E":"金4",
+"PEACE日本語7A":"月3",
+"PEACE日本語7B":"火4",
+"PEACE日本語7C":"金3",
+"PEACE日本語7D":"水3",
+"PEACE日本語7E":"金4",
+"PEACE日本語8A":"月3",
+"PEACE日本語8B":"火4",
+"PEACE日本語8C":"金3",
+"PEACE日本語8D":"水3",
+"PEACE日本語8E":"金4",
+"PeaceandHumanRights1":"火2",
+"PeaceandHumanRights2":"火2",
+"PoliticalSociology":"月4",
+"Property":"水3",
+"RSLゼミナール":"金2",
+"ReadingforPleasure":"月3",
+"ReligionandSocietyinAsia":"火2",
+"ReligionsinAsia":"金2",
+"SDGs×AI×経済×法":"木2",
+"SDGsと現代社会の課題とその関わり方入門":"金2",
+"ScienceStudies":"月5",
+"SelectedTopicsinInterculturalCommunicationA":"木4",
+"SelectedTopicsinInterculturalCommunicationB":"火3",
+"Self-directedandReflectiveLanguageLearning":"木2",
+"SeminarA":"金4",
+"SeminarB":"木4",
+"SocialMovementsandSocialChange":"木5",
+"StudyAbroadPreparation:IELTS1":"月2",
+"StudyAbroadPreparation:IELTS2":"月3",
+"StudyAbroadPreparation:IELTS3":"金2",
+"StudyAbroadPreparation:TOEFL1":"月3",
+"StudyAbroadPreparation:TOEFL2":"金2",
+"StudyAbroadPreparation:TOEFL3":"火2",
+"TechniquesforreadingandenjoyingapicturebookinEnglish":"金4",
+"TheDignityofLifeandWelfare":"火1",
+"TokyoStudies":"火2",
+"TopicsinEnvironment":"木4",
+"TopicsinHumanitiesandArts":"金4",
+"TopicsinNaturalScience":"水4",
+"Torts":"木1",
+"TourismStudy1":"水5",
+"TourismStudy2":"月1",
+"TourismStudy3":"水2",
+"TourismStudy4":"木3",
+"UnderstandingSpeechSounds1":"木2",
+"UnderstandingSpeechSounds2":"木2",
+"UnderstandingofAgriculturalScience":"金2",
+"WorldHistory":"水4",
+"「宗教」とは何か":"火5",
+"いのちの尊厳と福祉を考える":"金3",
+"なぜ外国語を学ぶのか?":"月2",
+"アウトドアの知恵に学ぶ":"月4",
+"アカデミックスペイン語1":"水4",
+"アカデミックスペイン語2":"水4",
+"アカデミックフランス語1":"月3",
+"アカデミック中国語1":"月2",
+"アカデミック中国語2":"月2",
+"アカデミック朝鮮語1":"木2",
+"アカデミック朝鮮語2":"月2",
+"アジア地域での平和構築":"月4",
+"アジア政治論":"金1",
+"アフリカの文化とことば":"火2",
+"アメリカ政治論":"月2",
+"アンチエイジングの科学":"月5",
+"イスラームの世界":"火1",
+"イタリアの文化とことば":"火2",
+"オーダーメイド医療最前線":"水3",
+"カーボンニュートラル人材育成講座":"金2",
+"キャリアの日本語A":"木1",
+"キャリアの日本語B":"火1",
+"キャリアスペイン語1":"月2",
+"キャリアスペイン語2":"月4",
+"キャリアデザイン":"木5",
+"キャリアデザイン-インターンシップ":"金3",
+"キャリアフランス語1":"火2",
+"キャリアフランス語2":"金1",
+"キャリアフランス語3":"月4",
+"キャリア中国語1":"木4",
+"キャリア中国語2":"木4",
+"キャリア中国語3":"火3",
+"キャリア意識の形成":"水5",
+"キャリア朝鮮語1":"水4",
+"キャリア朝鮮語2":"水4",
+"キャリア朝鮮語3":"月2",
+"キャリア朝鮮語4":"木2",
+"キリスト教史に学ぶ多文化共生":"火1",
+"キリスト教美術":"火4",
+"キリスト教音楽":"火1",
+"グローバルシティ・ソウルを読み解く":"金2",
+"グローバル社会での平和構築":"木2",
+"グローバル社会における法と政治":"木3",
+"グローバル経済社会を考える":"火1",
+"グローバル経験とキャリア":"木5",
+"コミュニティをデザインする":"金3",
+"シティズンシップを考える":"水3",
+"ジェンダーとキリスト教":"土1",
+"ジェンダー・宗教・社会":"木2",
+"ストレスマネジメント":"水1",
+"スペイン語1":"月3",
+"スペイン語2":"月3",
+"スペイン語A":"水1",
+"スペイン語B":"水1",
+"スペイン語CLIL":"火3",
+"スペイン語トレーニング1":"金5",
+"スペイン語トレーニング2":"金5",
+"スペイン語トレーニング3":"月5",
+"スペイン語圏の文化":"水3",
+"スペイン語圏の文学":"木2",
+"スペイン語圏の社会":"木4",
+"スペイン語基礎1":"月6",
+"スペイン語基礎2":"月6",
+"スペイン語演習1":"木2",
+"スペイン語演習2":"木2",
+"スペイン語演習3":"木2",
+"スペイン語演習4":"木2",
+"スペイン語演習5":"金2",
+"スペイン語演習6":"木1",
+"スペイン語演習7":"木1",
+"スペイン語総合1":"火4",
+"スペイン語総合2":"火4",
+"スペイン語総合3":"火4",
+"スペイン語総合4":"火4",
+"スペイン語総合5":"火4",
+"スペイン語総合6":"火4",
+"スポーツとデータ活用":"火1",
+"スポーツとメディア":"木1",
+"スポーツと文化":"木3",
+"スポーツと社会":"月5",
+"スポーツの科学":"水3",
+"スポーツスタディ1":"火2",
+"スポーツスタディ2":"月2",
+"スポーツスタディ3":"月2",
+"スポーツプログラム1":"金1",
+"スポーツプログラム3":"木1",
+"ドイツ語圏の文化":"木4",
+"ドイツ語圏の文学":"火4",
+"ドイツ語圏の社会":"木4",
+"パレスチナ問題の歴史と現在":"火5",
+"パーソナリティの心理":"火5",
+"ビジネスメールと文書":"火2",
+"ビジネス口頭運用力A":"水1",
+"ビジネス口頭運用力B":"火2",
+"ファミリービジネスの可能性":"月4",
+"フランス語1":"月6",
+"フランス語2":"月6",
+"フランス語B":"金4",
+"フランス語トレーニング1":"火1",
+"フランス語圏の文化":"木3",
+"フランス語圏の文学":"木3",
+"フランス語圏の社会":"火3",
+"フランス語基礎1":"月4",
+"フランス語基礎1(フ文再2":"月4",
+"フランス語基礎1(フ文再3":"月4",
+"フランス語基礎2":"月4",
+"フランス語基礎2(フ文再2":"月4",
+"フランス語基礎2(フ文再3":"月4",
+"フランス語演習1":"火3",
+"フランス語演習2":"木4",
+"フランス語演習3":"木4",
+"フランス語演習4":"火3",
+"フランス語演習5":"金3",
+"フランス語演習6":"金3",
+"フランス語総合1":"木4",
+"フランス語総合10":"木3",
+"フランス語総合11":"木3",
+"フランス語総合2":"木4",
+"フランス語総合3":"火2",
+"フランス語総合4":"火2",
+"フランス語総合5":"火4",
+"フランス語総合6":"火4",
+"フランス語総合7":"火3",
+"フランス語総合8":"火3",
+"フランス語総合9":"火5",
+"ボランティア論":"火2",
+"ポルトガル語1":"金4",
+"ポルトガル語2":"金4",
+"メディアからみる学び":"月5",
+"メディアと人間":"金3",
+"ヨーロッパの文化とことば":"月1",
+"ヨーロッパ政治論":"木4",
+"ライフマネジメントと学生生活":"木2",
+"ラテンアメリカの文化とことば":"土2",
+"レジャー・レクリエーションと現代社会":"金1",
+"ロシア・東欧の文化とことば":"金1",
+"ロシア語1":"金3",
+"ロシア語2":"月6",
+"ロシア語A":"火4",
+"ロシア語B":"火4",
+"ロシア語基礎2":"火4",
+"ロシア語演習1":"木3",
+"ロシア語演習2":"木3",
+"ロシア語演習3":"金2",
+"ロシア語総合1":"木4",
+"ロシア語総合2":"水4",
+"ロシア語総合3":"金4",
+"ロシア語総合4":"水4",
+"ロシア語総合5":"木4",
+"上級フランス語WR1":"木2",
+"上級フランス語WR2":"木2",
+"上級中国語LR1":"月4",
+"上級中国語LR2":"木2",
+"上級中国語WR1":"月3",
+"上級中国語WR2":"月4",
+"上級中国語コミ1":"水2",
+"上級中国語コミ2":"木2",
+"上級中国語コミュニケーション1":"水2",
+"上級中国語コミュニケーション2":"木2",
+"上級中国語ライティング1":"月3",
+"上級中国語ライティング2":"月4",
+"上級中国語リスニング・リーディング1":"月4",
+"上級中国語リスニング・リーディング2":"木2",
+"上級朝鮮語演習1":"木2",
+"上級朝鮮語演習2":"木2",
+"世界の中のロシア":"木1",
+"世界を動かす変革のチカラ":"木5",
+"世界史の中のキリスト教":"木4",
+"世界史概説":"水5",
+"世界経済と日本":"水3",
+"中国語1":"水3",
+"中国語2":"水3",
+"中国語A":"金4",
+"中国語B":"金4",
+"中国語CLIL1":"月3",
+"中国語トレーニング1":"木3",
+"中国語トレーニング2":"木3",
+"中国語圏の文化":"金4",
+"中国語圏の文学":"月1",
+"中国語圏の社会":"水5",
+"中国語基礎1":"月6",
+"中国語基礎2":"月6",
+"中国語演習1":"木1",
+"中国語演習2":"水3",
+"中国語演習3":"月2",
+"中国語総合1":"金3",
+"中国語総合2":"金3",
+"中国語総合3":"水2",
+"中東の文化とことば":"月1",
+"人文学からの学び":"火1",
+"人権とジェンダー":"月5",
+"人権思想の根源":"金3",
+"人間と環境":"木4",
+"企業と社会":"月2",
+"会計学":"火5",
+"倒産法":"水3",
+"倫理・法・社会からみたスポーツ":"金2",
+"健康の科学":"月5",
+"入門インドネシア語":"木3",
+"入門スペイン語":"金2",
+"入門タイ語":"木4",
+"入門タガログ語":"月4",
+"入門フランス語":"木4",
+"入門ベトナム語":"木2",
+"入門ロシア語":"金2",
+"入門・経済教室":"木2",
+"入門中国語":"火2",
+"入門朝鮮語":"月3",
+"公共政策論":"金2",
+"公務基礎演習":"月2",
+"刑事学":"木4",
+"刑事訴訟法":"月3",
+"刑事訴訟法発展演習":"月4",
+"刑法":"水1",
+"刑法発展演習":"木4",
+"労働法":"金1",
+"化学と社会":"水5",
+"化学と自然":"金5",
+"哲学への扉":"金4",
+"哲学対話inRIKKYO":"金5",
+"商法":"月1",
+"商法発展演習":"木1",
+"国際ビジネス法総合1A":"火2",
+"国際ビジネス法総合1B":"木4",
+"国際ビジネス法総合2":"火1",
+"国際ビジネス法総合・基礎":"火2",
+"国際情勢を読み解く":"火1",
+"国際政治":"水2",
+"国際政治史":"金3",
+"国際民事手続法":"火3",
+"国際法1":"水4",
+"国際法2":"月4",
+"国際社会の中の宗教":"水3",
+"国際私法":"月1",
+"国際経済法1":"水3",
+"国際経済法2":"水3",
+"地域研究への扉":"火1",
+"地方自治":"金2",
+"地球の理解":"水5",
+"地球環境の未来":"金2",
+"基礎文献講読":"月3",
+"外国法":"月2",
+"多文化の世界":"月1",
+"多文化共生社会と大学":"月2",
+"多文化共生社会と日本":"月2",
+"多文化社会と異文化コミュニケーション":"木2",
+"大学と現代社会":"火1",
+"大学と科学技術":"木2",
+"大学生の学び・社会で学ぶこと":"火2",
+"大学生の日本語A":"火4",
+"大学生の日本語A4":"水3",
+"大学生の日本語A5":"水3",
+"大学生の日本語A6":"火4",
+"大学生の日本語A6a":"水3",
+"大学生の日本語A6b":"水3",
+"大学生の日本語A7":"火4",
+"大学生の日本語A7a":"水3",
+"大学生の日本語A7b":"水3",
+"大学生の日本語A8":"火4",
+"大学生の日本語A8a":"水3",
+"大学生の日本語A8b":"水3",
+"大学生の日本語B":"金3",
+"大学生の日本語B4":"金4",
+"大学生の日本語B5":"金4",
+"大学生の日本語B6":"金3",
+"大学生の日本語B6a":"金4",
+"大学生の日本語B6b":"金4",
+"大学生の日本語B7":"金3",
+"大学生の日本語B7a":"金4",
+"大学生の日本語B7b":"金4",
+"大学生の日本語B8":"金3",
+"大学生の日本語B8a":"金4",
+"大学生の日本語B8b":"金4",
+"大学生の日本語C":"火4",
+"大学生の日本語C4":"水3",
+"大学生の日本語C5":"水3",
+"大学生の日本語C6":"火4",
+"大学生の日本語C6a":"水3",
+"大学生の日本語C6b":"水3",
+"大学生の日本語C7":"火4",
+"大学生の日本語C7a":"水3",
+"大学生の日本語C7b":"水3",
+"大学生の日本語C8":"火4",
+"大学生の日本語C8a":"水3",
+"大学生の日本語C8b":"水3",
+"大学生の日本語D":"金3",
+"大学生の日本語D4":"金4",
+"大学生の日本語D5":"金4",
+"大学生の日本語D6":"金3",
+"大学生の日本語D6a":"金4",
+"大学生の日本語D6b":"金4",
+"大学生の日本語D7":"金3",
+"大学生の日本語D7a":"金4",
+"大学生の日本語D7b":"金4",
+"大学生の日本語D8":"金3",
+"大学生の日本語D8a":"金4",
+"大学生の日本語D8b":"金4",
+"子どもの権利から考える国際協力":"月4",
+"学びの場としての社会":"木3",
+"宇宙の科学":"水3",
+"実践演習2A":"木5",
+"実践演習2B":"木4",
+"実践演習3A":"金5",
+"実践演習3B":"土2",
+"対人関係の心理":"金4",
+"対話を学ぶ":"火2",
+"建築と文化":"木1",
+"心の健康":"木5",
+"心の科学":"水4",
+"思想を生み出すキリスト教":"金3",
+"情報と倫理":"土1",
+"情報処理入門":"月3",
+"情報科学A":"金2",
+"情報科学B":"火2",
+"愛について:キリスト教の倫理と哲学":"水1",
+"憲法":"金2",
+"憲法発展演習":"月4",
+"持続可能な公共サービス提供体制の構築":"木4",
+"持続可能性の理論と実践":"木3",
+"政治と社会":"木3",
+"政治学入門":"火3",
+"政治学基礎演習":"木4",
+"政治学特殊講義":"木5",
+"政治過程論1":"木2",
+"政治過程論2":"木2",
+"教育と人間":"木2",
+"教育学への扉":"火4",
+"数学の世界":"水4",
+"文化と社会":"木2",
+"文化を生きる":"金1",
+"文学への扉":"金3",
+"文学を生み出すキリスト教":"木3",
+"日本の「多文化」政策を問い直す":"水2",
+"日本の宗教":"火5",
+"日本の演劇":"水3",
+"日本の社会と文化A":"月3",
+"日本の社会と文化B":"木1",
+"日本の社会と文化C":"水4",
+"日本の美術":"水2",
+"日本の音楽":"月2",
+"日本史概説":"水4",
+"日本国憲法":"月2",
+"日本外交論":"月3",
+"日本手話中級1":"木2",
+"日本手話中級2":"木2",
+"日本手話初級1":"木3",
+"日本手話初級2":"木3",
+"日本政治史":"木1",
+"日本政治思想史":"水1",
+"日本政治論":"火4",
+"日本文化と精神性":"水2",
+"映像と社会":"火2",
+"景気・格差問題と統計情報":"水5",
+"朝鮮語1":"月3",
+"朝鮮語2":"月3",
+"朝鮮語A":"水1",
+"朝鮮語B":"水1",
+"朝鮮語圏の文化":"木1",
+"朝鮮語圏の文学":"月5",
+"朝鮮語圏の社会":"月4",
+"朝鮮語基礎1":"月6",
+"朝鮮語基礎2":"月6",
+"朝鮮語演習1":"火4",
+"朝鮮語演習2":"火4",
+"朝鮮語演習3":"金2",
+"朝鮮語演習4":"金2",
+"朝鮮語総合1":"金3",
+"朝鮮語総合2":"金3",
+"朝鮮語総合3":"木3",
+"朝鮮語総合4":"水3",
+"栄養の科学":"土1",
+"欧州政治思想史":"木1",
+"歴史への扉":"火4",
+"比較憲法":"月4",
+"比較政治3":"月2",
+"比較政治理論":"木3",
+"比較法":"水3",
+"民事執行・保全法":"金1",
+"民事訴訟法":"水3",
+"民事訴訟法発展演習":"木4",
+"民法":"月2",
+"民法概論":"木3",
+"民法発展演習":"木4",
+"法と政治の世界":"木3",
+"法と社会":"月3",
+"法制史":"火2",
+"法哲学":"火2",
+"法学入門":"月2",
+"法学基礎演習":"火2",
+"法学特殊講義":"木1",
+"法学部特別講義":"水2",
+"法政ゲートウェイ講義":"火2",
+"法政外国語演習":"月6",
+"法政日本語演習A":"火4",
+"法政日本語演習B":"火4",
+"法社会学1":"木2",
+"法社会学2":"火2",
+"演習":"水4",
+"点字から考える人権":"月4",
+"物質の科学":"金2",
+"現代のビジネスを学ぶ":"月2",
+"現代心理学からの学び":"木5",
+"現代政治理論":"月4",
+"現代社会と人間":"金4",
+"現代社会と環境":"火3",
+"現代社会と観光":"水5",
+"現代社会における言葉の持つ意味":"火4",
+"現代社会の中の宗教1":"金4",
+"現代社会の中の宗教2":"水2",
+"現代社会の解読":"木5",
+"現代社会の諸相":"火3",
+"環境学への招待":"木5",
+"環境政治":"月3",
+"環境法1":"火1",
+"環境法2":"水4",
+"生命の歩み":"水2",
+"生命の科学":"水4",
+"生物の多様性":"木5",
+"異文化コミュニケーションを考えるA":"火5",
+"異文化コミュニケーションを考えるB":"月4",
+"異文化コミュニケーションを考えるC":"月4",
+"異文化コミュニケーション学からの学び":"水3",
+"癒しの科学":"木4",
+"睡眠文化論":"金5",
+"知的財産法":"金2",
+"社会の中の日本語A":"水4",
+"社会の中の日本語B":"金3",
+"社会保障法":"金1",
+"社会学からの学び":"月3",
+"社会政策論":"金4",
+"社会科学情報処理":"金2",
+"社会調査法":"火4",
+"福島原発事故と社会の持続性":"水3",
+"科学と環境":"土1",
+"租税法1":"月1",
+"租税法2":"月1",
+"立教ゼミナール1":"木3",
+"立教ゼミナール2":"水3",
+"立教ゼミナール3":"月4",
+"立教ゼミナール4":"木1",
+"立教ゼミナール5":"月1",
+"立教ゼミナール発展編1":"火3",
+"立教ゼミナール発展編2":"月3",
+"立教ゼミナール発展編4":"水4",
+"立教卒業生の「社長の履歴書」":"月3",
+"立教大学の歴史":"月3",
+"立教学院とポール・ラッシュ":"金2",
+"経営学への招待":"水3",
+"経済原論":"金1",
+"経済法1":"水3",
+"経済法2":"土2",
+"経験から学ぶ、世界とつながる":"火2",
+"統計学":"木3",
+"統計情報で社会・経済を診断する":"金4",
+"美と生命について:キリスト教の美学":"月3",
+"美術と社会":"木5",
+"美術の中のキリスト教":"火3",
+"美術の歴史":"金3",
+"美術論演習":"木3",
+"聖書と人間":"火1",
+"聖書考古学":"火4",
+"脳と心":"金2",
+"自治体長期インターンシップ":"水4",
+"自然と人間の共生":"木1",
+"自然環境の保全":"月1",
+"自然科学の探究":"金1",
+"舞踊論":"金1",
+"芸術への扉":"月4",
+"英米法1":"火1",
+"英米法2":"木2",
+"英語によるビジネスコミュニケーション入門":"月4",
+"英語ディスカッション":"火2",
+"英語ディベート":"火2",
+"英語海外文化研修":"土3",
+"行動の科学":"木2",
+"行政学1":"火1",
+"行政学2":"火1",
+"行政法1":"金2",
+"行政法2":"木3",
+"行政法発展演習":"木4",
+"表象文化":"水4",
+"西欧キリスト教社会における大学の誕生":"水1",
+"観光と文学":"金5",
+"観光学への誘い":"金2",
+"認知・行動・身体":"火1",
+"論文作成の技法":"木3",
+"論文読解の技法":"火2",
+"論理的思考法":"木4",
+"財政学":"金3",
+"身体パフォーマンス":"金3",
+"身体科学からの学び":"月3",
+"身体表現と哲学":"木2",
+"身近な物質の化学":"土2",
+"近代日本社会と人権":"火4",
+"都市と芸術":"火4",
+"金融取引法1":"火2",
+"金融取引法2":"土2",
+"音楽と社会":"月4",
+"音楽の中のキリスト教":"水2",
+"音楽の歴史":"木4",
+"音楽論演習":"水2"
+};
+const SYL_SLOTS_ALIAS={
+"Accounting":"木2",
+"Ecology:EnvironmentandSustainability":"水4",
+"Finance":"木1",
+"JapaneseEconomicHistory":"木2",
+"JapaneseManagement":"木1",
+"LearningandTeachingToday":"水4",
+"PeaceandHumanRights":"火2",
+"UnderstandingSpeechSounds":"木2",
+"アカデミックスペイン語":"水4",
+"アカデミックフランス語":"月3",
+"スペイン語基礎":"月6",
+"フランス語":"月6",
+"フランス語トレーニング":"火1",
+"フランス語基礎1(フ文再":"月4",
+"フランス語基礎2(フ文再":"月4",
+"ポルトガル語":"金4",
+"ロシア語基礎":"火4",
+"上級フランス語WR":"木2",
+"上級朝鮮語演習":"木2",
+"中国語基礎":"月6",
+"国際ビジネス法総合":"火1",
+"国際経済法":"水3",
+"政治過程論":"木2",
+"朝鮮語基礎":"月6",
+"比較政治":"月2",
+"租税法":"月1",
+"行政学":"火1"
+};
+
+const sylBase = s => String(s || "").normalize("NFKC").replace(/\s+/g, "")
+  .replace(/[（(【\[［][^）)】\]］]*[）)】\]］]/g, "");
+const sylSlot = name => {
+  const b = sylBase(name);
+  return SYL_SLOTS[b] || SYL_SLOTS_ALIAS[b] || SYL_SLOTS_ALIAS[b.replace(/[0-9]+$/, "")] || "";
+};
+
+/* ============================================================
    状態とリロード保持（cc_ui_state）
    ============================================================ */
 let session = null, myProfile = null, myCourses = [];
@@ -1766,6 +2578,55 @@ function clearUIState() {
   tab = "home"; openTid = null; fil = "all"; homeQuery = ""; q = ""; cfil = "";
 }
 
+/* ============================================================
+   時間割（受講中）のコマ配置
+   user_courses に曜日・時限の列はないので、コマの配置はこの端末の
+   localStorage（cc_timetable_{uid}）にだけ保存する。
+   他のユーザーには送らない・見せない（DBスキーマ変更なし）。
+   ============================================================ */
+const TT_DOW = ["月","火","水","木","金","土"];
+const TT_PERS = [1,2,3,4,5];
+const TT_TIME = {1:"9:00〜10:40",2:"10:55〜12:35",3:"13:30〜15:10",4:"15:25〜17:05",5:"17:20〜19:00"};
+let ttMap = {};          /* { "月2": course_id } */
+let ttSeg = "grid";
+const ttKey = () => "cc_timetable_" + ((session && session.user && session.user.id) || "anon");
+const courseById = id => (myCourses || []).find(c => c.id === id) || null;
+const slotOf = id => Object.keys(ttMap).find(k => ttMap[k] === id) || "";
+function ttLoad() {
+  let o = null;
+  try { o = JSON.parse(localStorage.getItem(ttKey()) || "null"); } catch (e) { o = null; }
+  ttMap = o && typeof o === "object" && !Array.isArray(o) ? o : {};
+  ttPrune();
+}
+function ttSave() { try { localStorage.setItem(ttKey(), JSON.stringify(ttMap)); } catch (e) {} }
+function ttPrune() {
+  const ids = new Set((myCourses || []).map(c => c.id));
+  Object.keys(ttMap).forEach(k => {
+    if (!/^[月火水木金土][1-5]$/.test(k) || !ids.has(ttMap[k])) delete ttMap[k];
+  });
+}
+function ttSet(slot, id) {
+  Object.keys(ttMap).forEach(k => { if (ttMap[k] === id) delete ttMap[k]; }); /* 移動：前のコマを空ける */
+  ttMap[slot] = id;
+  ttSave();
+}
+function ttClear(id) { const s = slotOf(id); if (s) { delete ttMap[s]; ttSave(); } }
+/* マスに出す短い名前（括弧書きを落とす。省略しても全体はモーダルで見られる） */
+const ttShort = s => String(s || "").replace(/[（(【\[［][^）)】\]］]*[）)】\]］]/g, "").trim() || String(s || "");
+const ttColor = s => "tt" + (Array.from(norm(s)).reduce((a, c) => (a * 31 + c.charCodeAt(0)) % 997, 7) % 6);
+
+/* 画面切り替えのアニメーション（同じ画面の再描画では動かさない） */
+let viewPainted = false, lastViewKey = "";
+function paintView() {
+  const k = tab + "|" + authMode + "|" + (openTid ? "chat" : "");
+  if (!viewPainted) { viewPainted = true; lastViewKey = k; return; } /* リロード直後は動かさない */
+  if (k === lastViewKey) return;
+  lastViewKey = k;
+  const el = $("#app"); if (!el) return;
+  el.classList.remove("vanim"); void el.offsetWidth; el.classList.add("vanim");
+  el.addEventListener("animationend", () => el.classList.remove("vanim"), { once: true });
+}
+
 document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
   tab = b.dataset.t;
   if (tab !== "dm") openTid = null;
@@ -1779,6 +2640,7 @@ async function loadMine() {
   if (prof) avCache[uid] = prof.avatar_url || "";
   const { data: cs } = await sb.from("user_courses").select("*").eq("user_id", uid).order("created_at");
   myCourses = cs || [];
+  ttLoad();   /* 時間割のコマ配置（localStorage）を読み直し、消えた授業のコマを掃除 */
 }
 
 let booted = false;
@@ -1942,7 +2804,7 @@ async function rHome() {
     <button id="hsearch">検索</button>
   </div>
 
-  <h2>わたしの授業</h2>
+  <h2>わたしの授業<button type="button" class="x" id="goTT" style="margin-left:auto;font-size:12px;font-weight:800;color:#8ceaff">時間割表 ›</button></h2>
   <div class="listcard">
     ${mineRows || `<div class="empty">まだ授業が登録されていません。</div>`}
     <div class="lrow addrow" id="gotoAdd">
@@ -1977,7 +2839,13 @@ async function rHome() {
   document.querySelectorAll("#app [data-tid]").forEach(el => el.onclick = () => {
     openTid = el.dataset.tid; tab = "dm"; saveUIState(); render();
   });
+  const goTT = $("#goTT");
+  if (goTT) goTT.onclick = async () => {
+    ttSeg = "grid"; tab = "profile"; saveUIState(); await render();
+    const el = $("#ttseg"); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" });
+  };
   const nav = $("#ndot"); if (nav) nav.classList.toggle("on", threads.length > 0);
+  paintView();
 }
 
 /* 通知（ベル）：直近のDM一覧からスレッドへ */
@@ -2075,6 +2943,7 @@ async function rSearch() {
     fil = b.dataset.fl; saveUIState(); render();
   });
   document.querySelectorAll("#app [data-pf]").forEach(el => el.onclick = () => openPeerProfile(el.dataset.pf));
+  paintView();
 }
 
 async function startDM(otherId, course) {
@@ -2110,6 +2979,7 @@ async function rDM() {
     openTid = el.dataset.tid; saveUIState(); render();
   });
   const nav = $("#ndot"); if (nav) nav.classList.toggle("on", threads.length > 0);
+  paintView();
 }
 
 async function rChat() {
@@ -2141,6 +3011,7 @@ async function rChat() {
     .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages", filter: "thread_id=eq." + openTid },
       payload => { if (payload.new.sender_id !== uid && openTid) render(); })
     .subscribe();
+  paintView();
 }
 
 /* ============================================================
@@ -2164,6 +3035,8 @@ function gradeLabel(c, mine) {
 
 function renderPeerProfile(p, cs) {
   const mine = new Set((myCourses || []).map(c => norm(c.course_name)));
+  /* 相手の授業は「自分と共通している授業」だけを見せる（時間割・他の授業は出さない） */
+  const shared = (cs || []).filter(c => mine.has(norm(c.course_name)));
   const name = p.display_name || "ユーザー";
   const row = c => {
     const done = c.status === "done", g = gradeLabel(c, mine);
@@ -2174,9 +3047,10 @@ function renderPeerProfile(p, cs) {
     </div>`;
   };
   const byName = (a, b) => String(a.course_name).localeCompare(String(b.course_name), "ja");
-  const cur = (cs || []).filter(c => c.status !== "done").slice().sort(byName);
-  const done = (cs || []).filter(c => c.status === "done").slice().sort(byName);
+  const cur = shared.filter(c => c.status !== "done").slice().sort(byName);
+  const done = shared.filter(c => c.status === "done").slice().sort(byName);
   const rel = relTag(p.year);
+  const none = '<p class="sub">共通の授業はありません。</p>';
   return `<div class="row" style="align-items:flex-start">
     ${avHtml(p.id, name, "width:52px;height:52px;font-size:19px")}
     <div style="flex:1;min-width:0"><b style="font-size:16px">${esc(name)}</b>${rel ? `<span class="tag">${esc(rel)}</span>` : ""}
@@ -2185,8 +3059,9 @@ function renderPeerProfile(p, cs) {
     </div>
     <button class="x" id="pmclose">閉じる</button>
   </div>
-  <h2>受講中（ヨコ）</h2>${cur.length ? cur.map(row).join("") : '<p class="sub">受講中の授業は登録されていません。</p>'}
-  <h2>履修済み（タテ）</h2>${done.length ? done.map(row).join("") : '<p class="sub">履修済みの授業は登録されていません。</p>'}`;
+  <p class="ttnote">表示されるのは、あなたと共通の授業だけです。</p>
+  <h2>受講中（ヨコ）</h2>${cur.length ? cur.map(row).join("") : none}
+  <h2>履修済み（タテ）</h2>${done.length ? done.map(row).join("") : none}`;
 }
 
 async function openPeerProfile(userId) {
@@ -2376,9 +3251,6 @@ document.addEventListener("pointerdown", e => {
 function rProfile() {
   const user = myProfile;
   const { fac: curFac, dep: curDep } = facFromDepartment(user.department);
-  const cs = myCourses.map(c => `<div class="card"><div class="row"><b>${esc(c.course_name)}</b><button class="x" data-del="${esc(c.id)}">削除</button></div>
-  <span class="tag ${c.status === "done" ? "ok" : ""}">${c.status === "done" ? "履修済み（タテ）" : "受講中（ヨコ）"}</span>
-  ${c.status === "done" ? `<span class="tag grade">成績 ${esc(c.grade)}</span><span class="tag vis">${VIS[c.visibility]}</span>` : ""}</div>`).join("");
   $("#app").innerHTML = `<div class="tabtitle">マイページ</div>
   <div class="card" style="background:linear-gradient(160deg,rgba(236,56,188,0.14),rgba(23,212,255,0.08));border-color:rgba(236,56,188,0.28)">
     <div class="row">
@@ -2403,7 +3275,12 @@ function rProfile() {
     <label>学年（任意）</label><select id="year"><option value="">未設定</option>${[1,2,3,4,5,6].map(n => `<option ${user.year == n ? "selected" : ""}>${n}</option>`).join("")}</select>
     <p style="margin:10px 0 0"><button id="sv">プロフィールを保存</button></p>
   </div>
-  <h2>履修情報</h2>${cs || '<p class="sub">まだ授業がありません。</p>'}
+  <h2>履修情報</h2>
+  <div class="segrow" id="ttseg" style="margin-bottom:10px">
+    <button type="button" class="chip ${ttSeg === "grid" ? "on" : ""}" data-ttseg="grid">時間割表（受講中）</button>
+    <button type="button" class="chip ${ttSeg === "done" ? "on" : ""}" data-ttseg="done">過去の授業（履修済み）</button>
+  </div>
+  <div id="ttpanel"></div>
   <div class="card" id="addcard"><label>授業名（学部の科目からも選べます）</label>
   <div class="sugwrap"><input id="cn" placeholder="例：法学入門" autocomplete="off" autocapitalize="off" spellcheck="false">
   <div class="suglist" id="cnlist"></div></div>
@@ -2418,6 +3295,14 @@ function rProfile() {
     const f = ($("#fac").value || "").trim(), d = ($("#dep").value || "").trim();
     $("#deptprev").textContent = f ? (d ? f + " " + d : f) : "学部・学科は未設定です";
   };
+
+  /* 履修情報：時間割表（受講中）と過去の授業（履修済み）の切り替え */
+  document.querySelectorAll("#ttseg [data-ttseg]").forEach(b => b.onclick = () => {
+    ttSeg = b.dataset.ttseg;
+    document.querySelectorAll("#ttseg [data-ttseg]").forEach(x => x.classList.toggle("on", x.dataset.ttseg === ttSeg));
+    renderTTArea();
+  });
+  renderTTArea();
 
   $("#avopen").onclick = openAvatarPicker;
   $("#logout").onclick = async () => {
@@ -2446,14 +3331,21 @@ function rProfile() {
   };
   $("#ac").onclick = async () => {
     const n = $("#cn").value.trim(); if (!n) return;
-    const { error } = await sb.from("user_courses").insert({ user_id: session.user.id, course_name: n, status: $("#cs").value, grade: $("#cg").value, visibility: $("#cv").value });
+    const st = $("#cs").value;
+    const { data, error } = await sb.from("user_courses").insert({ user_id: session.user.id, course_name: n, status: st, grade: $("#cg").value, visibility: $("#cv").value }).select().single();
     if (error) { alert("追加できませんでした: " + error.message); return; }
-    await loadMine(); render();
+    await loadMine();
+    /* 受講中なら、シラバスの曜日・時限に空きコマがあれば時間割へ自動配置（端末内だけ） */
+    if (st === "current" && data) {
+      const s = sylSlot(n);
+      if (s && /^[月火水木金土][1-5]$/.test(s) && !courseById(ttMap[s])) { ttMap[s] = data.id; ttSave(); }
+    }
+    render();
   };
-  document.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+  document.querySelectorAll("#app .listcard [data-del]").forEach(b => { if (!b.dataset.bound) { b.dataset.bound = "1"; b.onclick = async () => {
     await sb.from("user_courses").delete().eq("id", b.dataset.del);
     await loadMine(); render();
-  });
+  }; } });
 
   /* 大学 → 学部 → 学科 の連動（入力・候補選択のたびに下の欄を絞り込む） */
   bindAka($("#univ"), $("#univlist"), () => UNIV_LIST);
@@ -2486,6 +3378,202 @@ function rProfile() {
   $("#cn")._akaAfter = () => {};
   renderCourseHintAreas();
   loadCourseHints();
+  paintView();
+}
+
+/* ============================================================
+   時間割表（受講中）／過去の授業（履修済み）
+   ============================================================ */
+const slotLabel = slot => slot.charAt(0) + "曜 " + slot.slice(1) + "限";
+
+function renderTTArea() {
+  const box = $("#ttpanel");
+  if (!box) return;
+
+  /* 過去の授業（履修済み）は時間割に入れず、リストで管理 */
+  if (ttSeg === "done") {
+    const done = myCourses.filter(c => c.status === "done")
+      .sort((a, b) => String(a.course_name).localeCompare(String(b.course_name), "ja"));
+    box.innerHTML = `<div class="listcard">${done.length ? done.map(c => `
+      <div class="lrow">
+        <div class="txt"><span class="nm">${esc(c.course_name)}</span>
+          <span class="sub">履修済み ・ 成績 ${esc(c.grade || "未回答")} ・ ${esc(VIS[c.visibility] || "")}</span></div>
+        <button class="x" type="button" data-del="${esc(c.id)}">削除</button>
+      </div>`).join("") : `<div class="empty">履修済みの授業はまだありません。</div>`}</div>
+      <p class="ttnote">過去の授業は時間割には入りません。受講中の授業は「時間割表」で配置できます。</p>`;
+    box.querySelectorAll("[data-del]").forEach(b => b.onclick = async () => {
+      await sb.from("user_courses").delete().eq("id", b.dataset.del);
+      await loadMine(); render();
+    });
+    return;
+  }
+
+  const unplaced = myCourses.filter(c => c.status !== "done" && !slotOf(c.id));
+  let cells = `<div class="ttgrid">`;
+  cells += `<div class="tth" style="background:transparent;font-size:7.5px">時限</div>`
+    + TT_DOW.map((d, i) => `<div class="ttdh${i === 5 ? " sat" : ""}">${d}</div>`).join("");
+  TT_PERS.forEach(p => {
+    cells += `<div class="tth"><b>${p}</b><span>${TT_TIME[p].split("〜")[0]}</span></div>`;
+    TT_DOW.forEach(d => {
+      const slot = d + p, c = courseById(ttMap[slot]);
+      if (c) {
+        cells += `<button type="button" class="tt-cell on ${ttColor(c.course_name)}" data-slot="${slot}"
+          title="${esc(c.course_name)}（${slotLabel(slot)}）"><span class="ttn">${esc(ttShort(c.course_name))}</span></button>`;
+      } else {
+        cells += `<button type="button" class="tt-cell empty" data-slot="${slot}" aria-label="${slotLabel(slot)}に授業を追加"></button>`;
+      }
+    });
+  });
+  cells += `</div>`;
+
+  box.innerHTML = `
+  <div class="card ttcard">${cells}
+    <p class="ttnote">コマをタップして授業を追加・確認できます。この時間割はこの端末にだけ保存され、他の人には表示されません。</p>
+  </div>
+  ${unplaced.length ? `<div class="card">
+    <div class="sub" style="font-weight:700;color:#dde3ff">未配置の受講中授業（${unplaced.length}件）</div>
+    <p class="ttnote" style="margin:2px 0 0">空きコマをタップすると、この授業をそこに置けます。</p>
+    <div class="chips" style="margin-top:8px">${unplaced.map(c => `<span class="chip" style="opacity:.92">${esc(c.course_name)}</span>`).join("")}</div>
+  </div>` : `<p class="ttnote">受講中の授業はすべて時間割に配置されています。</p>`}`;
+
+  box.querySelectorAll(".tt-cell").forEach(b => b.onclick = () => {
+    const c = courseById(ttMap[b.dataset.slot]);
+    if (c) openSlotDetail(b.dataset.slot, c.id); else openSlotAdd(b.dataset.slot);
+  });
+}
+
+function flashCell(slot) {
+  const el = document.querySelector(`#ttpanel .tt-cell[data-slot="${slot}"]`);
+  if (!el) return;
+  el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash");
+  el.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+function openTS() {
+  const s = $("#tsheet");
+  if (!s) return;
+  s.classList.add("on");
+  document.body.style.overflow = "hidden";
+}
+function closeTS() {
+  const s = $("#tsheet");
+  if (!s) return;
+  s.classList.remove("on");
+  const b = $("#tsbody"); if (b) b.innerHTML = "";
+  document.body.style.overflow = "";
+}
+
+/* 空きコマ：授業を追加してこのコマに配置 */
+function openSlotAdd(slot) {
+  const box = $("#tsbody"); if (!box) return;
+  const p = Number(slot.slice(1));
+  const unplaced = myCourses.filter(c => c.status !== "done" && !slotOf(c.id));
+  const syl = courseCandidates().filter(x => sylSlot(x.n) === slot).slice(0, 8);
+  box.innerHTML = `
+    <div class="row" style="margin-bottom:2px"><b style="flex:1;font-size:17px">${slotLabel(slot)}</b><button class="x" type="button" id="tsclose">閉じる</button></div>
+    <p class="sub" style="margin:0 0 10px">${TT_TIME[p]} ・ ここに授業を入れます</p>
+    ${unplaced.length ? `<div class="sub" style="font-weight:700;color:#dde3ff">未配置の受講中授業から置く</div>
+      <div class="chips">${unplaced.map(c => `<button type="button" class="chip" data-put="${esc(c.id)}">＋ ${esc(c.course_name)}</button>`).join("")}</div>` : ""}
+    ${syl.length ? `<div class="sub" style="font-weight:700;color:#dde3ff;margin-top:6px">この時限のシラバス科目</div>
+      <div class="chips">${syl.map(c => `<button type="button" class="chip" data-new="${esc(c.n)}">${esc(c.n)}</button>`).join("")}</div>` : ""}
+    <label>授業名（あかさたな順の候補から選べます）</label>
+    <div class="sugwrap"><input id="tscn" placeholder="例：法学入門" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="suglist" id="tscnlist"></div></div>
+    <div class="sub" id="tssyl" style="margin-top:6px;min-height:16px"></div>
+    <p style="margin:8px 0 0"><button type="button" id="tsadd" style="width:100%">この授業を追加して配置</button></p>
+    <p class="ttnote" style="text-align:center">時間割はこの端末にだけ保存されます</p>`;
+  openTS();
+  $("#tsclose").onclick = closeTS;
+
+  const inp = $("#tscn");
+  bindAka(inp, $("#tscnlist"), courseCandidates);
+  const hint = () => {
+    const v = inp.value.trim(), s = v ? sylSlot(v) : "";
+    $("#tssyl").textContent = s
+      ? (s === slot ? `シラバスでもこの時限（${s}）に開講されています。` : `シラバス上の曜日・時限：${s}（空きコマに入れると重複します）`)
+      : "";
+  };
+  inp.addEventListener("input", hint);
+
+  box.querySelectorAll("[data-put]").forEach(b => b.onclick = () => {
+    ttSet(slot, b.dataset.put);
+    closeTS(); renderTTArea(); flashCell(slot);
+  });
+  box.querySelectorAll("[data-new]").forEach(b => b.onclick = () => {
+    inp.value = b.dataset.new; hideAka($("#tscnlist")); hint();
+  });
+  $("#tsadd").onclick = async () => {
+    const name = inp.value.trim();
+    if (!name) { try { inp.focus(); } catch (e) {} return; }
+    const btn = $("#tsadd");
+    btn.disabled = true; btn.textContent = "追加中…";
+    let row = myCourses.find(c => c.status !== "done" && norm(c.course_name) === norm(name));
+    if (!row) {
+      const { data, error } = await sb.from("user_courses")
+        .insert({ user_id: session.user.id, course_name: name, status: "current", grade: "未回答", visibility: "same" })
+        .select().single();
+      if (error) { alert("追加できませんでした: " + error.message); btn.disabled = false; btn.textContent = "この授業を追加して配置"; return; }
+      await loadMine();
+      row = courseById(data.id) || myCourses.find(c => norm(c.course_name) === norm(name));
+    }
+    if (!row) { btn.disabled = false; btn.textContent = "この授業を追加して配置"; return; }
+    ttSet(slot, row.id);
+    closeTS(); renderTTArea(); flashCell(slot);
+  };
+}
+
+/* 埋まっているコマ：授業の詳細（同じ授業の人／DM／移動／外す／削除） */
+function openSlotDetail(slot, id) {
+  const box = $("#tsbody"); if (!box) return;
+  const c = courseById(id);
+  if (!c) { delete ttMap[slot]; ttSave(); renderTTArea(); return; }
+  const s = sylSlot(c.course_name), p = Number(slot.slice(1));
+  box.innerHTML = `
+    <div class="row" style="margin-bottom:6px"><b style="flex:1;font-size:16px;line-height:1.45">${esc(c.course_name)}</b><button class="x" type="button" id="tsclose">閉じる</button></div>
+    <div><span class="tag">${slotLabel(slot)}</span><span class="tag">受講中</span>${s && s !== slot ? `<span class="tag vis">シラバス：${s}</span>` : ""}</div>
+    <p class="sub" style="margin:4px 0 12px">${TT_TIME[p]}</p>
+    <p style="margin:0 0 8px"><button type="button" id="ttpeer" style="width:100%">同じ授業の人を見る</button></p>
+    <p style="margin:0 0 8px"><button type="button" class="g" id="ttdm" style="width:100%">DMへ</button></p>
+    <p style="margin:0 0 8px"><button type="button" class="g" id="ttmove" style="width:100%">コマを移動する</button></p>
+    <p style="margin:0 0 8px"><button type="button" class="g" id="ttunplace" style="width:100%">時間割から外す（授業は残す）</button></p>
+    <p style="margin:0"><button type="button" class="danger" id="ttdel" style="width:100%">この授業を削除</button></p>
+    <p class="ttnote" style="text-align:center">時間割はこの端末にだけ保存されています</p>`;
+  openTS();
+  $("#tsclose").onclick = closeTS;
+  $("#ttpeer").onclick = () => { closeTS(); cfil = c.course_name; q = ""; tab = "search"; saveUIState(); render(); };
+  $("#ttdm").onclick = () => { closeTS(); tab = "dm"; saveUIState(); render(); };
+  $("#ttmove").onclick = () => openSlotPicker(c);
+  $("#ttunplace").onclick = () => { ttClear(c.id); closeTS(); renderTTArea(); };
+  let armed = false;
+  $("#ttdel").onclick = async () => {
+    const b = $("#ttdel");
+    if (!armed) { armed = true; b.textContent = "もう一度タップで削除（元に戻せません）"; return; }
+    b.disabled = true; b.textContent = "削除中…";
+    const { error } = await sb.from("user_courses").delete().eq("id", c.id);
+    if (error) { alert("削除できませんでした: " + error.message); b.disabled = false; armed = false; b.textContent = "この授業を削除"; return; }
+    ttClear(c.id);
+    await loadMine();
+    closeTS(); render();
+  };
+}
+
+/* コマの移動先を選ぶ */
+function openSlotPicker(c) {
+  const box = $("#tsbody"); if (!box) return;
+  let html = `<div class="row" style="margin-bottom:4px"><b style="flex:1;font-size:16px">${esc(c.course_name)}</b><button class="x" type="button" id="tsclose">閉じる</button></div>
+    <p class="sub" style="margin:0 0 6px">移動先のコマを選んでください（今は ${slotLabel(slotOf(c.id))}）</p><div class="ttpick">`;
+  TT_PERS.forEach(p => TT_DOW.forEach(d => {
+    const slot = d + p, other = ttMap[slot] && ttMap[slot] !== c.id ? courseById(ttMap[slot]) : null;
+    html += `<button type="button" data-mv="${slot}"${other ? ` style="opacity:.6" title="${esc(other.course_name)}"` : ""}>${d}${p}</button>`;
+  }));
+  html += `</div><p class="ttnote">空いているコマには「＋」からも置けます。埋まっているコマに移すと、その授業は未配置に戻ります。</p>`;
+  box.innerHTML = html;
+  $("#tsclose").onclick = closeTS;
+  box.querySelectorAll("[data-mv]").forEach(b => b.onclick = () => {
+    const slot = b.dataset.mv;
+    ttSet(slot, c.id);
+    closeTS(); renderTTArea(); flashCell(slot);
+  });
 }
 
 /* ============================================================
@@ -2588,6 +3676,7 @@ function rAuth() {
       tab = "home"; openTid = null; saveUIState(); render();
     }
   };
+  paintView();
 }
 
 /* 確認メールのリンクから戻ってきたときの完了画面 */
@@ -2606,6 +3695,7 @@ function rSignupDone() {
   $("#a_start").onclick = () => {
     authMode = "login"; authErr = ""; authOk = ""; myProfile = null; tab = "profile"; saveUIState(); render();
   };
+  paintView();
 }
 
 /* パスワード再設定メールの送信 */
@@ -2641,6 +3731,7 @@ function rForgot() {
     setMailKind("recovery");
     authOk = RESET_SENT_MSG; render();
   };
+  paintView();
 }
 
 /* メール内リンクからの新しいパスワード設定 */
@@ -2658,6 +3749,7 @@ function rRecovery() {
       authMode = "login"; authErr = ""; authOk = ""; recoveryDone = false;
       myProfile = null; tab = "home"; clearAuthUrl(); saveUIState(); render();
     };
+    paintView();
     return;
   }
   const hasSession = !!session;
@@ -2706,6 +3798,7 @@ function rRecovery() {
     if (error) { authErr = "更新できませんでした: " + error.message; render(); return; }
     recoveryDone = true; authErr = ""; myProfile = null; tab = "home"; clearAuthUrl(); saveUIState(); render();
   };
+  paintView();
 }
 
 sb.auth.onAuthStateChange((event) => {
@@ -2741,7 +3834,9 @@ else if (linkErr) { authMode = "login"; authErr = linkErr; authOk = ""; clearAut
   if (nms) nms.addEventListener("click", e => { if (e.target === nms) closeNotif(); });
   const asms = $("#asheet");
   if (asms) asms.addEventListener("click", e => { if (e.target === asms) closeAvatarPicker(); });
-  document.addEventListener("keydown", e => { if (e.key === "Escape") { closePeerProfile(); closeNotif(); closeAvatarPicker(); } });
+  const tms = $("#tsheet");
+  if (tms) tms.addEventListener("click", e => { if (e.target === tms) closeTS(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") { closePeerProfile(); closeNotif(); closeAvatarPicker(); closeTS(); } });
 }
 
 /* 保存された画面（タブ・開いていたDM・絞り込み）を復元して起動
